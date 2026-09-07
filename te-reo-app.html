@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="mi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Te Reo Māori — He Ara Kōrero</title>
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #181818;
+    --card: #222222;
+    --border: #2e2e2e;
+    --border2: #404040;
+    --text: #f0ede8;
+    --muted: #888;
+    --dim: #555;
+    --green: #4caf7d;
+    --green-bg: #0d2b1a;
+    --green-border: #1e4d2e;
+    --amber: #e8a13a;
+    --amber-bg: #2b1e08;
+    --red: #e05050;
+    --red-bg: #2b0d0d;
+    --blue: #5b9cf6;
+    --blue-bg: #0d1a2b;
+    --teal: #3ecfb8;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 430px; margin: 0 auto; padding-bottom: 80px; }
+
+  /* NAV */
+  .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; }
+  .nav-btn { flex: 1; padding: 10px 4px 14px; background: none; border: none; color: var(--muted); font-size: 10px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: inherit; transition: color 0.15s; }
+  .nav-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .nav-btn.active { color: var(--teal); }
+  .nav-btn span { font-size: 10px; }
+
+  /* SCREENS */
+  .screen { display: none; padding: 1rem; }
+  .screen.active { display: block; }
+
+  /* HEADER */
+  .page-header { padding: 1rem 0 0.5rem; }
+  .page-title { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  /* TIMER BADGE */
+  .timer-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .timer-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.2rem; margin-bottom: 10px; }
+  .card-label { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .card-title { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .card-sub { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  /* LEVEL BADGE */
+  .level-badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; margin-bottom: 8px; }
+  .lv1 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .lv2 { background: var(--amber-bg); color: var(--amber); border: 1px solid #4d340d; }
+  .lv3 { background: var(--blue-bg); color: var(--blue); border: 1px solid #1a2e4d; }
+  .lv4 { background: #1a0d2b; color: #b07af5; border: 1px solid #3d1a6e; }
+  .lv5 { background: #1a1a0a; color: #e8e05a; border: 1px solid #4d4a10; }
+
+  /* PROGRESS BAR */
+  .prog-wrap { height: 4px; background: var(--border); border-radius: 2px; margin: 10px 0; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 2px; background: var(--teal); transition: width 0.4s; }
+
+  /* BUTTONS */
+  .btn { width: 100%; padding: 13px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: transparent; color: var(--text); font-size: 14px; font-family: inherit; cursor: pointer; margin-top: 8px; transition: background 0.12s; text-align: center; }
+  .btn:hover { background: var(--surface); }
+  .btn.primary { background: var(--teal); color: #000; border-color: var(--teal); font-weight: 600; }
+  .btn.primary:hover { opacity: 0.88; }
+  .btn.sm { padding: 9px; font-size: 13px; margin-top: 6px; }
+  .btn.correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .btn.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .btn.reveal { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+
+  /* CHOICE BUTTONS */
+  .choice { width: 100%; text-align: left; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); font-size: 14px; font-family: inherit; cursor: pointer; margin-bottom: 7px; line-height: 1.4; transition: border-color 0.12s; }
+  .choice:hover { border-color: var(--border2); }
+  .choice.correct { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+  .choice.wrong { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+  .choice.reveal { background: var(--green-bg); border-color: var(--green); color: var(--green); }
+
+  /* FLIP CARD */
+  .flip-wrap { perspective: 900px; height: 170px; margin: 0 0 12px; cursor: pointer; }
+  .flip-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.4s; border-radius: var(--radius); }
+  .flip-inner.flipped { transform: rotateY(180deg); }
+  .flip-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.2rem; border: 1px solid var(--border); }
+  .flip-front { background: var(--card); }
+  .flip-back { background: var(--surface); transform: rotateY(180deg); }
+  .flip-word { font-size: 24px; font-weight: 600; text-align: center; margin-bottom: 6px; letter-spacing: -0.3px; }
+  .flip-hint { font-size: 12px; color: var(--dim); }
+  .flip-ctx { font-size: 11px; color: var(--teal); margin-bottom: 10px; }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; }
+  .stat-num { font-size: 26px; font-weight: 600; letter-spacing: -1px; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .stat-num.green { color: var(--green); }
+  .stat-num.amber { color: var(--amber); }
+  .stat-num.teal { color: var(--teal); }
+
+  /* ROADMAP */
+  .milestone { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+  .milestone-dot { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; margin-top: 2px; }
+  .milestone-dot.done { background: var(--green); border-color: var(--green); color: #000; }
+  .milestone-dot.current { background: var(--teal); border-color: var(--teal); color: #000; }
+  .milestone-dot.locked { color: var(--dim); }
+  .milestone-line { flex: 1; }
+  .milestone-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+  .milestone-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .ms-connector { width: 2px; height: 14px; background: var(--border); margin-left: 15px; }
+
+  /* CALENDAR */
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 10px 0; }
+  .cal-day { aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+  .cal-day.done { background: var(--green); color: #000; font-weight: 600; }
+  .cal-day.today { border: 2px solid var(--teal); color: var(--teal); font-weight: 600; }
+  .cal-day.empty { background: var(--surface); color: var(--dim); }
+  .cal-label { font-size: 10px; color: var(--dim); text-align: center; margin-bottom: 6px; }
+
+  /* FEEDBACK BOX */
+  .feedback-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-top: 10px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .say-box { background: #0d2020; border: 1px solid #1a4040; border-radius: var(--radius-sm); padding: 10px 13px; margin-top: 8px; font-size: 13px; color: var(--teal); }
+
+  /* STREAK */
+  .streak-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .streak-row:last-child { border-bottom: none; }
+  .streak-icon { font-size: 20px; }
+  .streak-info { flex: 1; }
+  .streak-name { font-size: 13px; font-weight: 500; }
+  .streak-val { font-size: 12px; color: var(--muted); }
+  .streak-score { font-size: 14px; font-weight: 600; color: var(--teal); }
+
+  /* MASTERY RING */
+  .mastery-wrap { display: flex; justify-content: center; margin: 12px 0; }
+  .mastery-ring { position: relative; width: 110px; height: 110px; }
+  .mastery-ring svg { transform: rotate(-90deg); }
+  .mastery-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .mastery-pct { font-size: 22px; font-weight: 700; color: var(--teal); }
+  .mastery-word { font-size: 10px; color: var(--muted); }
+
+  .divider { height: 1px; background: var(--border); margin: 14px 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 20px; margin-bottom: 8px; }
+  .tag-gym { background:#0a2020;color:var(--teal);border:1px solid #1a4040; }
+  .tag-church { background:#1a0d2b;color:#b07af5;border:1px solid #3d1a6e; }
+  .tag-text { background:var(--amber-bg);color:var(--amber);border:1px solid #4d340d; }
+  .tag-group { background:#2b0d1a;color:#f57a9e;border:1px solid #6e1a3d; }
+  .tag-grammar { background:var(--blue-bg);color:var(--blue);border:1px solid #1a2e4d; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin: 18px 0 10px; }
+  .empty-state { text-align: center; padding: 2rem 1rem; color: var(--dim); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- SCREENS -->
+<div id="s-home" class="screen active">
+  <div class="page-header">
+    <div class="page-title">He Ara Kōrero</div>
+    <div class="page-sub">Your te reo journey</div>
+    <div class="timer-badge"><div class="timer-dot"></div><span id="session-timer">00:00</span> today</div>
+  </div>
+  <div id="home-content"></div>
+</div>
+
+<div id="s-practice" class="screen">
+  <div class="page-header">
+    <div class="page-title">Practice</div>
+    <div class="page-sub" id="practice-sub">Choose a mode below</div>
+  </div>
+  <div id="practice-content"></div>
+</div>
+
+<div id="s-progress" class="screen">
+  <div class="page-header">
+    <div class="page-title">Arotake</div>
+    <div class="page-sub">Your progress & scoreboard</div>
+  </div>
+  <div id="progress-content"></div>
+</div>
+
+<div id="s-roadmap" class="screen">
+  <div class="page-header">
+    <div class="page-title">Ara Ako</div>
+    <div class="page-sub">Your path to expert speaker</div>
+  </div>
+  <div id="roadmap-content"></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="goto('home')" id="nav-home">
+    <svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="nav-btn" onclick="goto('practice')" id="nav-practice">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+    <span>Practice</span>
+  </button>
+  <button class="nav-btn" onclick="goto('progress')" id="nav-progress">
+    <svg viewBox="0 0 24 24"><path d="M4 20V10l8-7 8 7v10"/><rect x="9" y="14" width="6" height="6" rx="1"/><path d="M4 20h16"/></svg>
+    <span>Arotake</span>
+  </button>
+  <button class="nav-btn" onclick="goto('roadmap')" id="nav-roadmap">
+    <svg viewBox="0 0 24 24"><path d="M3 17l4-12 4 6 4-4 4 10"/></svg>
+    <span>Ara Ako</span>
+  </button>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE & STORAGE
+// ═══════════════════════════════════════════
+const STORE_KEY = 'te_reo_v3';
+function loadState() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || defaultState(); }
+  catch { return defaultState(); }
+}
+function saveState() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function defaultState() {
+  return {
+    totalMinutes: 0,
+    streakDays: 0,
+    lastDate: null,
+    calendar: [],
+    mastery: { scenarios: 0, kupu: 0, grammar: 0 },
+    scores: { scenarios: [], kupu: [], grammar: [] },
+    levelMastery: [0, 0, 0, 0, 0],
+    unlockedLevel: 1,
+    todaySeconds: 0
+  };
+}
+let state = loadState();
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+let sessionStart = Date.now();
+let sessionSeconds = 0;
+function updateTimer() {
+  sessionSeconds = Math.floor((Date.now() - sessionStart) / 1000);
+  const m = String(Math.floor(sessionSeconds / 60)).padStart(2,'0');
+  const s = String(sessionSeconds % 60).padStart(2,'0');
+  const el = document.getElementById('session-timer');
+  if (el) el.textContent = m + ':' + s;
+  state.todaySeconds = sessionSeconds;
+  const today = new Date().toDateString();
+  if (state.lastDate !== today) {
+    state.lastDate = today;
+    state.streakDays++;
+    if (!state.calendar.includes(today)) state.calendar.push(today);
+    saveState();
+  }
+}
+setInterval(updateTimer, 1000);
+setInterval(saveState, 10000);
+
+// ═══════════════════════════════════════════
+// DATA — LEVELLED CONTENT
+// ═══════════════════════════════════════════
+const LEVELS = [
+  { num: 1, name: 'Tīmata — Starting Out', color: 'lv1', tag: 'Level 1', goal: 'Greetings, basic replies, saying who you are' },
+  { num: 2, name: 'Mārama — Getting Clear', color: 'lv2', tag: 'Level 2', goal: 'Describing things, present actions, simple questions' },
+  { num: 3, name: 'Pakiaka — Taking Root', color: 'lv3', tag: 'Level 3', goal: 'Past & future tense, giving opinions, full exchanges' },
+  { num: 4, name: 'Tipu — Growing', color: 'lv4', tag: 'Level 4', goal: 'Complex sentences, storytelling, group contexts' },
+  { num: 5, name: 'Māia — Confident', color: 'lv5', tag: 'Level 5', goal: 'Fluent kōrero, whakataukī, leading conversation' }
+];
+
+const SCENARIOS = {
+  1: [
+    { ctx: 'gym', ctxLabel: 'Gym', situation: 'Someone nods at you at the gym.',
+      them: { m: 'Kia ora! Kei te pēhea koe?', e: 'Hey! How are you?' },
+      choices: ['Kei te pai, kia ora! Ā koe?', 'Āe', 'Tino pai rawa atu e hoa'],
+      correct: 0, note: "'Ā koe?' flips the question back — essential for keeping a conversation going.", aloud: 'Kei te pai, kia ora! Ā koe?' },
+    { ctx: 'church', ctxLabel: 'Church', situation: 'Someone greets you after the service.',
+      them: { m: 'Tēnā koe! He pai tō rā?', e: 'Greetings! Good day?' },
+      choices: ['Āe, he pai. Ngā mihi ki a koe.', 'Āe', 'Ka pai'],
+      correct: 0, note: "'Ngā mihi ki a koe' is warm and respectful — perfect for church.", aloud: 'Āe, he pai. Ngā mihi ki a koe.' },
+    { ctx: 'text', ctxLabel: 'Texting', situation: 'Your friend texts to check in.',
+      them: { m: 'Kia ora! Kei te pēhea?', e: 'Hey! How are things?' },
+      choices: ['Kei te pai! He mahi nui tēnei wiki. Ā koe?', 'Āe pai', 'Ka pai'],
+      correct: 0, note: "'He mahi nui tēnei wiki' = big week this week. Adds detail naturally.", aloud: 'Kei te pai! He mahi nui tēnei wiki. Ā koe?' }
+  ],
+  2: [
+    { ctx: 'gym', ctxLabel: 'Gym', situation: 'Someone asks what you\'re training today.',
+      them: { m: 'He aha tāu mahi i tēnei rā?', e: 'What are you working on today?' },
+      choices: ['Ko ōku waewae i tēnei rā. Ko āu?', 'Āe, he pai', 'Kei te mahi au'],
+      correct: 0, note: "'Ko ōku waewae' = my legs. Ko [body part] is the natural frame here.", aloud: 'Ko ōku waewae i tēnei rā. Ko āu?' },
+    { ctx: 'church', ctxLabel: 'Church', situation: 'Someone asks about the service.',
+      them: { m: 'He pai te karakia i tēnei rā?', e: 'Was the service good today?' },
+      choices: ['Āe, he pai rawa atu. He ātaahua ngā waiata.', 'Āe', 'He tino pai'],
+      correct: 0, note: "'He ātaahua ngā waiata' = the songs were beautiful. He + adjective + subject.", aloud: 'Āe, he pai rawa atu. He ātaahua ngā waiata.' },
+    { ctx: 'group', ctxLabel: 'Group chat', situation: 'Someone asks if you\'re coming to the hui.',
+      them: { m: 'He hui ā tēnei Rāhoroi — ka haere mai koutou?', e: 'Gathering this Saturday — are you all coming?' },
+      choices: ['Āe, ka haere mātou! He aha te wā?', 'Āe ka pai', 'Ka haere au'],
+      correct: 0, note: "'Ka haere mātou' = we're coming. 'He aha te wā?' = what time?", aloud: 'Āe, ka haere mātou! He aha te wā?' }
+  ],
+  3: [
+    { ctx: 'gym', ctxLabel: 'Gym', situation: 'A regular asks how long you\'ve been training.',
+      them: { m: 'E hia ngā marama i haere mai ai koe ki konei?', e: 'How many months have you been coming here?' },
+      choices: ['Kua rima marama ināianei. He pai tēnei wāhi.', 'Āe, he roa', 'E rima'],
+      correct: 0, note: "'Kua rima marama ināianei' = it's been five months now. Kua = completed/ongoing action.", aloud: 'Kua rima marama ināianei. He pai tēnei wāhi.' },
+    { ctx: 'church', ctxLabel: 'Church', situation: 'Pastor asks if you\'ll be back next week.',
+      them: { m: 'Ka hoki mai koe ā tēnei wiki?', e: 'Will you come back next week?' },
+      choices: ['Āe, ka hoki mai au. Ka kite i a koe.', 'Āe', 'Ka pai'],
+      correct: 0, note: "'Ka hoki mai au' = I will come back. 'Ka' signals future action here.", aloud: 'Āe, ka hoki mai au. Ka kite i a koe.' },
+    { ctx: 'text', ctxLabel: 'Texting', situation: 'Friend asks what you did on the weekend.',
+      them: { m: 'He aha āu mahi i tēnei wiki mutu?', e: 'What did you get up to this weekend?' },
+      choices: ['I haere mātou ki te kapa haka. He pai rawa atu!', 'He pai', 'I mahi au'],
+      correct: 0, note: "'I haere mātou' = we went. 'I' marks past tense — key grammar shift from Level 2.", aloud: 'I haere mātou ki te kapa haka. He pai rawa atu!' }
+  ],
+  4: [
+    { ctx: 'group', ctxLabel: 'Group chat', situation: 'Sharing news about your kapa haka group.',
+      them: { m: 'He aha ngā kōrero hou?', e: 'What\'s the latest news?' },
+      choices: ['Kua eke mātou ki te whakataetae ā-rohe! He koa nui tō mātou rōpū.', 'He pai ngā kōrero', 'Ka pai tō mātou kapa'],
+      correct: 0, note: "'Kua eke mātou ki...' = we have reached / achieved. 'Ā-rohe' = regional.", aloud: 'Kua eke mātou ki te whakataetae ā-rohe!' },
+    { ctx: 'church', ctxLabel: 'Church', situation: 'Leading grace before a shared meal.',
+      them: { m: 'Tēnā, ka karakia tāua?', e: 'Shall we say grace together?' },
+      choices: ['Āe, māku e karakia. Whakarongo mai...', 'Āe ka pai', 'Āe, he pai'],
+      correct: 0, note: "'Māku e karakia' = I will say the prayer. 'e' before a verb signals future intention.", aloud: 'Āe, māku e karakia. Whakarongo mai...' }
+  ],
+  5: [
+    { ctx: 'group', ctxLabel: 'Group chat', situation: 'Someone asks your thoughts on te reo learning.',
+      them: { m: 'He aha ōu whakaaro mō te ako i te reo?', e: 'What are your thoughts on learning the language?' },
+      choices: ['He taonga tō tātou reo. Me ngākau nui tātou ki te ako, ki te tiaki hoki.', 'He pai', 'He taonga te reo'],
+      correct: 0, note: "'Me ngākau nui tātou' = we should be wholehearted. A confident, full opinion.", aloud: 'He taonga tō tātou reo. Me ngākau nui tātou ki te ako, ki te tiaki hoki.' }
+  ]
+};
+
+const KUPU = {
+  1: [
+    { m: 'Kia ora', e: 'Hello / thank you', ctx: 'Everyday' },
+    { m: 'Kei te pai', e: 'I\'m good / it\'s good', ctx: 'Everyday' },
+    { m: 'Ka kite anō', e: 'See you again', ctx: 'Everyday' },
+    { m: 'Ngā mihi', e: 'Warm regards / thanks', ctx: 'Everyday' },
+    { m: 'E hoa', e: 'Friend / mate', ctx: 'Casual' },
+    { m: 'Āe', e: 'Yes', ctx: 'Everyday' },
+    { m: 'Kāo', e: 'No', ctx: 'Everyday' },
+    { m: 'Tēnā koe', e: 'Greetings (formal, one person)', ctx: 'Church / formal' }
+  ],
+  2: [
+    { m: 'He ātaahua', e: 'It is beautiful', ctx: 'Describing' },
+    { m: 'Tino pai', e: 'Very good / excellent', ctx: 'Everyday' },
+    { m: 'He aha te wā?', e: 'What time?', ctx: 'Practical' },
+    { m: 'Kei te mahi', e: 'Working / doing', ctx: 'Present action' },
+    { m: 'Ko wai koe?', e: 'Who are you?', ctx: 'Meeting people' },
+    { m: 'Nō hea koe?', e: 'Where are you from?', ctx: 'Meeting people' },
+    { m: 'Ka haere', e: 'Going / will go', ctx: 'Movement' },
+    { m: 'ināianei', e: 'Now / right now', ctx: 'Time' }
+  ],
+  3: [
+    { m: 'I haere', e: 'Went (past)', ctx: 'Past tense' },
+    { m: 'Kua mutu', e: 'It\'s finished / done', ctx: 'Completion' },
+    { m: 'Ka hoki mai', e: 'Will come back', ctx: 'Future' },
+    { m: 'He koa', e: 'Joy / happiness', ctx: 'Emotion' },
+    { m: 'Whakarongo', e: 'Listen', ctx: 'Action' },
+    { m: 'Kōrero', e: 'Speak / conversation', ctx: 'Action' },
+    { m: 'ā tēnei Paraire', e: 'This Friday', ctx: 'Time' },
+    { m: 'Ko tōku whānau', e: 'My family', ctx: 'Relationships' }
+  ],
+  4: [
+    { m: 'Whakataetae', e: 'Competition', ctx: 'Events' },
+    { m: 'Kua eke', e: 'Have achieved / reached', ctx: 'Achievement' },
+    { m: 'He taonga', e: 'A treasure / precious thing', ctx: 'Values' },
+    { m: 'Māku e...', e: 'I will (do something)', ctx: 'Future intention' },
+    { m: 'ā-rohe', e: 'Regional / local area', ctx: 'Location' },
+    { m: 'Rōpū', e: 'Group / team', ctx: 'People' }
+  ],
+  5: [
+    { m: 'He taonga tō tātou reo', e: 'Our language is a treasure', ctx: 'Whakataukī' },
+    { m: 'Me ngākau nui', e: 'Be wholehearted', ctx: 'Values' },
+    { m: 'Tiaki', e: 'To protect / preserve', ctx: 'Values' },
+    { m: 'Whakataukī', e: 'Proverb / saying', ctx: 'Culture' }
+  ]
+};
+
+const GRAMMAR = {
+  1: [
+    { title: 'Ko — who you are', frame: 'Ko [name] ahau', example: 'Ko Ōkana ahau. — I am Oscar.', q: 'How do you say "I am Oscar" in te reo?', choices: ['Ko Ōkana ahau', 'He Ōkana ahau', 'Ko ahau Ōkana'], correct: 0, tip: 'Ko [name] ahau — the most important sentence you can say. Learn it cold.' },
+    { title: 'Kei te — right now', frame: 'Kei te [verb] au', example: 'Kei te mahi au. — I am working.', q: 'Say "I am learning" (ako = to learn)', choices: ['Kei te ako au', 'Ka ako au', 'I ako au'], correct: 0, tip: '"Kei te" always signals something happening right now.' }
+  ],
+  2: [
+    { title: 'He — describing', frame: 'He [adjective/noun] tēnei', example: 'He pai tēnei. — This is good.', q: 'Say "This is beautiful"', choices: ['He ātaahua tēnei', 'Ko ātaahua tēnei', 'Kei te ātaahua'], correct: 0, tip: 'He + describing word + what you\'re describing. Simple and powerful.' },
+    { title: 'Ka — action!', frame: 'Ka [verb] [subject]', example: 'Ka tū te kapa. — The group stands.', q: 'Say "The song begins" (tīmata = begin)', choices: ['Ka tīmata te waiata', 'Kei te tīmata', 'Ko te waiata'], correct: 0, tip: '"Ka" is perfect for kapa haka calls and narrating events.' }
+  ],
+  3: [
+    { title: 'I — past tense', frame: 'I [verb] au', example: 'I haere au ki te tāone. — I went to town.', q: 'Say "I went to kapa haka"', choices: ['I haere au ki te kapa haka', 'Ka haere au', 'Kei te haere au'], correct: 0, tip: '"I" before a verb = past tense. It\'s the key shift into storytelling.' },
+    { title: 'Kua — completed action', frame: 'Kua [verb]', example: 'Kua mutu. — It\'s finished.', q: 'Say "I have learned it" (ako = learn)', choices: ['Kua ako au', 'I ako au', 'Ka ako au'], correct: 0, tip: '"Kua" = something has happened and is complete. Very useful.' }
+  ],
+  4: [
+    { title: 'Māku e — I will do it', frame: 'Māku e [verb]', example: 'Māku e karakia. — I will say the prayer.', q: 'Say "I will lead" (ārahi = to lead)', choices: ['Māku e ārahi', 'Ka ārahi au', 'Ko au e ārahi'], correct: 0, tip: '"Māku e" is confident and specific — great for stepping up at church or kapa haka.' }
+  ],
+  5: [
+    { title: 'Me — we should', frame: 'Me [verb] tātou', example: 'Me ako tātou. — We should learn.', q: 'Say "We should speak te reo"', choices: ['Me kōrero tātou i te reo', 'Ka kōrero tātou', 'Kia kōrero tātou'], correct: 0, tip: '"Me" = should/let\'s. Perfect for encouraging the group — church, kapa haka, family.' }
+  ]
+};
+
+// ═══════════════════════════════════════════
+// MASTERY SYSTEM
+// ═══════════════════════════════════════════
+// Track per-item correct streaks; unlock next level at 80%
+let itemMastery = {};
+try { itemMastery = JSON.parse(localStorage.getItem('te_reo_mastery_v2')) || {}; } catch { itemMastery = {}; }
+function saveMastery() { localStorage.setItem('te_reo_mastery_v2', JSON.stringify(itemMastery)); }
+function markCorrect(id) {
+  if (!itemMastery[id]) itemMastery[id] = 0;
+  itemMastery[id] = Math.min(itemMastery[id] + 1, 5);
+  saveMastery();
+}
+function markWrong(id) {
+  if (!itemMastery[id]) itemMastery[id] = 0;
+  itemMastery[id] = Math.max(itemMastery[id] - 1, 0);
+  saveMastery();
+}
+function isMastered(id) { return (itemMastery[id] || 0) >= 3; }
+function levelMasteryPct(lv) {
+  const sc = SCENARIOS[lv] || [];
+  const ku = KUPU[lv] || [];
+  const gr = GRAMMAR[lv] || [];
+  const all = [
+    ...sc.map((_,i)=>'sc'+lv+i),
+    ...ku.map((_,i)=>'ku'+lv+i),
+    ...gr.map((_,i)=>'gr'+lv+i)
+  ];
+  if (!all.length) return 0;
+  return Math.round(all.filter(id=>isMastered(id)).length / all.length * 100);
+}
+function checkUnlock() {
+  const lv = state.unlockedLevel;
+  if (lv < 5 && levelMasteryPct(lv) >= 80) {
+    state.unlockedLevel = lv + 1;
+    saveState();
+    return true;
+  }
+  return false;
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+let currentScreen = 'home';
+function goto(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  document.getElementById('nav-'+name).classList.add('active');
+  currentScreen = name;
+  if (name === 'home') renderHome();
+  if (name === 'practice') renderPracticeMenu();
+  if (name === 'progress') renderProgress();
+  if (name === 'roadmap') renderRoadmap();
+}
+
+// ═══════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════
+function renderHome() {
+  const lv = state.unlockedLevel;
+  const pct = levelMasteryPct(lv);
+  const unlocked = checkUnlock();
+  const mins = Math.floor(state.totalMinutes + sessionSeconds/60);
+  document.getElementById('home-content').innerHTML = `
+    ${unlocked ? `<div class="card" style="border-color:#4caf7d"><div style="color:var(--green);font-weight:600;margin-bottom:4px">🎉 Level unlocked!</div><div class="card-sub">You've mastered Level ${lv-1}. Level ${lv} is now open.</div></div>` : ''}
+    <div class="card">
+      <div class="card-label">Current level</div>
+      <span class="level-badge lv${lv}">${LEVELS[lv-1].tag}</span>
+      <div class="card-title">${LEVELS[lv-1].name}</div>
+      <div class="card-sub">${LEVELS[lv-1].goal}</div>
+      <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--muted)">${pct}% mastered — need 80% to unlock Level ${Math.min(lv+1,5)}</div>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num teal">${Math.floor(sessionSeconds/60)}<span style="font-size:14px">m</span></div><div class="stat-label">This session</div></div>
+      <div class="stat-card"><div class="stat-num amber">${state.streakDays}</div><div class="stat-label">Day streak</div></div>
+      <div class="stat-card"><div class="stat-num green">${mins}</div><div class="stat-label">Total minutes</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#b07af5">${lv}</div><div class="stat-label">Current level</div></div>
+    </div>
+    <button class="btn primary" onclick="goto('practice')">Start today's practice →</button>
+    <button class="btn sm" onclick="goto('roadmap')">View your full learning path</button>
+  `;
+}
+
+// ═══════════════════════════════════════════
+// PRACTICE MENU
+// ═══════════════════════════════════════════
+let practiceMode = null, practiceIdx = 0, practiceAnswered = false, practiceFlipped = false;
+
+function renderPracticeMenu() {
+  practiceMode = null;
+  const lv = state.unlockedLevel;
+  document.getElementById('practice-sub').textContent = 'Level ' + lv + ' — ' + LEVELS[lv-1].name;
+  const sc = (SCENARIOS[lv]||[]);
+  const ku = (KUPU[lv]||[]);
+  const gr = (GRAMMAR[lv]||[]);
+  const scLeft = sc.filter((_,i)=>!isMastered('sc'+lv+i)).length;
+  const kuLeft = ku.filter((_,i)=>!isMastered('ku'+lv+i)).length;
+  const grLeft = gr.filter((_,i)=>!isMastered('gr'+lv+i)).length;
+  document.getElementById('practice-content').innerHTML = `
+    <div class="card" style="cursor:pointer" onclick="startMode('scenarios')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="card-label">Conversation scenarios</div>
+          <div class="card-title">Kōrero Practice</div>
+          <div class="card-sub" style="margin-top:4px">Real exchanges — gym, church, texts, group chat</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">
+          <div style="font-size:18px;font-weight:600;color:var(--teal)">${scLeft}</div>
+          <div style="font-size:11px;color:var(--muted)">to master</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="startMode('kupu')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="card-label">Vocabulary flashcards</div>
+          <div class="card-title">Kupu</div>
+          <div class="card-sub" style="margin-top:4px">Level ${lv} words — tap to flip, rate yourself</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">
+          <div style="font-size:18px;font-weight:600;color:var(--amber)">${kuLeft}</div>
+          <div style="font-size:11px;color:var(--muted)">to master</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="startMode('grammar')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="card-label">Grammar drills</div>
+          <div class="card-title">Wetereo</div>
+          <div class="card-sub" style="margin-top:4px">Sentence frames — Ko, Kei te, Ka, I, Kua...</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;margin-left:10px">
+          <div style="font-size:18px;font-weight:600;color:var(--blue)">${grLeft}</div>
+          <div style="font-size:11px;color:var(--muted)">to master</div>
+        </div>
+      </div>
+    </div>
+    ${scLeft===0&&kuLeft===0&&grLeft===0?`<div class="card" style="border-color:var(--green);text-align:center"><div style="color:var(--green);font-weight:600;margin-bottom:6px">🎉 Level ${lv} complete!</div><div class="card-sub">You've mastered all content at this level. Go to Ara Ako to see what's next.</div><button class="btn sm" onclick="goto('roadmap')" style="margin-top:10px">View roadmap</button></div>`:''}
+  `;
+}
+
+function startMode(mode) {
+  practiceMode = mode;
+  practiceIdx = 0;
+  practiceAnswered = false;
+  practiceFlipped = false;
+  renderPracticeItem();
+}
+
+function renderPracticeItem() {
+  const lv = state.unlockedLevel;
+  if (practiceMode === 'scenarios') renderScenario(lv);
+  else if (practiceMode === 'kupu') renderKupu(lv);
+  else if (practiceMode === 'grammar') renderGrammarDrill(lv);
+}
+
+function renderScenario(lv) {
+  const items = SCENARIOS[lv] || [];
+  const unmastered = items.filter((_,i)=>!isMastered('sc'+lv+i));
+  if (!unmastered.length) { document.getElementById('practice-content').innerHTML = `<div class="card" style="text-align:center;border-color:var(--green)"><div style="color:var(--green);font-weight:600;margin-bottom:8px">✓ All scenarios mastered at Level ${lv}!</div><button class="btn sm" onclick="renderPracticeMenu()">Back to menu</button></div>`; return; }
+  const s = unmastered[practiceIdx % unmastered.length];
+  const itemId = 'sc' + lv + items.indexOf(s);
+  const masteryCount = itemMastery[itemId] || 0;
+  const ctxMap = {gym:'tag-gym',church:'tag-church',text:'tag-text',group:'tag-group'};
+  document.getElementById('practice-content').innerHTML = `
+    <button class="btn sm" onclick="renderPracticeMenu()" style="margin-bottom:10px;width:auto;padding:6px 14px">← Back</button>
+    <div class="card">
+      <span class="tag ${ctxMap[s.ctx]||'tag-group'}">${s.ctxLabel}</span>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${s.situation}</div>
+      <div style="background:var(--surface);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px">
+        <div style="font-size:11px;color:var(--dim);margin-bottom:5px">They say:</div>
+        <div style="font-size:16px;font-weight:500">${s.them.m}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">${s.them.e}</div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500">Your reply:</div>
+      <div id="sc-choices">
+        ${s.choices.map((c,i)=>`<button class="choice" onclick="answerScenario(${i},'${itemId}',${s.correct},'${s.aloud.replace(/'/g,"\\'")}','${s.note.replace(/'/g,"\\'")}')">${c}</button>`).join('')}
+      </div>
+      <div id="sc-fb"></div>
+    </div>
+    <div style="font-size:12px;color:var(--dim);text-align:center;margin-top:8px">Mastery: ${'●'.repeat(Math.min(masteryCount,3))}${'○'.repeat(Math.max(3-masteryCount,0))} — 3 correct = mastered</div>
+  `;
+  practiceAnswered = false;
+}
+
+function answerScenario(idx, itemId, correct, aloud, note) {
+  if (practiceAnswered) return;
+  practiceAnswered = true;
+  const ok = idx === correct;
+  if (ok) markCorrect(itemId); else markWrong(itemId);
+  document.querySelectorAll('.choice').forEach((b,i)=>{
+    if (i===correct) b.className='choice reveal';
+    else if (i===idx&&!ok) b.className='choice wrong';
+    b.onclick=null;
+  });
+  const unlocked = checkUnlock();
+  document.getElementById('sc-fb').innerHTML = `
+    <div style="margin-top:12px">
+      <div style="font-size:13px;font-weight:600;color:var(--${ok?'green':'red'});margin-bottom:6px">${ok?'✓ Tino pai!':'✗ Not quite — you\'ll get it'}</div>
+      <div class="feedback-box">${note}</div>
+      <div class="say-box">🗣 Say it aloud: <strong>${aloud}</strong></div>
+      ${unlocked?`<div class="card" style="border-color:var(--green);margin-top:10px;text-align:center"><div style="color:var(--green);font-weight:600">🎉 Level ${state.unlockedLevel} unlocked!</div></div>`:''}
+      <button class="btn" style="margin-top:10px" onclick="nextPracticeItem()">Next →</button>
+    </div>
+  `;
+}
+
+function renderKupu(lv) {
+  const items = KUPU[lv] || [];
+  const unmastered = items.filter((_,i)=>!isMastered('ku'+lv+i));
+  if (!unmastered.length) { document.getElementById('practice-content').innerHTML = `<div class="card" style="text-align:center;border-color:var(--amber)"><div style="color:var(--amber);font-weight:600;margin-bottom:8px">✓ All kupu mastered at Level ${lv}!</div><button class="btn sm" onclick="renderPracticeMenu()">Back</button></div>`; return; }
+  const f = unmastered[practiceIdx % unmastered.length];
+  const itemId = 'ku' + lv + items.indexOf(f);
+  const masteryCount = itemMastery[itemId] || 0;
+  document.getElementById('practice-content').innerHTML = `
+    <button class="btn sm" onclick="renderPracticeMenu()" style="margin-bottom:10px;width:auto;padding:6px 14px">← Back</button>
+    <div class="flip-wrap" onclick="flipKupu()">
+      <div class="flip-inner" id="flip-inner">
+        <div class="flip-face flip-front">
+          <div class="flip-ctx">${f.ctx}</div>
+          <div class="flip-word">${f.m}</div>
+          <div class="flip-hint">tap to reveal meaning</div>
+        </div>
+        <div class="flip-face flip-back">
+          <div class="flip-ctx">${f.ctx}</div>
+          <div class="flip-word" style="font-size:18px">${f.e}</div>
+          <div class="flip-hint" style="margin-top:8px">Say it aloud, then rate yourself</div>
+        </div>
+      </div>
+    </div>
+    <div id="kupu-rate" style="display:none">
+      <button class="btn" style="color:var(--green);border-color:var(--green-border)" onclick="rateKupu(true,'${itemId}')">✓ I knew it</button>
+      <button class="btn" style="color:var(--red);border-color:#4d1a1a" onclick="rateKupu(false,'${itemId}')">✗ Didn't know it</button>
+    </div>
+    <div id="kupu-next" style="display:none"><button class="btn" onclick="nextPracticeItem()">Next kupu →</button></div>
+    <div style="font-size:12px;color:var(--dim);text-align:center;margin-top:10px">Mastery: ${'●'.repeat(Math.min(masteryCount,3))}${'○'.repeat(Math.max(3-masteryCount,0))}</div>
+  `;
+  practiceFlipped = false;
+}
+
+function flipKupu() {
+  document.getElementById('flip-inner').classList.toggle('flipped');
+  document.getElementById('kupu-rate').style.display = 'block';
+}
+
+function rateKupu(knew, itemId) {
+  if (knew) markCorrect(itemId); else markWrong(itemId);
+  checkUnlock();
+  document.getElementById('kupu-rate').style.display = 'none';
+  document.getElementById('kupu-next').style.display = 'block';
+}
+
+function renderGrammarDrill(lv) {
+  const items = GRAMMAR[lv] || [];
+  const unmastered = items.filter((_,i)=>!isMastered('gr'+lv+i));
+  if (!unmastered.length) { document.getElementById('practice-content').innerHTML = `<div class="card" style="text-align:center;border-color:var(--blue)"><div style="color:var(--blue);font-weight:600;margin-bottom:8px">✓ All grammar mastered at Level ${lv}!</div><button class="btn sm" onclick="renderPracticeMenu()">Back</button></div>`; return; }
+  const g = unmastered[practiceIdx % unmastered.length];
+  const itemId = 'gr' + lv + items.indexOf(g);
+  const masteryCount = itemMastery[itemId] || 0;
+  document.getElementById('practice-content').innerHTML = `
+    <button class="btn sm" onclick="renderPracticeMenu()" style="margin-bottom:10px;width:auto;padding:6px 14px">← Back</button>
+    <div class="card">
+      <span class="tag tag-grammar">Grammar</span>
+      <div class="card-title">${g.title}</div>
+      <div style="background:var(--surface);border-left:3px solid var(--blue);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 13px;margin:10px 0;font-size:14px;font-family:monospace;letter-spacing:0.02em">${g.frame}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:12px">${g.example}</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">${g.q}</div>
+      <div id="gr-choices">
+        ${g.choices.map((c,i)=>`<button class="choice" onclick="answerGrammar(${i},'${itemId}',${g.correct},'${g.tip.replace(/'/g,"\\'")}')">${c}</button>`).join('')}
+      </div>
+      <div id="gr-fb"></div>
+    </div>
+    <div style="font-size:12px;color:var(--dim);text-align:center;margin-top:8px">Mastery: ${'●'.repeat(Math.min(masteryCount,3))}${'○'.repeat(Math.max(3-masteryCount,0))}</div>
+  `;
+  practiceAnswered = false;
+}
+
+function answerGrammar(idx, itemId, correct, tip) {
+  if (practiceAnswered) return;
+  practiceAnswered = true;
+  const ok = idx === correct;
+  if (ok) markCorrect(itemId); else markWrong(itemId);
+  document.querySelectorAll('.choice').forEach((b,i)=>{
+    if(i===correct)b.className='choice reveal';
+    else if(i===idx&&!ok)b.className='choice wrong';
+    b.onclick=null;
+  });
+  checkUnlock();
+  document.getElementById('gr-fb').innerHTML = `
+    <div style="margin-top:12px">
+      <div style="font-size:13px;font-weight:600;color:var(--${ok?'green':'red'});margin-bottom:6px">${ok?'✓ Āe, tino pai!':'✗ Keep going'}</div>
+      <div class="feedback-box">${tip}</div>
+      <button class="btn" style="margin-top:10px" onclick="nextPracticeItem()">Next →</button>
+    </div>
+  `;
+}
+
+function nextPracticeItem() {
+  practiceIdx++;
+  practiceAnswered = false;
+  practiceFlipped = false;
+  renderPracticeItem();
+}
+
+// ═══════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════
+function renderProgress() {
+  const lv = state.unlockedLevel;
+  const pct = levelMasteryPct(lv);
+  const mins = Math.floor(state.totalMinutes + sessionSeconds/60);
+  // Calendar — last 28 days
+  const today = new Date();
+  const calDays = [];
+  for (let i=27;i>=0;i--) {
+    const d = new Date(today); d.setDate(today.getDate()-i);
+    calDays.push(d.toDateString());
+  }
+  const calHTML = calDays.map((d,i)=>{
+    const n = new Date(d).getDate();
+    const isToday = d===today.toDateString();
+    const done = state.calendar.includes(d);
+    return `<div class="cal-day ${done?'done':isToday?'today':'empty'}">${n}</div>`;
+  }).join('');
+  const dayLabels = ['S','M','T','W','T','F','S'].map(d=>`<div class="cal-day" style="font-size:9px;color:var(--dim)">${d}</div>`).join('');
+
+  // Mastery per level
+  const lvRows = LEVELS.map((l,i)=>{
+    const lvNum = i+1;
+    const p = levelMasteryPct(lvNum);
+    const locked = lvNum > state.unlockedLevel;
+    return `<div class="streak-row">
+      <div class="streak-icon">${locked?'🔒':p>=80?'✅':'📖'}</div>
+      <div class="streak-info">
+        <div class="streak-name">${l.tag} — ${l.name}</div>
+        <div style="margin-top:4px"><div class="prog-wrap" style="margin:0"><div class="prog-fill" style="width:${locked?0:p}%;background:${p>=80?'var(--green)':'var(--teal)'}"></div></div></div>
+      </div>
+      <div class="streak-score">${locked?'—':p+'%'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('progress-content').innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num teal">${Math.floor(sessionSeconds/60)}m</div><div class="stat-label">This session</div></div>
+      <div class="stat-card"><div class="stat-num amber">${state.streakDays}</div><div class="stat-label">Day streak 🔥</div></div>
+      <div class="stat-card"><div class="stat-num green">${mins}</div><div class="stat-label">Total minutes</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:#b07af5">${lv}/5</div><div class="stat-label">Level reached</div></div>
+    </div>
+
+    <div class="section-title">28-day calendar</div>
+    <div class="card" style="padding:1rem">
+      <div class="cal-grid">${dayLabels}${calHTML}</div>
+    </div>
+
+    <div class="section-title">Mastery by level</div>
+    <div class="card">${lvRows}</div>
+
+    <div class="section-title">Current level</div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="mastery-wrap" style="margin:0">
+          <div class="mastery-ring">
+            <svg width="110" height="110" viewBox="0 0 110 110">
+              <circle cx="55" cy="55" r="46" fill="none" stroke="#2e2e2e" stroke-width="8"/>
+              <circle cx="55" cy="55" r="46" fill="none" stroke="#3ecfb8" stroke-width="8" stroke-dasharray="${Math.round(2*Math.PI*46*pct/100)} ${Math.round(2*Math.PI*46*(100-pct)/100)}" stroke-linecap="round"/>
+            </svg>
+            <div class="mastery-center"><div class="mastery-pct">${pct}%</div><div class="mastery-word">mastered</div></div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px">${LEVELS[lv-1].name}</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5">${pct>=80?'Ready to advance! Go to Ara Ako.':'Reach 80% to unlock Level '+(lv+1)+'.'}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════
+// ROADMAP
+// ═══════════════════════════════════════════
+function renderRoadmap() {
+  const lv = state.unlockedLevel;
+  const milestones = [
+    { lv:1, title:'Level 1 — Tīmata', desc:'Greetings, "I am", "I\'m good", goodbye. Hold a 20-second kōrero.', months:'Month 1–2' },
+    { lv:2, title:'Level 2 — Mārama', desc:'Describe things, ask questions, say what you\'re doing. 45-second exchanges.', months:'Month 2–3' },
+    { lv:3, title:'Level 3 — Pakiaka', desc:'Past & future tense, give opinions, full gym/church/text conversations.', months:'Month 3–4' },
+    { lv:4, title:'Level 4 — Tipu', desc:'Complex sentences, lead karakia, kapa haka commands, storytelling.', months:'Month 4–5' },
+    { lv:5, title:'Level 5 — Māia', desc:'Whakataukī, leading group kōrero, confident everyday fluency.', months:'Month 5–6' },
+  ];
+  const html = milestones.map((m,i)=>{
+    const done = m.lv < lv;
+    const current = m.lv === lv;
+    const locked = m.lv > lv;
+    const pct = levelMasteryPct(m.lv);
+    return `
+      ${i>0?'<div class="ms-connector"></div>':''}
+      <div class="milestone">
+        <div class="milestone-dot ${done?'done':current?'current':'locked'}">${done?'✓':m.lv}</div>
+        <div class="milestone-line">
+          <div class="milestone-title" style="color:${locked?'var(--dim)':'var(--text)'}">${m.title}</div>
+          <div class="milestone-desc">${m.desc}</div>
+          <div style="font-size:11px;color:var(--teal);margin-top:4px">${m.months}${!locked?' — '+pct+'% complete':' — locked'}</div>
+          ${current?`<div class="prog-wrap" style="margin-top:8px"><div class="prog-fill" style="width:${pct}%"></div></div>`:''}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('roadmap-content').innerHTML = `
+    <div class="card">
+      <div class="card-label">Your goal</div>
+      <div class="card-title">Confident 1-minute kōrero in 6 months</div>
+      <div class="card-sub" style="margin-top:4px">30 minutes a day. Each level unlocks when you hit 80% mastery.</div>
+    </div>
+    <div class="section-title">The path</div>
+    <div class="card">${html}</div>
+    <div class="card">
+      <div class="card-label">Daily rhythm</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8">
+        <div>⏱ 0–5 min — Review yesterday's kupu</div>
+        <div>⏱ 5–20 min — Kōrero scenarios (speak aloud!)</div>
+        <div>⏱ 20–25 min — Grammar drill</div>
+        <div>⏱ 25–30 min — New flashcards</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Key principle</div>
+      <div class="card-title" style="font-size:14px;line-height:1.5">"Say it aloud every time. Recognition is not the same as speaking."</div>
+    </div>
+    <button class="btn sm" onclick="goto('practice')">Start today's session →</button>
+  `;
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+// Save total minutes on unload
+window.addEventListener('beforeunload', () => {
+  state.totalMinutes += sessionSeconds / 60;
+  saveState();
+});
+
+renderHome();
+</script>
+</body>
+</html>
