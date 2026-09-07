@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Oscar — My Apps</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg:     #1a1c2e;
+  --gold:   #c9a84c;
+  --muted:  #6b7280;
+  --text:   #f0f2f5;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+  overflow-x: hidden;
+}
+
+/* ── Header ── */
+.header {
+  padding: 52px 24px 28px;
+}
+.header-time {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  margin-bottom: 10px;
+}
+.header-greeting {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+  color: var(--text);
+}
+.header-greeting span {
+  color: var(--gold);
+}
+.header-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+/* ── Divider ── */
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.06);
+  margin: 0 24px 28px;
+}
+
+/* ── Section label ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.5px;
+  padding: 0 24px;
+  margin-bottom: 14px;
+}
+
+/* ── App grid ── */
+.app-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 0 24px;
+  margin-bottom: 12px;
+}
+
+.app-tile {
+  border-radius: 20px;
+  padding: 22px 18px 20px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  -webkit-user-select: none;
+}
+.app-tile:active { transform: scale(0.96); opacity: 0.9; }
+
+/* Individual tile colours — each distinct, not matching */
+.tile-wellness {
+  background: linear-gradient(145deg, #1e4d7a 0%, #0d3356 100%);
+}
+.tile-balance {
+  background: linear-gradient(145deg, #2d5a3d 0%, #1a3d28 100%);
+}
+.tile-guitar {
+  background: linear-gradient(145deg, #6b3a2a 0%, #4a2218 100%);
+}
+.tile-photo {
+  background: linear-gradient(145deg, #3d2d5a 0%, #261a3d 100%);
+}
+.tile-coming {
+  background: rgba(255,255,255,0.04);
+  border: 1px dashed rgba(255,255,255,0.12);
+  cursor: default;
+}
+.tile-coming:active { transform: none; opacity: 1; }
+
+/* Tile content */
+.tile-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+.tile-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+.tile-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 400;
+  line-height: 1.4;
+}
+.tile-coming .tile-name { color: rgba(255,255,255,0.3); }
+.tile-coming .tile-desc { color: rgba(255,255,255,0.2); }
+.tile-coming .tile-icon { opacity: 0.25; }
+
+/* Tile badge */
+.tile-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 0.3px;
+}
+.tile-badge.gold {
+  background: rgba(201,168,76,0.25);
+  color: #c9a84c;
+}
+
+/* ── Full-width tile ── */
+.app-grid-wide {
+  padding: 0 24px;
+  margin-bottom: 12px;
+}
+.app-tile-wide {
+  border-radius: 20px;
+  padding: 20px 22px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  -webkit-user-select: none;
+}
+.app-tile-wide:active { transform: scale(0.98); opacity: 0.9; }
+.tile-fast {
+  background: linear-gradient(145deg, #2a3d5a 0%, #1a2840 100%);
+}
+.wide-icon { font-size: 28px; flex-shrink: 0; }
+.wide-text {}
+.wide-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.3px;
+  margin-bottom: 3px;
+}
+.wide-desc {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.4;
+}
+
+/* ── Footer ── */
+.footer {
+  padding: 28px 24px 0;
+  text-align: center;
+}
+.footer-text {
+  font-size: 11px;
+  color: rgba(255,255,255,0.15);
+  line-height: 1.6;
+}
+.footer-dot {
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.4;
+  margin: 0 6px;
+  vertical-align: middle;
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-time" id="headerTime"></div>
+  <div class="header-greeting">Good <span id="greetWord">morning</span>,<br>Oscar.</div>
+  <div class="header-sub" id="headerSub">What are you working on today?</div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Wellness apps -->
+<div class="section-label">Wellness</div>
+<div class="app-grid">
+
+  <a class="app-tile tile-balance" href="oscar_compulsion_tracker.html">
+    <div class="tile-badge gold">Daily</div>
+    <div class="tile-icon">⚖️</div>
+    <div>
+      <div class="tile-name">Daily Balance</div>
+      <div class="tile-desc">Eating · Exercise · Pattern</div>
+    </div>
+  </a>
+
+  <a class="app-tile tile-wellness" href="oscar_wellness.html">
+    <div class="tile-badge">Hub</div>
+    <div class="tile-icon">🤿</div>
+    <div>
+      <div class="tile-name">Wellness Hub</div>
+      <div class="tile-desc">Meds · Dive · Full tracker</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- Pursuits -->
+<div class="section-label" style="margin-top:16px">Evening pursuits</div>
+<div class="app-grid">
+
+  <a class="app-tile tile-guitar" href="fretflow.html">
+    <div class="tile-icon">🎸</div>
+    <div>
+      <div class="tile-name">FretFlow</div>
+      <div class="tile-desc">Practice · Songs · Progress</div>
+    </div>
+  </a>
+
+  <a class="app-tile tile-photo" href="te-reo-app.html">
+    <div class="tile-icon">🌿</div>
+    <div>
+      <div class="tile-name">He Ara Kōrero</div>
+      <div class="tile-desc">Te reo Māori learning</div>
+    </div>
+  </a>
+
+</div>
+
+<!-- Coming soon -->
+<div class="section-label" style="margin-top:16px">Coming soon</div>
+<div class="app-grid">
+  <div class="app-tile tile-coming">
+    <div class="tile-icon">📷</div>
+    <div>
+      <div class="tile-name">Photography</div>
+      <div class="tile-desc">In progress</div>
+    </div>
+  </div>
+  <div class="app-tile tile-coming">
+    <div class="tile-icon">📈</div>
+    <div>
+      <div class="tile-name">Forex Journal</div>
+      <div class="tile-desc">Ask Claude to build one</div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-text">
+    Oscar Dennison
+    <span class="footer-dot"></span>
+    Christchurch NZ
+    <span class="footer-dot"></span>
+    <span id="footerYear"></span>
+  </div>
+</div>
+
+<script>
+function init() {
+  const now  = new Date();
+  const hr   = now.getHours();
+  const mins = String(now.getMinutes()).padStart(2,'0');
+  const day  = now.toLocaleDateString('en-NZ', { weekday:'long', day:'numeric', month:'long' });
+
+  // Greeting
+  const greetWord = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
+  document.getElementById('greetWord').textContent = greetWord;
+
+  // Time line
+  const timeStr = now.toLocaleTimeString('en-NZ', { hour:'2-digit', minute:'2-digit' });
+  document.getElementById('headerTime').textContent = `${day} · ${timeStr}`;
+
+  // Contextual sub-line
+  const subs = {
+    morning: 'Start with your anchor — brush teeth, open Daily Balance.',
+    afternoon: 'Foundation meal done? How\'s the balance looking?',
+    evening: hr >= 22
+      ? 'Kitchen closed. Shake only if needed. Active evening — not screens.'
+      : 'Driving tonight? Pre-load the shake. 2pm snack eaten?',
+  };
+  document.getElementById('headerSub').textContent = subs[greetWord] || subs.morning;
+
+  // Footer year
+  document.getElementById('footerYear').textContent = now.getFullYear();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
