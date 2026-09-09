@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tom Ang">
+<meta name="theme-color" content="#f5f4f0">
+<title>Digital Photography Masterclass</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --surface2:#eeede9;
+  --border:#dddbd5;
+  --text:#1a1a1a;
+  --muted:#888880;
+  --dim:#e0dfd9;
+  --yellow:#a0820a;
+  --pink:#b03070;
+  --cyan:#1a7fa0;
+  --green:#1a8a58;
+  --green-dim:rgba(26,138,88,0.10);
+  --yellow-dim:rgba(160,130,10,0.10);
+  --radius:16px;
+  --safe-top:env(safe-area-inset-top,20px);
+  --safe-bot:env(safe-area-inset-bottom,20px);
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;color:var(--text);overscroll-behavior:none}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh}
+#header{padding:calc(var(--safe-top) + 12px) 20px 0;background:var(--bg);flex-shrink:0}
+#scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:none}
+#scroll-area::-webkit-scrollbar{display:none}
+#nav{display:flex;border-top:1px solid var(--border);background:var(--bg);padding-bottom:calc(var(--safe-bot) + 2px);flex-shrink:0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0;background:none;border:none;color:var(--muted);font-size:10px;font-weight:500;letter-spacing:0.03em;cursor:pointer;font-family:inherit;transition:color 0.15s}
+.nav-btn.active{color:var(--yellow)}
+.nav-icon{font-size:20px;line-height:1}
+.tab{display:none}.tab.active{display:block}
+
+/* Header */
+.header-eyebrow{font-size:10px;letter-spacing:0.14em;color:var(--muted);margin-bottom:5px}
+.header-title{font-size:22px;font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:4px}
+.header-author{font-size:13px;color:var(--muted);margin-bottom:16px}
+.progress-wrap{margin-bottom:18px}
+.progress-track{height:2px;background:var(--dim);border-radius:2px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;background:var(--yellow);border-radius:2px;transition:width 0.4s ease}
+.progress-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+
+/* Section headers */
+.section-header{padding:20px 20px 8px;font-size:10px;letter-spacing:0.12em;color:var(--muted);font-weight:600;text-transform:uppercase}
+.section-divider{border:none;border-top:1px solid var(--border);margin:8px 16px 0}
+
+/* Tutorial cards */
+.tut-card{margin:6px 14px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);cursor:pointer;overflow:hidden;transition:border-color 0.15s}
+.tut-card:active{opacity:0.85}
+.tut-inner{padding:14px 16px}
+.tut-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tut-left{flex:1}
+.tut-num{font-size:10px;font-weight:700;letter-spacing:0.1em;margin-bottom:4px}
+.tut-title{font-size:16px;font-weight:600;line-height:1.2;margin-bottom:2px}
+.tut-assignment{font-size:12px;color:var(--muted);margin-top:3px}
+.tut-status{width:22px;height:22px;border-radius:11px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px;transition:all 0.2s}
+.tut-status.done{background:var(--green);border-color:var(--green);color:#fff}
+.tut-progress{margin-top:10px;height:2px;background:var(--dim);border-radius:2px;overflow:hidden}
+.tut-progress-fill{height:100%;border-radius:2px;transition:width 0.3s}
+
+/* Detail overlay */
+#detail{display:none;position:fixed;inset:0;z-index:100;flex-direction:column;overflow:hidden;background:var(--bg)}
+#detail.open{display:flex}
+.detail-top{flex-shrink:0;padding:calc(var(--safe-top) + 12px) 20px 20px;border-bottom:1px solid var(--border)}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--dim);border:none;color:var(--text);padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;margin-bottom:16px}
+.detail-num{font-size:10px;font-weight:700;letter-spacing:0.12em;margin-bottom:5px}
+.detail-title{font-size:24px;font-weight:700;letter-spacing:-0.02em;line-height:1.2;margin-bottom:4px}
+.detail-section{font-size:12px;color:var(--muted);margin-bottom:14px}
+.detail-progress-row{display:flex;align-items:center;gap:10px}
+.detail-prog-track{flex:1;height:3px;background:var(--dim);border-radius:2px;overflow:hidden}
+.detail-prog-fill{height:100%;border-radius:2px;transition:width 0.3s}
+.detail-prog-label{font-size:12px;color:var(--muted);white-space:nowrap}
+.detail-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 20px calc(var(--safe-bot) + 24px)}
+.detail-body::-webkit-scrollbar{display:none}
+
+/* Topics checklist */
+.topics-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px}
+.topic-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;transition:border-color 0.15s}
+.topic-item.checked{background:var(--surface2);border-color:var(--border)}
+.topic-check{width:22px;height:22px;border-radius:11px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;transition:all 0.2s}
+.topic-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.topic-text{font-size:14px;flex:1;line-height:1.3;transition:color 0.15s}
+.topic-item.checked .topic-text{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dim)}
+.topic-page{font-size:11px;color:var(--muted);flex-shrink:0}
+
+/* Assignment section */
+.assignment-block{margin-top:20px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px}
+.assignment-label{font-size:10px;font-weight:700;letter-spacing:0.1em;margin-bottom:8px}
+.assignment-title{font-size:18px;font-weight:700;margin-bottom:10px}
+.assignment-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.ref-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px}
+.ref-box{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;line-height:1.6;font-family:inherit;resize:none;min-height:88px;outline:none;transition:border-color 0.15s}
+.ref-box:focus{border-color:var(--yellow)}
+.ref-box::placeholder{color:var(--muted)}
+.complete-btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:10px;transition:opacity 0.15s}
+.complete-btn:active{opacity:0.8}
+.done-banner{text-align:center;padding:16px;border-top:1px solid var(--border);margin-top:16px}
+.done-icon{font-size:28px;margin-bottom:6px}
+.done-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.done-note{font-size:13px;color:var(--muted);line-height:1.5;font-style:italic}
+.undo-btn{background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;margin-top:8px;text-decoration:underline}
+
+/* Progress tab */
+.prog-header{padding:20px 20px 0}
+.big-stat{text-align:center;padding:28px 0 20px}
+.big-num{font-size:64px;font-weight:700;line-height:1;letter-spacing:-0.04em}
+.big-label{font-size:14px;color:var(--muted);margin-top:6px}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px 20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center}
+.stat-num{font-size:24px;font-weight:700;line-height:1}
+.stat-lbl{font-size:11px;color:var(--muted);margin-top:4px}
+.section-prog{margin:0 16px 16px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.section-prog-name{font-size:13px;font-weight:600;margin-bottom:8px}
+.section-prog-track{height:4px;background:var(--dim);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.section-prog-fill{height:100%;border-radius:2px}
+.section-prog-meta{font-size:11px;color:var(--muted)}
+.log-entry{margin:0 16px 8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.log-tut{font-size:10px;color:var(--muted);letter-spacing:0.06em;margin-bottom:3px}
+.log-title{font-size:15px;font-weight:600;margin-bottom:6px}
+.log-note{font-size:13px;color:var(--muted);line-height:1.5;font-style:italic}
+.empty-prog{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:44px;margin-bottom:12px}
+
+/* Gear tab */
+.gear-intro{padding:20px 20px 12px;font-size:14px;color:var(--muted);line-height:1.6}
+.gear-card{margin:0 16px 8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;gap:12px}
+.gear-icon{font-size:24px;flex-shrink:0;line-height:1;margin-top:2px}
+.gear-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.gear-note{font-size:13px;color:var(--muted);line-height:1.55}
+.cheat-block{margin:12px 16px 8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.cheat-head{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--yellow);margin-bottom:12px}
+.cheat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.cheat-row:last-child{border:none}
+.cheat-scene{font-size:13px;color:var(--muted)}
+.cheat-val{font-size:13px;font-weight:600}
+
+/* Photo upload */
+.photo-section{margin-top:16px;border-top:1px solid var(--border);padding-top:16px}
+.photo-label{font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px}
+.photo-upload-area{
+  border:2px dashed var(--border);border-radius:14px;
+  padding:28px 16px;text-align:center;cursor:pointer;
+  transition:border-color 0.2s,background 0.2s;background:var(--bg);
+  position:relative;
+}
+.photo-upload-area:hover{border-color:var(--yellow);background:var(--surface)}
+.photo-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:32px;margin-bottom:8px}
+.upload-text{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--muted)}
+.photo-preview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--dim)}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.photo-thumb-remove{
+  position:absolute;top:4px;right:4px;width:20px;height:20px;
+  background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:10px;
+  font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  line-height:1;
+}
+.photo-count{font-size:12px;color:var(--muted);margin-top:8px;text-align:center}
+/* Lightbox */
+#lightbox{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;flex-direction:column}
+#lightbox.open{display:flex}
+#lightbox img{max-width:96vw;max-height:82vh;border-radius:12px;object-fit:contain}
+#lightbox-close{position:absolute;top:calc(var(--safe-top) + 12px);right:18px;background:rgba(255,255,255,0.15);border:none;color:#fff;width:36px;height:36px;border-radius:18px;font-size:18px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <div class="header-eyebrow">TOM ANG · DK</div>
+    <div class="header-title">Digital Photography<br>Masterclass</div>
+    <div class="header-author">Canon 6D companion</div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="main-prog-fill" style="width:0%"></div></div>
+      <div class="progress-meta">
+        <span id="main-prog-label">0 of 20 tutorials complete</span>
+        <span id="main-topic-label">0 topics studied</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="scroll-area">
+    <!-- TUTORIALS TAB -->
+    <div class="tab active" id="tab-tutorials">
+      <div id="tut-list"></div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- PROGRESS TAB -->
+    <div class="tab" id="tab-progress">
+      <div class="prog-header">
+        <div class="big-stat">
+          <div class="big-num" id="prog-big-num" style="color:var(--yellow)">0</div>
+          <div class="big-label">tutorials complete</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="stat-num" id="ps-topics" style="color:var(--cyan)">0</div><div class="stat-lbl">topics done</div></div>
+          <div class="stat-card"><div class="stat-num" id="ps-assign" style="color:var(--green)">0</div><div class="stat-lbl">assignments</div></div>
+          <div class="stat-card"><div class="stat-num" id="ps-remain" style="color:var(--muted)">20</div><div class="stat-lbl">remaining</div></div>
+        </div>
+      </div>
+      <div style="height:4px"></div>
+      <div id="section-progress-blocks"></div>
+      <div style="height:4px"></div>
+      <div id="log-list"></div>
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- GEAR TAB -->
+    <div class="tab" id="tab-gear">
+      <div class="gear-intro">Your Canon 6D kit — how to apply each piece to Tom Ang's tutorials.</div>
+      <div class="gear-card"><div class="gear-icon">📷</div><div><div class="gear-name">Canon 6D body</div><div class="gear-note">Full-frame. Excels in Tutorials 2 (exposure), 8 (available light), 9 (flash). Clean to ISO 3200 — embrace the noise for atmosphere in low-light work.</div></div></div>
+      <div class="gear-card"><div class="gear-icon">🔭</div><div><div class="gear-name">50mm f/1.8</div><div class="gear-note">Key lens for Tutorials 3 (tonality), 7 (timing), 14 (portrait). Natural human perspective. f/1.8 for isolation, f/8 for sharpness front-to-back.</div></div></div>
+      <div class="gear-card"><div class="gear-icon">🔍</div><div><div class="gear-name">24–105mm f/4</div><div class="gear-note">Tutorials 4 (zoom/prime), 13 (travel), 16 (landscape), 18 (architecture). Use 24mm for context, 105mm for compression and wildlife approach (Tut 19).</div></div></div>
+      <div class="gear-card"><div class="gear-icon">⚡</div><div><div class="gear-name">Flash</div><div class="gear-note">Built around Tutorial 9 (portable sunlight). Bounce for fill, off-camera for drama, drag shutter for ambient mix. Try it for Tutorial 14 portrait assignment.</div></div></div>
+      <div class="gear-card"><div class="gear-icon">📐</div><div><div class="gear-name">Two tripods</div><div class="gear-note">Tutorial 1 (shutter/long exposure), Tutorial 7 (timing — lock and wait). Second tripod gives you a second locked angle for architectural and landscape work.</div></div></div>
+      <div class="cheat-block">
+        <div class="cheat-head">SETTINGS BY TUTORIAL THEME</div>
+        <div class="cheat-row"><span class="cheat-scene">City lights (Tut 1)</span><span class="cheat-val">f/8 · ISO 400 · 4–30s + tripod</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Still life (Tut 2)</span><span class="cheat-val">f/11 · ISO 100 · manual</span></div>
+        <div class="cheat-row"><span class="cheat-scene">High dynamic range (Tut 3)</span><span class="cheat-val">Bracket ±2 stops, RAW</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Urban nature (Tut 4)</span><span class="cheat-val">f/4 · ISO 400 · 1/500s</span></div>
+        <div class="cheat-row"><span class="cheat-scene">City streets (Tut 5)</span><span class="cheat-val">f/8 · ISO 800 · 1/250s</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Location comp (Tut 6)</span><span class="cheat-val">f/8 · ISO 200 · 1/250s</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Pet portrait (Tut 7)</span><span class="cheat-val">f/2.8 · ISO 800 · 1/500s</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Light & shadow (Tut 8)</span><span class="cheat-val">f/4 · ISO 800 · 1/125s</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Flash portrait (Tut 9)</span><span class="cheat-val">f/8 · ISO 100 · 1/160s + flash</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Portrait (Tut 14)</span><span class="cheat-val">f/1.8 · ISO 400 · 1/200s</span></div>
+        <div class="cheat-row"><span class="cheat-scene">Wildlife (Tut 19)</span><span class="cheat-val">f/5.6 · ISO 1600 · 1/1000s</span></div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+  </div>
+
+  <nav id="nav">
+    <button class="nav-btn active" onclick="switchTab('tutorials',this)"><span class="nav-icon">📚</span>Tutorials</button>
+    <button class="nav-btn" onclick="switchTab('progress',this)"><span class="nav-icon">📊</span>Progress</button>
+    <button class="nav-btn" onclick="switchTab('gear',this)"><span class="nav-icon">🎒</span>Gear</button>
+  </nav>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lb-img" src="" alt="Photo">
+</div>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail">
+  <div class="detail-top">
+    <button class="back-btn" onclick="closeDetail()">← Back</button>
+    <div class="detail-num" id="d-num"></div>
+    <div class="detail-title" id="d-title"></div>
+    <div class="detail-section" id="d-section"></div>
+    <div class="detail-progress-row">
+      <div class="detail-prog-track"><div class="detail-prog-fill" id="d-prog-fill"></div></div>
+      <div class="detail-prog-label" id="d-prog-label"></div>
+    </div>
+  </div>
+  <div class="detail-body" id="d-body"></div>
+</div>
+
+<script>
+// ── Book data ──────────────────────────────────────────────────────────────
+const SECTIONS = [
+  {
+    name:"Mastering your camera",
+    color:"#4ab8d4",
+    tutorials:[1,2,3,4,5]
+  },
+  {
+    name:"Developing your skills",
+    color:"#d4c84a",
+    tutorials:[6,7,8,9]
+  },
+  {
+    name:"The digital darkroom",
+    color:"#d44a8c",
+    tutorials:[10,11,12]
+  },
+  {
+    name:"Advancing your photography",
+    color:"#57cc99",
+    tutorials:[13,14,15,16,17,18,19,20]
+  }
+];
+
+const TUTORIALS = [
+  {
+    id:1, section:0,
+    title:"Key camera controls",
+    assignment:"City lights",
+    assignmentDesc:"Go out after dark and photograph the energy and mood of city lights. Explore how your shutter speed changes the feeling — from pinpoint stars to streaking trails.",
+    topics:[
+      {text:"Shutter settings",page:12},{text:"Depth of field",page:14},
+      {text:"Image analysis",page:16},{text:"Quality settings",page:18},
+      {text:"Color settings",page:20},{text:"Image sharpness",page:22},
+      {text:"Image analysis",page:24}
+    ]
+  },
+  {
+    id:2, section:0,
+    title:"Exposure control",
+    assignment:"Still life",
+    assignmentDesc:"Set up and photograph a still-life arrangement. Practice manual exposure: shoot intentionally under-exposed, correctly exposed, and over-exposed. Study what changes.",
+    topics:[
+      {text:"Auto-exposure and mid-tones",page:30},{text:"Under-exposure",page:32},
+      {text:"Image analysis",page:34},{text:"Over-exposure",page:36},
+      {text:"Using exposure meters",page:38},{text:"Image analysis",page:40}
+    ]
+  },
+  {
+    id:3, section:0,
+    title:"Tonality and contrast",
+    assignment:"High dynamic range",
+    assignmentDesc:"Find a scene with extreme contrast — bright sky and dark shadow. Bracket your exposures (±2 stops) in RAW and explore how tone affects the mood of the image.",
+    topics:[
+      {text:"Increasing contrast",page:46},{text:"Dynamic range",page:48},
+      {text:"Reflectors and fill-in",page:50},{text:"Image analysis",page:52}
+    ]
+  },
+  {
+    id:4, section:0,
+    title:"Obtaining the best image",
+    assignment:"Urban nature",
+    assignmentDesc:"Find nature within an urban environment — plants, insects, birds, weathered textures. Experiment with zoom and prime to see how focal length changes your relationship with the subject.",
+    topics:[
+      {text:"Lens qualities",page:58},{text:"Methods of focusing",page:60},
+      {text:"Zoom and perspective",page:62},{text:"Image analysis",page:64},
+      {text:"Zoom or prime lenses",page:66},{text:"Aperture and working distance",page:68},
+      {text:"Image analysis",page:70}
+    ]
+  },
+  {
+    id:5, section:0,
+    title:"Obtaining ideal color",
+    assignment:"City streets",
+    assignmentDesc:"Photograph city streets and study the color story. Adjust white balance to warm, neutral, and cool — observe how color temperature changes the emotional tone of the same scene.",
+    topics:[
+      {text:"Seeing color",page:76},{text:"White balance",page:78},
+      {text:"Key colors",page:80},{text:"Saturated color",page:82},
+      {text:"Image analysis",page:84}
+    ]
+  },
+  {
+    id:6, section:1,
+    title:"Mastering composition",
+    assignment:"Composition on location",
+    assignmentDesc:"Go to a location with strong compositional elements. Work the scene deliberately: use format (landscape/portrait), balance, leading lines, and color to construct the frame.",
+    topics:[
+      {text:"Format and proportion",page:92},{text:"Balance and imbalance",page:94},
+      {text:"Shapes within the image",page:96},{text:"Image analysis",page:98},
+      {text:"Suggesting movement",page:100},{text:"Working with picture planes",page:102},
+      {text:"Image analysis",page:104},{text:"Position and perspective",page:106},
+      {text:"Composing with color",page:108},{text:"Image analysis",page:110}
+    ]
+  },
+  {
+    id:7, section:1,
+    title:"Perfecting your timing",
+    assignment:"Pet portrait",
+    assignmentDesc:"Photograph an animal and capture a moment that reveals its character. Patience is the technique — study when to wait and when to act.",
+    topics:[
+      {text:"Catching the moment",page:116},{text:"Image analysis",page:118},
+      {text:"Time of day",page:120},{text:"The waiting game",page:122},
+      {text:"Image analysis",page:124}
+    ]
+  },
+  {
+    id:8, section:1,
+    title:"Using available light",
+    assignment:"Light and shadow",
+    assignmentDesc:"Find a scene defined by strong light and shadow. Photograph at different times of day — observe how direction, quality, and intensity of available light completely transforms the image.",
+    topics:[
+      {text:"Low light levels",page:130},{text:"Image analysis",page:132},
+      {text:"Hard and high light",page:134},{text:"Direction of light",page:136},
+      {text:"Using shadows",page:138},{text:"Image analysis",page:140}
+    ]
+  },
+  {
+    id:9, section:1,
+    title:"Portable sunlight",
+    assignment:"Flash portrait",
+    assignmentDesc:"Create a portrait using your flash as the primary light source. Try full flash, fill flash, and off-camera flash. Write about how each changes the mood of the portrait.",
+    topics:[
+      {text:"Full and fill flash",page:146},{text:"Off-camera lighting",page:148},
+      {text:"Multiple lights",page:150},{text:"Image analysis",page:152}
+    ]
+  },
+  {
+    id:10, section:2,
+    title:"Perfecting the image",
+    assignment:"Basic image enhancement",
+    assignmentDesc:"Take a photograph that needs work and apply a full post-processing workflow: crop and shape, histogram, curves, burn/dodge, white balance, sharpness. Document what each step changed.",
+    topics:[
+      {text:"Shape and crop",page:160},{text:"Histograms",page:162},
+      {text:"Curves and tone",page:164},{text:"Burn and dodge",page:166},
+      {text:"White balance correction",page:168},{text:"Hue and saturation",page:170},
+      {text:"Step by step: curves and tone",page:172},{text:"Step by step: adjusting shape and color",page:174},
+      {text:"Noise and dust",page:176},{text:"Sharpness and blur",page:178},
+      {text:"Refined sharpening",page:180},{text:"Step by step: clean up and sharpen",page:182},
+      {text:"Working in RAW",page:184},{text:"Processing RAW images",page:186}
+    ]
+  },
+  {
+    id:11, section:2,
+    title:"Manipulating the image",
+    assignment:"Image effects",
+    assignmentDesc:"Take one photograph and recast it three ways: convert to monochrome with toning, remove a distraction, and apply a filter effect. Which interpretation feels most true to the image's intent?",
+    topics:[
+      {text:"Color to black and white",page:192},{text:"Toning the image",page:194},
+      {text:"Duotone and multitone",page:196},{text:"Step by step: converting to monochrome",page:198},
+      {text:"Removing distractions",page:202},{text:"Practical filters",page:204},
+      {text:"Filter effects",page:206},{text:"Step by step: recasting an image",page:208}
+    ]
+  },
+  {
+    id:12, section:2,
+    title:"Advanced manipulation",
+    assignment:"Montaging images",
+    assignmentDesc:"Create a composite image using layers. Combine two photographs into one cohesive image — study how blend modes and masks let you control the relationship between elements.",
+    topics:[
+      {text:"The power of layers",page:216},{text:"Layer blend modes",page:218},
+      {text:"Masks and selections",page:220},{text:"Step by step: hand-coloring",page:222},
+      {text:"Highlights and shadows",page:224},{text:"High dynamic range",page:226},
+      {text:"Step by step: elaborating the landscape",page:228},
+      {text:"Step by step: portrait makeover",page:234}
+    ]
+  },
+  {
+    id:13, section:3,
+    title:"Travel photography",
+    assignment:"A revealing angle",
+    assignmentDesc:"Photograph a place — local or distant — from an unexpected angle or perspective. Avoid the obvious postcard shot. Find what reveals the spirit of the place rather than simply recording it.",
+    topics:[
+      {text:"Substance over style",page:246},
+      {text:"In conversation: Clay Enos",page:248},
+      {text:"Images in depth",page:251}
+    ]
+  },
+  {
+    id:14, section:3,
+    title:"Portrait photography",
+    assignment:"Capturing character",
+    assignmentDesc:"Make a portrait that captures a person's character, not just their appearance. Spend time with them before shooting. Write about what you learned about seeing people.",
+    topics:[
+      {text:"New faces, new clients",page:258},
+      {text:"In conversation: Eolo Perfido",page:260},
+      {text:"Images in depth",page:263}
+    ]
+  },
+  {
+    id:15, section:3,
+    title:"Documentary photography",
+    assignment:"A day in the life",
+    assignmentDesc:"Spend one full day photographing a person, place, or community. Your goal is to show the truth of it — not the best moments, but the whole picture.",
+    topics:[
+      {text:"Freedom of choice",page:270},
+      {text:"In conversation: Altaf Qadri",page:272},
+      {text:"Images in depth",page:275}
+    ]
+  },
+  {
+    id:16, section:3,
+    title:"Landscape and nature photography",
+    assignment:"Spirit of place",
+    assignmentDesc:"Find a landscape that moves you and make photographs that convey why. Return at different times of day. Look for what is unique to this place — light, texture, atmosphere, scale.",
+    topics:[
+      {text:"Individual vision",page:282},
+      {text:"In conversation: Tamao Funahashi",page:284},
+      {text:"Images in depth",page:287}
+    ]
+  },
+  {
+    id:17, section:3,
+    title:"Sports photography",
+    assignment:"Essence of sport",
+    assignmentDesc:"Photograph a sport or physical activity and find an image that conveys its essence — not just action, but the emotion, effort, and character behind it.",
+    topics:[
+      {text:"Beauty and power",page:294},
+      {text:"In conversation: Duane Hart",page:296},
+      {text:"Images in depth",page:299}
+    ]
+  },
+  {
+    id:18, section:3,
+    title:"Architecture photography",
+    assignment:"Exploring light",
+    assignmentDesc:"Photograph a building or structure and explore how light changes its character. Morning, midday, and evening — find the moment when the light and the architecture speak to each other.",
+    topics:[
+      {text:"Fidelity to spirit",page:306},
+      {text:"In conversation: Iñigo Bujedo Aguirre",page:308},
+      {text:"Images in depth",page:311}
+    ]
+  },
+  {
+    id:19, section:3,
+    title:"Wildlife photography",
+    assignment:"Inspiring vision",
+    assignmentDesc:"Find an animal — domestic or wild — and make a photograph that inspires. The challenge: get close enough to reveal character while respecting the subject.",
+    topics:[
+      {text:"Gaining access",page:318},
+      {text:"In conversation: Marion Hogl",page:320},
+      {text:"Images in depth",page:323}
+    ]
+  },
+  {
+    id:20, section:3,
+    title:"Fine art photography",
+    assignment:"Creative expression",
+    assignmentDesc:"Make a photograph that is purely about your own vision — not documentary, not technical exercise. What do you want to say? How does your photograph say it without words?",
+    topics:[
+      {text:"Vision over record",page:330},
+      {text:"In conversation: Emily Allchurch",page:332},
+      {text:"Images in depth",page:335}
+    ]
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────────────
+let state = JSON.parse(localStorage.getItem('tom-ang-state') || '{"topics":{},"notes":{},"done":{}}');
+function save(){localStorage.setItem('tom-ang-state',JSON.stringify(state))}
+
+function tutDone(t){
+  return state.done[t.id] || t.topics.every((_,i)=>state.topics[t.id+'-'+i]);
+}
+function topicsDone(t){
+  return t.topics.filter((_,i)=>state.topics[t.id+'-'+i]).length;
+}
+function totalTopicsDone(){
+  return TUTORIALS.reduce((s,t)=>s+topicsDone(t),0);
+}
+function totalTopics(){return TUTORIALS.reduce((s,t)=>s+t.topics.length,0)}
+function totalDone(){return TUTORIALS.filter(t=>tutDone(t)).length}
+function sectionDone(sec){return sec.tutorials.filter(id=>tutDone(TUTORIALS[id-1])).length}
+
+// ── Main progress bar ─────────────────────────────────────────────────────
+function updateMainProgress(){
+  const done = totalDone();
+  const tDone = totalTopicsDone();
+  const pct = (done/20)*100;
+  document.getElementById('main-prog-fill').style.width = pct+'%';
+  document.getElementById('main-prog-label').textContent = done+' of 20 tutorials complete';
+  document.getElementById('main-topic-label').textContent = tDone+' topics studied';
+}
+
+// ── Render tutorial list ──────────────────────────────────────────────────
+function renderTutList(){
+  const list = document.getElementById('tut-list');
+  list.innerHTML='';
+  let lastSection=-1;
+  TUTORIALS.forEach(t=>{
+    const sec = SECTIONS[t.section];
+    if(t.section!==lastSection){
+      lastSection=t.section;
+      const sh=document.createElement('div');
+      sh.className='section-header';
+      sh.textContent=sec.name;
+      sh.style.color=sec.color;
+      list.appendChild(sh);
+    }
+    const done=tutDone(t);
+    const td=topicsDone(t);
+    const pct=t.topics.length?(td/t.topics.length)*100:0;
+    const card=document.createElement('div');
+    card.className='tut-card'+(done?' done-card':'');
+    if(done) card.style.borderColor=sec.color+'44';
+    card.innerHTML=`
+      <div class="tut-inner">
+        <div class="tut-top">
+          <div class="tut-left">
+            <div class="tut-num" style="color:${sec.color}">TUTORIAL ${t.id}</div>
+            <div class="tut-title">${t.title}</div>
+            <div class="tut-assignment">Assignment: ${t.assignment}</div>
+          </div>
+          <div class="tut-status${done?' done':''}">${done?'✓':''}</div>
+        </div>
+        ${pct>0?`<div class="tut-progress"><div class="tut-progress-fill" style="width:${pct}%;background:${sec.color}"></div></div>`:''}
+      </div>`;
+    card.addEventListener('click',()=>openDetail(t));
+    list.appendChild(card);
+  });
+}
+
+// ── Detail screen ─────────────────────────────────────────────────────────
+let currentTut=null;
+function openDetail(t){
+  currentTut=t;
+  const sec=SECTIONS[t.section];
+  document.getElementById('d-num').textContent='TUTORIAL '+t.id+' · '+sec.name.toUpperCase();
+  document.getElementById('d-num').style.color=sec.color;
+  document.getElementById('d-title').textContent=t.title;
+  document.getElementById('d-section').textContent='Assignment: '+t.assignment;
+  renderDetailBody(t,sec);
+  document.getElementById('detail').classList.add('open');
+  document.getElementById('d-body').scrollTop=0;
+}
+
+
+function renderDetailBody(t,sec){
+  const td=topicsDone(t);
+  const pct=t.topics.length?(td/t.topics.length)*100:0;
+  document.getElementById('d-prog-fill').style.width=pct+'%';
+  document.getElementById('d-prog-fill').style.background=sec.color;
+  document.getElementById('d-prog-label').textContent=td+'/'+t.topics.length+' topics';
+
+  const done=tutDone(t);
+  const body=document.getElementById('d-body');
+
+  let html=`<div class="topics-label">TOPICS — tap to mark as studied</div>`;
+  t.topics.forEach((tp,i)=>{
+    const checked=!!state.topics[t.id+'-'+i];
+    html+=`<div class="topic-item${checked?' checked':''}" onclick="toggleTopic(${t.id},${i})">
+      <div class="topic-check${checked?' done':''}">${checked?'✓':''}</div>
+      <div class="topic-text">${tp.text}</div>
+      <div class="topic-page">p.${tp.page}</div>
+    </div>`;
+  });
+
+  html+=`<div class="assignment-block">
+    <div class="assignment-label" style="color:${sec.color}">ASSIGNMENT</div>
+    <div class="assignment-title">${t.assignment}</div>
+    <div class="assignment-desc">${t.assignmentDesc}</div>`;
+
+  if(!done){
+    html+=`<div class="ref-label">YOUR NOTES</div>
+    <textarea class="ref-box" id="ref-box" placeholder="What did you shoot? What did you learn? What surprised you?">${state.notes[t.id]||''}</textarea>
+    <button class="complete-btn" style="background:${sec.color};color:#fff" onclick="markTutDone(${t.id})">Mark tutorial complete ✓</button>`;
+  } else {
+    html+=`<div class="done-banner">
+      <div class="done-icon">✅</div>
+      <div class="done-title" style="color:${sec.color}">Tutorial complete</div>
+      ${state.notes[t.id]?`<div class="done-note">"${state.notes[t.id]}"</div>`:''}
+      <button class="undo-btn" onclick="undoDone(${t.id})">Mark as not done</button>
+    </div>`;
+  }
+
+  // ── Photo upload section ──
+  const saved = state.photos && state.photos[t.id] ? state.photos[t.id] : [];
+  html+=`
+    <div class="photo-section">
+      <div class="photo-label">📸 YOUR ASSIGNMENT PHOTOS</div>
+      <div class="photo-upload-area">
+        <input type="file" accept="image/*" multiple onchange="handlePhotoSelect(event,${t.id})">
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-text">Tap to add photos</div>
+        <div class="upload-sub">Select images from your camera roll</div>
+      </div>
+      <div class="photo-preview-grid" id="photo-preview-grid">
+        ${saved.map((d,i)=>`<div class="photo-thumb"><img src="${d}" onclick="openLightbox('${d}')"><button class="photo-thumb-remove" onclick="removePhoto(event,${t.id},${i})">✕</button></div>`).join('')}
+      </div>
+      ${saved.length?`<div class="photo-count">${saved.length} photo${saved.length>1?'s':''} saved</div>`:''}
+    </div>`;
+
+  html+='</div>';
+  body.innerHTML=html;
+
+  // Autosave notes on type
+  const box=document.getElementById('ref-box');
+  if(box) box.addEventListener('input',e=>{state.notes[t.id]=e.target.value;save();});
+}
+
+// ── Photo upload ──────────────────────────────────────────────────────────
+function handlePhotoSelect(event, tutId){
+  const files=Array.from(event.target.files);
+  if(!files.length) return;
+  if(!state.photos) state.photos={};
+  if(!state.photos[tutId]) state.photos[tutId]=[];
+  const grid=document.getElementById('photo-preview-grid');
+  let loaded=0;
+  files.forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      state.photos[tutId].push(e.target.result);
+      loaded++;
+      if(loaded===files.length){
+        save();
+        refreshPhotoGrid(tutId);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function refreshPhotoGrid(tutId){
+  const grid=document.getElementById('photo-preview-grid');
+  if(!grid) return;
+  const photos=state.photos&&state.photos[tutId]?state.photos[tutId]:[];
+  grid.innerHTML=photos.map((d,i)=>`
+    <div class="photo-thumb">
+      <img src="${d}" onclick="openLightbox('${d}')">
+      <button class="photo-thumb-remove" onclick="removePhoto(event,${tutId},${i})">✕</button>
+    </div>`).join('');
+  // update count
+  let cnt=grid.parentElement.querySelector('.photo-count');
+  if(photos.length){
+    if(!cnt){cnt=document.createElement('div');cnt.className='photo-count';grid.parentElement.appendChild(cnt);}
+    cnt.textContent=photos.length+' photo'+(photos.length>1?'s':'')+' saved';
+  } else if(cnt) cnt.remove();
+}
+
+function removePhoto(event, tutId, idx){
+  event.stopPropagation();
+  if(!state.photos||!state.photos[tutId]) return;
+  state.photos[tutId].splice(idx,1);
+  save();
+  refreshPhotoGrid(tutId);
+}
+
+// ── Lightbox ──────────────────────────────────────────────────────────────
+function openLightbox(src){
+  document.getElementById('lb-img').src=src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+function toggleTopic(tutId,idx){
+  const key=tutId+'-'+idx;
+  state.topics[key]=!state.topics[key];
+  save();
+  const t=TUTORIALS.find(x=>x.id===tutId);
+  const sec=SECTIONS[t.section];
+  renderDetailBody(t,sec);
+  updateMainProgress();
+  renderTutList();
+}
+
+function markTutDone(id){
+  const box=document.getElementById('ref-box');
+  if(box) state.notes[id]=box.value.trim();
+  state.done[id]=true;
+  // Also check all topics
+  const t=TUTORIALS.find(x=>x.id===id);
+  t.topics.forEach((_,i)=>{state.topics[id+'-'+i]=true;});
+  save();
+  const sec=SECTIONS[t.section];
+  renderDetailBody(t,sec);
+  updateMainProgress();
+  renderTutList();
+  renderProgress();
+}
+
+function undoDone(id){
+  delete state.done[id];
+  save();
+  const t=TUTORIALS.find(x=>x.id===id);
+  const sec=SECTIONS[t.section];
+  renderDetailBody(t,sec);
+  updateMainProgress();
+  renderTutList();
+  renderProgress();
+}
+
+function closeDetail(){
+  document.getElementById('detail').classList.remove('open');
+  renderAll();
+}
+
+// ── Progress tab ──────────────────────────────────────────────────────────
+function renderProgress(){
+  const done=totalDone();
+  const tDone=totalTopicsDone();
+  document.getElementById('prog-big-num').textContent=done;
+  document.getElementById('ps-topics').textContent=tDone;
+  document.getElementById('ps-assign').textContent=done;
+  document.getElementById('ps-remain').textContent=20-done;
+
+  // Section progress blocks
+  const spb=document.getElementById('section-progress-blocks');
+  spb.innerHTML=SECTIONS.map(sec=>{
+    const ids=sec.tutorials;
+    const secDone=ids.filter(id=>tutDone(TUTORIALS[id-1])).length;
+    const pct=(secDone/ids.length)*100;
+    return `<div class="section-prog">
+      <div class="section-prog-name" style="color:${sec.color}">${sec.name}</div>
+      <div class="section-prog-track"><div class="section-prog-fill" style="width:${pct}%;background:${sec.color}"></div></div>
+      <div class="section-prog-meta">${secDone} of ${ids.length} tutorials</div>
+    </div>`;
+  }).join('');
+
+  // Completed log
+  const log=document.getElementById('log-list');
+  const completedTuts=TUTORIALS.filter(t=>tutDone(t));
+  if(completedTuts.length===0){
+    log.innerHTML=`<div class="empty-prog"><div class="empty-icon">📷</div><div>Complete your first tutorial<br>to build your progress log here.</div></div>`;
+  } else {
+    log.innerHTML=completedTuts.map(t=>{
+      const sec=SECTIONS[t.section];
+      return `<div class="log-entry">
+        <div class="log-tut" style="color:${sec.color}">TUTORIAL ${t.id} · ${sec.name.toUpperCase()}</div>
+        <div class="log-title">${t.title} — ${t.assignment}</div>
+        ${state.notes[t.id]?`<div class="log-note">"${state.notes[t.id]}"</div>`:''}
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+function switchTab(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('scroll-area').scrollTop=0;
+  if(name==='progress') renderProgress();
+}
+
+function renderAll(){
+  updateMainProgress();
+  renderTutList();
+  renderProgress();
+}
+
+renderAll();
+</script>
+</body>
+</html>
+ENDOFFILE
