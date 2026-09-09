@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f2f0eb;
+    --surface: #e8e5de;
+    --ink: #1a1917;
+    --ink2: #6b6760;
+    --line: #d4d0c8;
+    --accent: #2d5a3d;
+  }
+
+  html, body {
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 64px 24px 80px;
+  }
+
+  header {
+    margin-bottom: 56px;
+  }
+
+  .wordmark {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--ink2);
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 8vw, 52px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .app-link {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .app-link:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .app-link:hover .app-name {
+    color: var(--accent);
+  }
+
+  .app-link:hover .arrow {
+    transform: translateX(4px);
+    color: var(--accent);
+  }
+
+  .app-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .app-name {
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink);
+    transition: color 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .app-desc {
+    font-size: 13px;
+    color: var(--ink2);
+    line-height: 1.4;
+  }
+
+  .arrow {
+    font-size: 18px;
+    color: var(--line);
+    flex-shrink: 0;
+    transition: transform 0.15s, color 0.15s;
+    align-self: center;
+  }
+
+  footer {
+    margin-top: 64px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink2);
+    letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <p class="wordmark">index.html</p>
+    <h1>Your<br><em>apps.</em></h1>
+  </header>
+
+  <nav class="list">
+    <a class="app-link" href="fretflow.html">
+      <div class="app-left">
+        <span class="app-name">Fretflow</span>
+        <span class="app-desc">Guitar practice & fretboard learning</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a class="app-link" href="te-reo-app.html">
+      <div class="app-left">
+        <span class="app-name">Te Reo Māori — He Ara Kōrero</span>
+        <span class="app-desc">Te reo Māori language learning</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a class="app-link" href="tagalog.html">
+      <div class="app-left">
+        <span class="app-name">Tagalog</span>
+        <span class="app-desc">Tagalog language learning</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a class="app-link" href="oscar_compulsion_tracker.html">
+      <div class="app-left">
+        <span class="app-name">Oscar Wellness</span>
+        <span class="app-desc">Compulsion & wellness tracker</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a class="app-link" href="putea-shift-log.html">
+      <div class="app-left">
+        <span class="app-name">Pūtea Shift Log</span>
+        <span class="app-desc">Shift earnings tracker</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a class="app-link" href="Photography.html">
+      <div class="app-left">
+        <span class="app-name">Digital Photography Masterclass</span>
+        <span class="app-desc">Photography learning companion</span>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </nav>
+
+  <footer>6 apps &nbsp;·&nbsp; updated Sept 2026</footer>
+</div>
+</body>
+</html>
