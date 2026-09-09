@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Pūtea Shift Log</title>
+<style>
+  html{ color-scheme: light; background: #ECEAE3; }
+  :root{
+    --paper: #ECEAE3;
+    --paper-alt: #E1DDD0;
+    --ink: #20242B;
+    --ink-soft: #4B4F56;
+    --rule: #C7C1B2;
+    --amber: #B06F00;
+    --amber-fill: #C97F00;
+    --amber-bg: #F3DFB2;
+    --red: #A8402F;
+    --green: #3F7859;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    color-scheme: light;
+    font-family:var(--sans);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap{max-width:480px;margin:0 auto;padding:20px 16px 70px;background:var(--paper);}
+  header h1{font-size:25px;font-weight:700;margin:0 0 3px;letter-spacing:-0.2px;}
+  header .sub{font-size:16px;color:var(--ink-soft);margin:0 0 18px;}
+
+  .weeknav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;background:var(--paper);}
+  .weeknav button{
+    background:var(--paper);border:1px solid var(--rule);border-radius:0;
+    width:44px;height:44px;font-size:20px;color:var(--ink);
+    font-family:var(--mono);
+  }
+  .weeknav .range{font-size:16px;color:var(--ink-soft);text-align:center;flex:1;}
+
+  .hero{
+    background:var(--paper-alt);
+    border:1px solid var(--rule);
+    padding:20px 18px 18px;
+    margin-bottom:16px;
+  }
+  .hero .amount{
+    font-family:var(--mono);
+    font-size:52px;
+    font-weight:700;
+    letter-spacing:-1px;
+    line-height:1;
+  }
+  .hero .caption{
+    font-size:17px;
+    font-weight:600;
+    color:var(--ink);
+    margin-top:8px;
+    font-family:var(--mono);
+  }
+  .track{
+    height:10px;
+    background:#D8D3C4;
+    margin-top:12px;
+    position:relative;
+    overflow:hidden;
+  }
+  .track .fill{
+    height:100%;
+    background:var(--amber-fill);
+  }
+  .track .fill.good{background:var(--green);}
+  .hero .subline{
+    font-size:16px;
+    color:var(--ink);
+    margin-top:12px;
+    font-family:var(--mono);
+  }
+
+  .day-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    padding:16px 2px;
+    border-top:1px dashed var(--rule);
+    background:var(--paper);
+    cursor:pointer;
+  }
+  .day-row:first-of-type{border-top:1px solid var(--rule);}
+  .day-left .wk{font-weight:700;font-size:19px;color:var(--ink);}
+  .day-left .dt{font-size:16px;color:var(--ink);margin-top:1px;}
+  .day-right{text-align:right;}
+  .day-right .tot{font-family:var(--mono);font-weight:700;font-size:23px;}
+  .day-right .meta{font-family:var(--mono);font-size:16px;color:var(--ink);margin-top:4px;}
+  .day-right .promo{font-size:15px;font-weight:700;color:var(--amber);margin-top:4px;}
+  .not-logged{font-size:16px;color:var(--amber);font-style:italic;}
+
+  .form{
+    padding:16px 4px 20px;
+    border-top:1px dashed var(--rule);
+    background:rgba(255,255,255,0.35);
+  }
+  .form label{
+    display:block;
+    font-size:14.5px;
+    color:var(--ink-soft);
+    margin:12px 0 5px;
+  }
+  .form input{
+    width:100%;
+    font-family:var(--mono);
+    font-size:19px;
+    padding:11px 10px;
+    border:1px solid var(--rule);
+    background:#fff;
+    color:var(--ink);
+  }
+  .row2{display:flex;gap:8px;}
+  .row2 > div{flex:1;}
+  .kmpreview{
+    font-family:var(--mono);
+    font-size:15px;
+    color:var(--amber);
+    text-align:right;
+    margin-top:5px;
+    min-height:19px;
+  }
+  .btnrow{display:flex;gap:8px;margin-top:18px;}
+  .btn{
+    flex:1;
+    padding:14px 0;
+    text-align:center;
+    font-family:var(--sans);
+    font-size:17px;
+    font-weight:600;
+    border:1px solid var(--ink);
+    background:none;
+    color:var(--ink);
+  }
+  .btn.primary{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .btn.plain{border-color:transparent;color:var(--ink-soft);font-weight:500;}
+  .delrow{margin-top:14px;text-align:right;}
+  .del{
+    background:none;border:none;
+    font-size:15px;color:var(--red);
+    font-weight:600;padding:8px 0;
+  }
+
+  .settings{
+    margin-top:28px;
+    padding-top:16px;
+    border-top:1px solid var(--rule);
+    font-size:16px;
+    font-weight:600;
+    color:var(--ink);
+    background:var(--paper);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .settings .change{background:none;border:none;color:var(--amber);font-weight:600;font-size:15px;padding:0;}
+  .settings input{
+    font-family:var(--mono);font-size:17px;padding:8px;
+    border:1px solid var(--rule);width:90px;background:#fff;color:var(--ink);
+  }
+  .ytd{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:15px;
+    color:var(--ink-soft);
+    padding:10px 2px 16px;
+    border-bottom:1px solid var(--rule);
+    margin-bottom:10px;
+    background:var(--paper);
+    font-family:var(--mono);
+  }
+  .ytd .lbl{font-family:var(--sans);color:var(--ink-soft);}
+  .ytd .figs span{margin-left:12px;color:var(--ink);font-weight:700;font-size:16px;}
+  .export{
+    background:none;border:none;color:var(--amber);
+    font-weight:600;font-size:15px;padding:0;
+  }
+  .loading{color:var(--ink-soft);font-size:16px;padding:20px 0;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:16px;background:var(--paper);}
+  .tab{
+    flex:1;padding:12px 0;text-align:center;
+    font-family:var(--sans);font-size:16px;font-weight:600;
+    border:1px solid var(--rule);background:var(--paper);color:var(--ink-soft);
+  }
+  .tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+  .panel{background:var(--paper-alt);border:1px solid var(--rule);padding:18px;margin-bottom:16px;}
+  .panel-label{font-size:14.5px;color:var(--ink-soft);margin-bottom:8px;}
+  .panel-figs{font-family:var(--mono);font-size:28px;font-weight:700;color:var(--ink);}
+  .panel-figs .of{font-size:16px;font-weight:500;color:var(--ink-soft);font-family:var(--sans);margin-left:6px;}
+  .panel-caption{font-family:var(--mono);font-size:15px;color:var(--ink);margin-top:10px;}
+
+  .attend-row{display:flex;justify-content:space-between;margin-top:4px;}
+  .attend-stat{text-align:center;flex:1;}
+  .attend-stat .n{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--ink);}
+  .attend-stat .l{font-size:14px;color:var(--ink-soft);margin-top:3px;}
+
+  .weekbar{margin-bottom:16px;}
+  .weekbar-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+
+  .day-off{font-size:17px;color:var(--ink-soft);font-style:italic;}
+  .day-off-note{font-size:14px;color:var(--ink-soft);margin-top:4px;font-style:normal;}
+
+  .checkrow{display:flex;align-items:center;gap:10px;margin:14px 0 6px;}
+  .checkrow input[type=checkbox]{width:24px;height:24px;}
+  .checkrow label{margin:0;font-size:16px;color:var(--ink);}
+  .notefield{margin-top:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Pūtea Shift Log</h1>
+    <p class="sub">Every day, logged.</p>
+  </header>
+  <div id="app" style="background:#ECEAE3;"><p class="loading">Loading your log…</p></div>
+</div>
+
+
+<script>
+let entries = [];
+let settings = { weeklyTarget: 501 };
+let weekStart = startOfWeek(new Date());
+let activeDate = null;
+let pendingDelete = null;
+let editingTarget = false;
+let view = 'week';
+const KM_TIER1_THRESHOLD = 14000;
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+
+function toISO(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+
+function parseISO(s){
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function taxYearStart(d){
+  const y = d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1; // April = month index 3
+  return new Date(y, 3, 1);
+}
+
+function startOfWeek(d){
+  const day = d.getDay(); // 0 Sun .. 6 Sat
+  const diff = (day === 0) ? -6 : (1 - day);
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diff);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function addDays(d, n){
+  const r = new Date(d);
+  r.setDate(d.getDate() + n);
+  return r;
+}
+
+function fmtWeekday(d){ return d.toLocaleDateString('en-NZ', { weekday: 'short' }); }
+function fmtDayMonth(d){ return d.getDate() + ' ' + d.toLocaleDateString('en-NZ', { month: 'short' }); }
+
+function money(n, decimals){
+  decimals = (decimals===undefined) ? 2 : decimals;
+  const v = Number(n) || 0;
+  return (v < 0 ? '-$' : '$') + Math.abs(v).toFixed(decimals);
+}
+
+function hoursLabel(decHours){
+  const totalMin = Math.round((decHours||0) * 60);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  return h + 'h' + pad(m) + 'm';
+}
+
+async function loadData(){
+  try {
+    const r = await window.storage.get('shift-entries', false);
+    if (r && r.value) entries = JSON.parse(r.value);
+  } catch(e){ entries = []; }
+  try {
+    const r2 = await window.storage.get('settings', false);
+    if (r2 && r2.value) settings = JSON.parse(r2.value);
+  } catch(e){ settings = { weeklyTarget: 501 }; }
+}
+
+async function persistEntries(){
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++){
+    try {
+      await window.storage.set('shift-entries', JSON.stringify(entries), false);
+      return true;
+    } catch(e){
+      console.error('save attempt ' + attempt + ' failed', e);
+      if (attempt < maxAttempts){
+        await new Promise(r => setTimeout(r, 400 * attempt));
+      } else {
+        alert('That day did not save. Please open it and tap Save again.');
+        return false;
+      }
+    }
+  }
+}
+
+async function persistSettings(){
+  const maxAttempts = 3;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++){
+    try {
+      await window.storage.set('settings', JSON.stringify(settings), false);
+      return true;
+    } catch(e){
+      console.error('settings save attempt ' + attempt + ' failed', e);
+      if (attempt < maxAttempts){
+        await new Promise(r => setTimeout(r, 400 * attempt));
+      } else {
+        alert('The target did not save. Please try again.');
+        return false;
+      }
+    }
+  }
+}
+
+function computeDerived(entry){
+  const onlineDecimal = (entry.onlineHours||0) + (entry.onlineMinutes||0)/60;
+  const total = (entry.netFare||0) + (entry.promotions||0) + (entry.tips||0);
+  const hasDistance = (entry.startKm!=null && entry.endKm!=null && entry.endKm > entry.startKm);
+  const distance = hasDistance ? (entry.endKm - entry.startKm) : null;
+  return {
+    onlineDecimal: onlineDecimal,
+    total: total,
+    hourly: onlineDecimal > 0 ? total / onlineDecimal : 0,
+    tripsPerHr: onlineDecimal > 0 ? (entry.trips||0) / onlineDecimal : 0,
+    perKm: (distance && distance > 0) ? total / distance : null,
+    distance: distance
+  };
+}
+
+function weekAgg(weekEntries){
+  let sumOnline=0, sumTrips=0, sumFare=0, sumPromo=0, sumTips=0, sumDistance=0;
+  weekEntries.forEach(e=>{
+    sumOnline += (e.onlineHours||0) + (e.onlineMinutes||0)/60;
+    sumTrips  += e.trips||0;
+    sumFare   += e.netFare||0;
+    sumPromo  += e.promotions||0;
+    sumTips   += e.tips||0;
+    if (e.startKm!=null && e.endKm!=null && e.endKm > e.startKm){
+      sumDistance += (e.endKm - e.startKm);
+    }
+  });
+  const total = sumFare + sumPromo + sumTips;
+  return {
+    sumOnline, sumTrips, sumFare, sumPromo, sumTips, sumDistance, total,
+    hourly: sumOnline > 0 ? total / sumOnline : 0,
+    perKm: sumDistance > 0 ? total / sumDistance : null
+  };
+}
+
+function openDay(date){
+  if (activeDate === date){ activeDate = null; }
+  else { activeDate = date; pendingDelete = null; }
+  render();
+}
+
+function setView(v){
+  view = v;
+  activeDate = null;
+  render();
+}
+
+function toggleDayOffFields(isOff){
+  const el = document.getElementById('work-fields');
+  if (el) el.style.display = isOff ? 'none' : 'block';
+}
+
+function computeAttendance(rangeStart){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const totalDays = Math.floor((today - rangeStart) / (1000*60*60*24)) + 1;
+  let worked = 0, off = 0;
+  entries.forEach(e => {
+    const d = parseISO(e.date);
+    if (d >= rangeStart && d <= today){
+      if (e.dayOff) off++; else worked++;
+    }
+  });
+  const notLogged = Math.max(totalDays - worked - off, 0);
+  return { worked, off, notLogged, totalDays };
+}
+
+function weeksTrend(count){
+  const target = settings.weeklyTarget || 501;
+  const thisWeek = startOfWeek(new Date());
+  const weeks = [];
+  for (let i=0; i<count; i++){
+    const ws = addDays(thisWeek, -7*i);
+    const dates = [];
+    for (let j=0;j<7;j++) dates.push(toISO(addDays(ws,j)));
+    const wEntries = entries.filter(e => dates.includes(e.date));
+    const agg = weekAgg(wEntries);
+    const label = fmtDayMonth(ws) + ' – ' + fmtDayMonth(addDays(ws,6));
+    const pct = target > 0 ? Math.round((agg.total/target)*100) : 0;
+    weeks.push({ label, total: agg.total, pct });
+  }
+  return weeks;
+}
+
+function closeDay(){
+  activeDate = null;
+  pendingDelete = null;
+  render();
+}
+
+function numOrZero(id){
+  const el = document.getElementById(id);
+  if (!el || el.value === '') return 0;
+  return parseFloat(el.value);
+}
+
+function updateKmPreview(){
+  const preview = document.getElementById('km-preview');
+  if (!preview) return;
+  const s = document.getElementById('in-startkm').value;
+  const e = document.getElementById('in-endkm').value;
+  if (s === '' || e === ''){ preview.textContent = ''; return; }
+  const diff = parseFloat(e) - parseFloat(s);
+  preview.textContent = diff >= 0 ? diff + ' km' : 'Finish should be more than start';
+}
+
+function numOrNull(id){
+  const el = document.getElementById(id);
+  if (!el || el.value === '') return null;
+  return parseFloat(el.value);
+}
+
+async function saveDay(date){
+  const isOff = document.getElementById('in-dayoff').checked;
+  const note = document.getElementById('in-note').value || null;
+  let newEntry;
+  if (isOff){
+    newEntry = { date: date, dayOff: true, note: note };
+  } else {
+    newEntry = {
+      date: date,
+      dayOff: false,
+      startTime: (document.getElementById('in-starttime').value || null),
+      onlineHours: numOrZero('in-hours'),
+      onlineMinutes: numOrZero('in-mins'),
+      trips: Math.round(numOrZero('in-trips')),
+      netFare: numOrZero('in-fare'),
+      promotions: numOrZero('in-promo'),
+      tips: numOrZero('in-tips'),
+      startKm: numOrNull('in-startkm'),
+      endKm: numOrNull('in-endkm'),
+      note: note
+    };
+  }
+  entries = entries.filter(e => e.date !== date);
+  entries.push(newEntry);
+  entries.sort((a,b) => a.date.localeCompare(b.date));
+  const ok = await persistEntries();
+  if (ok) {
+    activeDate = null;
+    render();
+  }
+  // if save failed: leave form open so the user doesn't lose their data
+}
+
+function askDelete(date){
+  if (pendingDelete === date){ deleteDay(date); }
+  else { pendingDelete = date; render(); }
+}
+
+async function deleteDay(date){
+  entries = entries.filter(e => e.date !== date);
+  await persistEntries();
+  pendingDelete = null;
+  activeDate = null;
+  render();
+}
+
+function changeWeek(delta){
+  weekStart = addDays(weekStart, delta*7);
+  activeDate = null;
+  pendingDelete = null;
+  render();
+}
+
+function toggleEditTarget(){
+  editingTarget = !editingTarget;
+  render();
+}
+
+async function saveTarget(){
+  const v = parseFloat(document.getElementById('in-target').value);
+  if (!isNaN(v) && v > 0) {
+    settings.weeklyTarget = v;
+    const ok = await persistSettings();
+    if (ok) editingTarget = false;
+  } else {
+    editingTarget = false;
+  }
+  render();
+}
+
+function formHtml(date, entry){
+  const e = entry || {};
+  const isOff = !!e.dayOff;
+  return `
+    <div class="form">
+      <div class="checkrow">
+        <input type="checkbox" id="in-dayoff" ${isOff ? 'checked' : ''} onchange="toggleDayOffFields(this.checked)">
+        <label for="in-dayoff">Day off — didn't drive</label>
+      </div>
+      <div id="work-fields" style="display:${isOff ? 'none' : 'block'};">
+        <label>Start time</label>
+        <input type="time" id="in-starttime" value="${e.startTime || ''}">
+        <label>Odometer</label>
+        <div class="row2">
+          <div>
+            <input type="number" id="in-startkm" placeholder="Start km" oninput="updateKmPreview()" value="${e.startKm!=null?e.startKm:''}">
+          </div>
+          <div>
+            <input type="number" id="in-endkm" placeholder="Finish km" oninput="updateKmPreview()" value="${e.endKm!=null?e.endKm:''}">
+          </div>
+        </div>
+        <div class="kmpreview" id="km-preview">${(e.startKm!=null && e.endKm!=null && e.endKm>e.startKm) ? (e.endKm-e.startKm)+' km' : ''}</div>
+        <label>Time online</label>
+        <div class="row2">
+          <div>
+            <input type="number" min="0" id="in-hours" placeholder="Hours" value="${e.onlineHours!=null?e.onlineHours:''}">
+          </div>
+          <div>
+            <input type="number" min="0" max="59" id="in-mins" placeholder="Minutes" value="${e.onlineMinutes!=null?e.onlineMinutes:''}">
+          </div>
+        </div>
+        <label>Trips</label>
+        <input type="number" min="0" id="in-trips" placeholder="Number of trips" value="${e.trips!=null?e.trips:''}">
+        <label>Net fare $</label>
+        <input type="number" step="0.01" id="in-fare" placeholder="e.g. 105.20" value="${e.netFare!=null?e.netFare:''}">
+        <div class="row2">
+          <div>
+            <label>Promotions $</label>
+            <input type="number" step="0.01" id="in-promo" placeholder="0.00" value="${e.promotions!=null?e.promotions:''}">
+          </div>
+          <div>
+            <label>Tips $</label>
+            <input type="number" step="0.01" id="in-tips" placeholder="0.00" value="${e.tips!=null?e.tips:''}">
+          </div>
+        </div>
+      </div>
+      <div class="notefield">
+        <label>Notes (optional)</label>
+        <input type="text" id="in-note" placeholder="e.g. travel, declined a long trip" value="${e.note || ''}">
+      </div>
+      <div class="btnrow">
+        <button class="btn primary" onclick="saveDay('${date}')">Save</button>
+        <button class="btn plain" onclick="closeDay()">Cancel</button>
+      </div>
+      ${entry ? `<div class="delrow"><button class="del" onclick="askDelete('${date}')">${pendingDelete===date ? 'Tap again to delete' : 'Delete this day'}</button></div>` : ''}
+    </div>
+  `;
+}
+
+function exportCSV(){
+  const rows = [['Date','Day off','Start time','Start km','Finish km','Distance km','Online hours','Online minutes','Trips','Net fare','Promotions','Tips','Total earnings','Notes']];
+  entries.slice().sort((a,b)=>a.date.localeCompare(b.date)).forEach(e=>{
+    const der = computeDerived(e);
+    rows.push([
+      e.date, e.dayOff ? 'Yes' : 'No', e.startTime||'', e.startKm!=null?e.startKm:'', e.endKm!=null?e.endKm:'',
+      der.distance!=null?der.distance:'', e.onlineHours||0, e.onlineMinutes||0, e.trips||0,
+      (e.netFare||0).toFixed(2), (e.promotions||0).toFixed(2), (e.tips||0).toFixed(2), der.total.toFixed(2),
+      e.note ? '"'+e.note.replace(/"/g,'""')+'"' : ''
+    ]);
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'putea-shift-log.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function monthsTrend(){
+  const tys = taxYearStart(new Date());
+  const today = new Date();
+  const months = [];
+  // Walk from tax year start month up to current month
+  let y = tys.getFullYear();
+  let m = tys.getMonth(); // 0-indexed
+  while (new Date(y, m, 1) <= today) {
+    const monthStart = new Date(y, m, 1);
+    const monthEnd = new Date(y, m + 1, 0); // last day of month
+    const label = monthStart.toLocaleDateString('en-NZ', { month: 'short', year: '2-digit' });
+    const mEntries = entries.filter(e => {
+      const d = parseISO(e.date);
+      return !e.dayOff && d >= monthStart && d <= monthEnd;
+    });
+    const agg = weekAgg(mEntries);
+    months.push({ label, total: agg.total, trips: agg.sumTrips, distance: agg.sumDistance, online: agg.sumOnline });
+    m++;
+    if (m > 11) { m = 0; y++; }
+  }
+  return months.reverse(); // most recent first
+}
+
+function renderDashboard(){
+  const tys = taxYearStart(new Date());
+  const ytdEntries = entries.filter(e => parseISO(e.date) >= tys && !e.dayOff);
+  const ytd = weekAgg(ytdEntries);
+  const kmPct = Math.min(100, Math.round((ytd.sumDistance / KM_TIER1_THRESHOLD) * 100));
+  const kmRemaining = Math.max(KM_TIER1_THRESHOLD - ytd.sumDistance, 0);
+  const att = computeAttendance(tys);
+  const weeks = weeksTrend(8);
+
+  let html = '';
+
+  html += `
+    <div class="hero">
+      <div class="amount">${money(ytd.total,0)}</div>
+      <div class="caption">${ytd.sumTrips} trips · ${Math.round(ytd.sumDistance)} km · ${money(ytd.hourly)}/hr avg</div>
+    </div>
+  `;
+
+  html += `
+    <div class="panel">
+      <div class="panel-label">IRD Tier 1 km threshold</div>
+      <div class="panel-figs">${Math.round(ytd.sumDistance)} km <span class="of">of ${KM_TIER1_THRESHOLD.toLocaleString()}</span></div>
+      <div class="track"><div class="fill" style="width:${kmPct}%"></div></div>
+      <div class="panel-caption">${Math.round(kmRemaining)} km left at the $1.17 rate</div>
+    </div>
+  `;
+
+  html += `
+    <div class="panel">
+      <div class="panel-label">Days since 1 Apr ${tys.getFullYear()}</div>
+      <div class="attend-row">
+        <div class="attend-stat"><div class="n">${att.worked}</div><div class="l">Worked</div></div>
+        <div class="attend-stat"><div class="n">${att.off}</div><div class="l">Off</div></div>
+        <div class="attend-stat"><div class="n">${att.notLogged}</div><div class="l">Not logged</div></div>
+      </div>
+    </div>
+  `;
+
+  html += `<div class="panel-label" style="margin:22px 2px 10px;">Last 8 weeks</div>`;
+  weeks.forEach(w => {
+    const fillPct = Math.min(100, w.pct);
+    const cls = w.pct >= 100 ? 'fill good' : 'fill';
+    html += `
+      <div class="weekbar">
+        <div class="weekbar-top"><span>${w.label}</span><span>${money(w.total,0)}</span></div>
+        <div class="track"><div class="${cls}" style="width:${fillPct}%"></div></div>
+      </div>
+    `;
+  });
+
+  const months = monthsTrend();
+  if (months.length > 0) {
+    const maxTotal = Math.max(...months.map(m => m.total), 1);
+    html += `<div class="panel-label" style="margin:28px 2px 10px;">Monthly totals</div>`;
+    html += `<div class="panel" style="padding:14px 18px;">`;
+    months.forEach(m => {
+      const barPct = Math.round((m.total / maxTotal) * 100);
+      html += `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+            <span style="font-family:var(--mono);font-size:16px;font-weight:700;">${m.label}</span>
+            <span style="font-family:var(--mono);font-size:18px;font-weight:700;">${money(m.total,0)}</span>
+          </div>
+          <div class="track"><div class="fill" style="width:${barPct}%;background:var(--amber-fill);"></div></div>
+          <div style="font-family:var(--mono);font-size:14px;color:var(--ink-soft);margin-top:5px;">${m.trips} trips · ${Math.round(m.distance)} km · ${hoursLabel(m.online)} online</div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  return html;
+}
+
+function render(){
+  const tys = taxYearStart(new Date());
+  const ytdEntries = entries.filter(e => parseISO(e.date) >= tys);
+  const ytdStrip = weekAgg(ytdEntries.filter(e => !e.dayOff));
+
+  let html = '';
+
+  html += `
+    <div class="ytd">
+      <span class="lbl">Since 1 Apr ${tys.getFullYear()}</span>
+      <span class="figs">
+        <span>${Math.round(ytdStrip.sumDistance)} km</span><span>${ytdStrip.sumTrips} trips</span><span>${money(ytdStrip.total,0)}</span>
+      </span>
+    </div>
+  `;
+
+  html += `
+    <div class="tabs">
+      <button class="tab ${view==='week'?'active':''}" onclick="setView('week')">This week</button>
+      <button class="tab ${view==='dashboard'?'active':''}" onclick="setView('dashboard')">Dashboard</button>
+    </div>
+  `;
+
+  if (view === 'dashboard'){
+    html += renderDashboard();
+  } else {
+    const weekDates = [];
+    for (let i=0;i<7;i++) weekDates.push(toISO(addDays(weekStart,i)));
+
+    const weekEntries = entries.filter(e => weekDates.includes(e.date));
+    const agg = weekAgg(weekEntries.filter(e => !e.dayOff));
+    const target = settings.weeklyTarget || 501;
+    const pct = target > 0 ? Math.round((agg.total / target) * 100) : 0;
+    const fillPct = Math.min(pct, 100);
+    const fillClass = pct >= 100 ? 'fill good' : 'fill';
+
+    const rangeStart = addDays(weekStart,0);
+    const rangeEnd = addDays(weekStart,6);
+    const rangeLabel = fmtDayMonth(rangeStart) + ' – ' + fmtDayMonth(rangeEnd);
+
+    html += `
+      <div class="weeknav">
+        <button onclick="changeWeek(-1)">‹</button>
+        <div class="range">Week of ${rangeLabel}</div>
+        <button onclick="changeWeek(1)">›</button>
+      </div>
+    `;
+
+    html += `
+      <div class="hero">
+        <div class="amount">${money(agg.total, 0)}</div>
+        <div class="caption">${money(agg.total)} of ${money(target,0)} target · ${pct}%</div>
+        <div class="track"><div class="${fillClass}" style="width:${fillPct}%"></div></div>
+        <div class="subline">${agg.sumTrips} trips · ${hoursLabel(agg.sumOnline)} online · ${money(agg.hourly)}/hr avg</div>
+        ${agg.sumDistance > 0 ? `<div class="subline">${Math.round(agg.sumDistance)} km · ${money(agg.perKm)}/km</div>` : ''}
+      </div>
+    `;
+
+    weekDates.forEach(date => {
+      const d = parseISO(date);
+      const entry = weekEntries.find(e => e.date === date);
+      const wk = fmtWeekday(d);
+      const dt = fmtDayMonth(d);
+
+      if (entry && entry.dayOff){
+        html += `
+          <div class="day-row" onclick="openDay('${date}')">
+            <div class="day-left">
+              <div class="wk">${wk}</div>
+              <div class="dt">${dt}</div>
+            </div>
+            <div class="day-right">
+              <div class="day-off">Day off</div>
+              ${entry.note ? `<div class="day-off-note">${entry.note}</div>` : ''}
+            </div>
+          </div>
+        `;
+        if (activeDate === date) html += formHtml(date, entry);
+      } else if (entry){
+        const der = computeDerived(entry);
+        html += `
+          <div class="day-row" onclick="openDay('${date}')">
+            <div class="day-left">
+              <div class="wk">${wk}</div>
+              <div class="dt">${dt}</div>
+            </div>
+            <div class="day-right">
+              <div class="tot">${money(der.total)}</div>
+              <div class="meta">${entry.trips||0} trips · ${hoursLabel(der.onlineDecimal)} · ${money(der.hourly)}/hr</div>
+              ${der.distance ? `<div class="meta">${der.distance} km · ${der.perKm?money(der.perKm)+'/km':''}</div>` : ''}
+              ${entry.promotions ? `<div class="promo">+${money(entry.promotions)} promo</div>` : ''}
+            </div>
+          </div>
+        `;
+        if (activeDate === date) html += formHtml(date, entry);
+      } else {
+        html += `
+          <div class="day-row" onclick="openDay('${date}')">
+            <div class="day-left">
+              <div class="wk">${wk}</div>
+              <div class="dt">${dt}</div>
+            </div>
+            <div class="day-right">
+              <div class="not-logged">Log this day</div>
+            </div>
+          </div>
+        `;
+        if (activeDate === date) html += formHtml(date, null);
+      }
+    });
+  }
+
+  html += `
+    <div class="settings">
+      ${editingTarget
+        ? `<span>Weekly target <input type="number" id="in-target" value="${settings.weeklyTarget||501}"></span><button class="change" onclick="saveTarget()">Save</button>`
+        : `<span>Weekly target ${money(settings.weeklyTarget||501,0)}</span><button class="change" onclick="toggleEditTarget()">Change</button>`
+      }
+    </div>
+    <div class="settings">
+      <span>${entries.length} day${entries.length===1?'':'s'} logged in total</span>
+      <button class="export" onclick="exportCSV()">Export CSV</button>
+    </div>
+  `;
+
+  document.getElementById('app').innerHTML = html;
+}
+
+(async function init(){
+  await loadData();
+  render();
+})();
+</script>
+</body>
+</html>
