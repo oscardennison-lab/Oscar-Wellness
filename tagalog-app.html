@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tagalog — Missionary Language App</title>
+<style>
+  /* ─── TOKENS ─────────────────────────────────────────── */
+  :root {
+    --navy:   #1B2B4B;
+    --gold:   #C8941A;
+    --gold-lt:#F0C860;
+    --cream:  #F7F4EE;
+    --white:  #FFFFFF;
+    --slate:  #4A5568;
+    --mist:   #E8E4DC;
+    --green:  #2D6A4F;
+    --red:    #B03A2E;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(27,43,75,.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --navy:  #0D1B35;
+      --cream: #1A2340;
+      --white: #1E2E50;
+      --mist:  #253455;
+      --slate: #A8B8D0;
+    }
+    body { background: #0D1B35; color: #D8E4F0; }
+    .card { background: #1E2E50; }
+    .tab-bar { background: #0D1B35; border-top-color: #253455; }
+    input[type=text] { background: #253455; color: #D8E4F0; border-color: #3A4E70; }
+    .option-btn { background: #253455; color: #D8E4F0; border-color: #3A4E70; }
+    .chapter-btn { background: #1E2E50; border-color: #3A4E70; }
+    .progress-bar-bg { background: #253455; }
+    .pill { background: #253455; color: #A8B8D0; }
+    .answer-reveal { background: #253455; }
+    .dialogue-line.them { background: #253455; }
+    .section-header { color: #A8B8D0; }
+  }
+
+  /* ─── BASE ───────────────────────────────────────────── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────────── */
+  .app-header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 18px 20px 14px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-header h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    color: #FFF;
+  }
+  .app-header .subtitle {
+    font-size: .75rem;
+    color: var(--gold-lt);
+    margin-top: 2px;
+  }
+  .xp-bar {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .progress-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,.2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 3px;
+    transition: width .5s ease;
+  }
+  .xp-label {
+    font-size: .7rem;
+    color: var(--gold-lt);
+    white-space: nowrap;
+  }
+
+  /* ─── TAB BAR ────────────────────────────────────────── */
+  .tab-bar {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: var(--white);
+    border-top: 1.5px solid var(--mist);
+    display: flex;
+    z-index: 100;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 4px 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: var(--slate);
+    font-size: .65rem;
+    font-weight: 500;
+    transition: color .15s;
+  }
+  .tab-btn .icon { font-size: 1.3rem; }
+  .tab-btn.active { color: var(--navy); }
+  .tab-btn.active .icon-label { color: var(--gold); font-weight: 700; }
+
+  /* ─── SCREENS ────────────────────────────────────────── */
+  .screen { display: none; padding: 16px; }
+  .screen.active { display: block; }
+
+  /* ─── CARDS ──────────────────────────────────────────── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  /* ─── HOME SCREEN ────────────────────────────────────── */
+  .welcome-banner {
+    background: var(--navy);
+    border-radius: var(--radius);
+    color: #FFF;
+    padding: 20px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::after {
+    content: "🇵🇭";
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.8rem;
+    opacity: .4;
+  }
+  .welcome-banner h2 { font-size: 1.1rem; color: #FFF; }
+  .welcome-banner p { font-size: .8rem; color: var(--gold-lt); margin-top: 5px; line-height: 1.5; }
+  .today-phrase {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-top: 10px;
+  }
+  .today-trans { font-size: .8rem; color: rgba(255,255,255,.7); }
+
+  .chapter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .chapter-btn {
+    background: var(--white);
+    border: 1.5px solid var(--mist);
+    border-radius: var(--radius);
+    padding: 14px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color .15s, transform .1s;
+  }
+  .chapter-btn:active { transform: scale(.97); }
+  .chapter-btn.completed { border-color: var(--green); }
+  .chapter-btn .ch-num {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .chapter-btn .ch-name {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-top: 3px;
+    line-height: 1.3;
+  }
+  .chapter-btn .ch-desc {
+    font-size: .68rem;
+    color: var(--slate);
+    margin-top: 4px;
+  }
+  .ch-badge {
+    display: inline-block;
+    font-size: .58rem;
+    padding: 2px 6px;
+    border-radius: 20px;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .ch-badge.done { background: #D4EDDA; color: var(--green); }
+  .ch-badge.in-progress { background: #FFF3CD; color: #856404; }
+  .ch-badge.locked { background: var(--mist); color: var(--slate); }
+
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-box {
+    flex: 1;
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .stat-num { font-size: 1.6rem; font-weight: 800; color: var(--navy); }
+  .stat-label { font-size: .65rem; color: var(--slate); margin-top: 2px; }
+
+  /* ─── LESSON SCREEN ──────────────────────────────────── */
+  .lesson-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .back-btn {
+    background: var(--mist);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--navy);
+  }
+  .lesson-title { font-size: 1rem; font-weight: 700; }
+
+  .lesson-content { display: none; }
+  .lesson-content.active { display: block; }
+
+  .grammar-box {
+    background: var(--navy);
+    color: #FFF;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  .grammar-box h3 { font-size: .85rem; font-weight: 700; margin-bottom: 8px; color: var(--gold-lt); }
+  .grammar-box p { font-size: .8rem; line-height: 1.6; color: rgba(255,255,255,.85); }
+  .grammar-box .pattern {
+    background: rgba(255,255,255,.1);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    font-size: .82rem;
+    font-family: 'Courier New', monospace;
+    color: var(--gold-lt);
+  }
+
+  .example-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--mist);
+  }
+  .example-pair:last-child { border-bottom: none; }
+  .example-tl { font-size: .9rem; font-weight: 600; color: var(--navy); }
+  .example-en { font-size: .78rem; color: var(--slate); }
+  .example-gloss { font-size: .7rem; color: var(--gold); font-style: italic; }
+
+  .pill {
+    display: inline-block;
+    background: var(--mist);
+    color: var(--slate);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: .68rem;
+    font-weight: 600;
+    margin: 3px 3px 0 0;
+  }
+
+  .section-header {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--slate);
+    margin: 18px 0 8px;
+  }
+
+  /* ─── QUIZ ENGINE ────────────────────────────────────── */
+  .quiz-container { }
+
+  .quiz-progress {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+  .quiz-pip {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--mist);
+    transition: background .3s;
+  }
+  .quiz-pip.done { background: var(--green); }
+  .quiz-pip.current { background: var(--gold); }
+
+  .quiz-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    min-height: 160px;
+    position: relative;
+  }
+  .quiz-type-label {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .quiz-question {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.4;
+    margin-bottom: 6px;
+  }
+  .quiz-hint {
+    font-size: .75rem;
+    color: var(--slate);
+    margin-bottom: 16px;
+  }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .option-btn {
+    background: var(--mist);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px 10px;
+    font-size: .82rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    color: var(--navy);
+    transition: border-color .15s, background .15s;
+    line-height: 1.3;
+  }
+  .option-btn:active { transform: scale(.97); }
+  .option-btn.correct { background: #D4EDDA; border-color: var(--green); color: var(--green); }
+  .option-btn.wrong { background: #F8D7DA; border-color: var(--red); color: var(--red); }
+  .option-btn.reveal { background: #D4EDDA; border-color: var(--green); color: var(--green); }
+  .option-btn:disabled { cursor: default; }
+
+  input[type=text] {
+    width: 100%;
+    padding: 13px 14px;
+    border: 2px solid var(--mist);
+    border-radius: 8px;
+    font-size: .95rem;
+    margin-top: 10px;
+    outline: none;
+    background: var(--cream);
+    color: var(--navy);
+    transition: border-color .15s;
+  }
+  input[type=text]:focus { border-color: var(--navy); }
+  input[type=text].correct { border-color: var(--green); background: #D4EDDA; }
+  input[type=text].wrong { border-color: var(--red); background: #F8D7DA; }
+
+  .answer-reveal {
+    background: var(--mist);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  .answer-reveal.show { display: block; }
+  .answer-reveal .correct-text {
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--green);
+  }
+  .answer-reveal .explain {
+    font-size: .75rem;
+    color: var(--slate);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .quiz-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .btn-primary {
+    flex: 1;
+    background: var(--navy);
+    color: #FFF;
+    border: none;
+    border-radius: 8px;
+    padding: 14px;
+    font-size: .88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn-primary:active { opacity: .85; }
+  .btn-primary:disabled { opacity: .4; cursor: default; }
+  .btn-secondary {
+    background: var(--mist);
+    color: var(--navy);
+    border: none;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: .88rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ─── FLASHCARDS ─────────────────────────────────────── */
+  .flashcard-area {
+    perspective: 1000px;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+  .flashcard-inner {
+    position: relative;
+    min-height: 200px;
+    transform-style: preserve-3d;
+    transition: transform .5s;
+    border-radius: var(--radius);
+  }
+  .flashcard-inner.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .fc-front { background: var(--navy); color: #FFF; }
+  .fc-back { background: var(--white); color: var(--navy); transform: rotateY(180deg); }
+  .fc-label {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    opacity: .6;
+    margin-bottom: 10px;
+  }
+  .fc-main { font-size: 1.3rem; font-weight: 800; text-align: center; line-height: 1.3; }
+  .fc-sub { font-size: .8rem; opacity: .7; text-align: center; margin-top: 8px; line-height: 1.4; }
+  .fc-stress { font-size: .75rem; color: var(--gold-lt); margin-top: 6px; font-style: italic; }
+  .fc-pattern { font-size: .72rem; color: var(--gold); margin-top: 8px; font-style: italic; }
+
+  .fc-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+  .fc-btn-know {
+    flex: 1;
+    background: #D4EDDA;
+    color: var(--green);
+    border: 2px solid var(--green);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .fc-btn-learn {
+    flex: 1;
+    background: #F8D7DA;
+    color: var(--red);
+    border: 2px solid var(--red);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .fc-counter {
+    text-align: center;
+    font-size: .72rem;
+    color: var(--slate);
+    margin-bottom: 12px;
+  }
+  .fc-category {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .fc-cat-btn {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1.5px solid var(--mist);
+    background: var(--white);
+    font-size: .72rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--slate);
+  }
+  .fc-cat-btn.active {
+    background: var(--navy);
+    color: #FFF;
+    border-color: var(--navy);
+  }
+
+  /* ─── DIALOGUE ───────────────────────────────────────── */
+  .dialogue-scene {
+    font-size: .72rem;
+    color: var(--slate);
+    font-style: italic;
+    margin-bottom: 14px;
+    padding: 8px 12px;
+    background: var(--mist);
+    border-radius: 8px;
+  }
+  .dialogue-line {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .dialogue-line.them {
+    background: var(--mist);
+    border-radius: 0 10px 10px 10px;
+    padding: 10px 14px;
+    margin-right: 30px;
+  }
+  .dialogue-line.you {
+    background: var(--navy);
+    color: #FFF;
+    border-radius: 10px 0 10px 10px;
+    padding: 10px 14px;
+    margin-left: 30px;
+    align-self: flex-end;
+    width: fit-content;
+    max-width: 100%;
+  }
+  .dialogue-line.you-input {
+    margin-left: 30px;
+    align-self: flex-end;
+    width: 100%;
+  }
+  .speaker-name {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    opacity: .65;
+  }
+  .line-tl { font-size: .88rem; font-weight: 600; }
+  .line-en { font-size: .72rem; opacity: .7; }
+  .dialogue-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #FFF;
+    font-size: .9rem;
+    font-weight: 600;
+    padding: 0;
+  }
+  .dialogue-input::placeholder { color: rgba(255,255,255,.4); }
+  .dlg-hint { font-size: .7rem; color: var(--gold-lt); margin-top: 4px; }
+
+  /* ─── PHRASE REFERENCE ───────────────────────────────── */
+  .phrase-group { margin-bottom: 18px; }
+  .phrase-group-title {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .phrase-item {
+    padding: 10px 14px;
+    background: var(--white);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    box-shadow: 0 1px 4px rgba(27,43,75,.07);
+    cursor: pointer;
+    transition: transform .1s;
+  }
+  .phrase-item:active { transform: scale(.98); }
+  .phrase-tl { font-size: .9rem; font-weight: 700; color: var(--navy); }
+  .phrase-en { font-size: .75rem; color: var(--slate); margin-top: 2px; }
+  .phrase-note {
+    font-size: .7rem;
+    color: var(--gold);
+    font-style: italic;
+    margin-top: 4px;
+    display: none;
+  }
+  .phrase-note.show { display: block; }
+  .phrase-stress {
+    font-size: .68rem;
+    color: var(--green);
+    margin-top: 3px;
+    display: none;
+  }
+  .phrase-stress.show { display: block; }
+
+  /* ─── COMPLETE SCREEN ────────────────────────────────── */
+  .complete-card {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .complete-emoji { font-size: 3rem; margin-bottom: 14px; }
+  .complete-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; }
+  .complete-sub { font-size: .82rem; color: var(--slate); line-height: 1.5; }
+  .complete-score {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--gold);
+    margin: 16px 0;
+  }
+
+  /* ─── TOAST ──────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 90px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--navy);
+    color: #FFF;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: .82rem;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+    z-index: 200;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ─── CHAPTER DETAIL ─────────────────────────────────── */
+  .lesson-menu { display: block; }
+  .lesson-detail { display: none; }
+  .lesson-detail.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <h1>Tagalog para sa Ebanghelyo</h1>
+  <div class="subtitle">Tagalog for the Gospel</div>
+  <div class="xp-bar">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="xpBar" style="width:0%"></div>
+    </div>
+    <span class="xp-label" id="xpLabel">0 / 100 XP</span>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('home')" id="tab-home">
+    <span class="icon">🏠</span>
+    <span class="icon-label">Home</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('lessons')" id="tab-lessons">
+    <span class="icon">📖</span>
+    <span class="icon-label">Lessons</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('flashcards')" id="tab-flashcards">
+    <span class="icon">🃏</span>
+    <span class="icon-label">Cards</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('dialogue')" id="tab-dialogue">
+    <span class="icon">💬</span>
+    <span class="icon-label">Converse</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('phrases')" id="tab-phrases">
+    <span class="icon">📋</span>
+    <span class="icon-label">Reference</span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- HOME SCREEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen active" id="screen-home">
+
+  <div class="welcome-banner">
+    <h2>Magandang araw!</h2>
+    <p>Good day! Ready to keep building your Tagalog?</p>
+    <div class="today-phrase" id="phraseOfDay"></div>
+    <div class="today-trans" id="phraseOfDayEn"></div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-num" id="statCorrect">0</div>
+      <div class="stat-label">Correct answers</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statStreak">0</div>
+      <div class="stat-label">Day streak</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="statCards">0</div>
+      <div class="stat-label">Cards mastered</div>
+    </div>
+  </div>
+
+  <div class="card-title">Your Chapters</div>
+  <div class="chapter-grid" id="homeChapterGrid"></div>
+
+  <div class="card">
+    <div class="card-title">Quick Practice</div>
+    <p style="font-size:.82rem; color:var(--slate); margin-bottom:12px; line-height:1.5;">Jump into a 5-question mixed quiz covering everything you've studied.</p>
+    <button class="btn-primary" onclick="startMixedQuiz()">Start Quick Quiz →</button>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- LESSONS SCREEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-lessons">
+
+  <div class="lesson-menu" id="lessonMenu">
+    <div class="card-title" style="margin-bottom:12px">All Chapters</div>
+    <div id="lessonList"></div>
+  </div>
+
+  <div class="lesson-detail" id="lessonDetail">
+    <!-- filled dynamically -->
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FLASHCARDS SCREEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-flashcards">
+
+  <div class="card-title" style="margin-bottom:10px">Flashcards</div>
+
+  <div class="fc-category" id="fcCategoryBtns"></div>
+
+  <div class="fc-counter" id="fcCounter">Tap card to flip</div>
+
+  <div class="flashcard-area" onclick="flipCard()">
+    <div class="flashcard-inner" id="flashcardInner">
+      <div class="fc-face fc-front" id="fcFront">
+        <div class="fc-label">Tagalog</div>
+        <div class="fc-main" id="fcMainText">—</div>
+        <div class="fc-stress" id="fcStress"></div>
+      </div>
+      <div class="fc-face fc-back" id="fcBack">
+        <div class="fc-label">English</div>
+        <div class="fc-main" id="fcBackMain">—</div>
+        <div class="fc-sub" id="fcBackSub"></div>
+        <div class="fc-pattern" id="fcPattern"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fc-controls">
+    <button class="fc-btn-learn" onclick="fcAnswer(false)">Still Learning</button>
+    <button class="fc-btn-know" onclick="fcAnswer(true)">✓ Know it</button>
+  </div>
+
+  <div style="text-align:center; margin-top:16px">
+    <button class="btn-secondary" onclick="shuffleCards()">🔀 Shuffle</button>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- DIALOGUE SCREEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-dialogue">
+  <div class="card-title" style="margin-bottom:10px">Conversation Practice</div>
+  <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px" id="dialogueSceneBtns"></div>
+  <div id="dialogueArea"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PHRASES SCREEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="screen" id="screen-phrases">
+  <div class="card-title" style="margin-bottom:10px">Phrase Reference</div>
+  <p style="font-size:.75rem; color:var(--slate); margin-bottom:14px;">Tap any phrase for pronunciation tip & notes.</p>
+  <div id="phraseList"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+
+const CHAPTERS = [
+  {
+    id: 1,
+    num: "Ch. 1–2",
+    name: "Basics: Sounds & Markers",
+    desc: "Stress, syllables, ang/ng/sa",
+    color: "#1B2B4B",
+    grammar: [
+      {
+        title: "Stress Patterns",
+        body: "Tagalog words have three stress types. The stressed syllable is said MORE HEAVILY than the others. In this app, CAPITAL letters mark stress.",
+        pattern: "End stress: ba-TA, a-NAK\nPenultimate: BA-ba-e, MA-hal\nGlottal catch: BA-taQ (soft stop at end)"
+      },
+      {
+        title: "The Three Noun Markers: Ang, Ng, Sa",
+        body: "Every Tagalog noun needs a marker. ANG marks the SUBJECT (focus) of the sentence — like 'the' but also signals who the verb is about. NG marks the indirect object, actor, or possession. SA marks location, recipient, and prepositions.",
+        pattern: "ANG + noun = subject marker\nNG + noun = indirect/possession\nSA + noun = location/preposition"
+      },
+      {
+        title: "Making Things Plural: MGA",
+        body: "MGA (pronounced 'manga') is placed before a noun to make it plural. It works with ang, ng, and sa markers.",
+        pattern: "ang bata (the child) → ang mga bata (the children)\nng membro → ng mga membro"
+      }
+    ],
+    examples: [
+      { tl: "Ang ebanghelyo", en: "The gospel", gloss: "ANG = subject marker" },
+      { tl: "Ang mga miyembro", en: "The members", gloss: "MGA = plural marker" },
+      { tl: "Namatay si Jesucristo para sa atin", en: "Jesus Christ died for us", gloss: "SI = personal name marker" },
+      { tl: "Nagbasa si Maria ng aklat", en: "Maria read a book", gloss: "NG = indirect object" },
+      { tl: "Pumunta kami sa simbahan", en: "We went to church", gloss: "SA = location" }
+    ],
+    quiz: [
+      { type:"mc", q:"Which marker makes a noun the SUBJECT of a sentence?", options:["Ng","Sa","Ang","Si"], answer:"Ang", explain:"ANG marks the subject/focus of the sentence." },
+      { type:"mc", q:"How do you make 'ang bata' (the child) plural?", options:["ang mga bata","ang bata po","ng mga bata","mga si bata"], answer:"ang mga bata", explain:"MGA placed after ANG makes nouns plural." },
+      { type:"mc", q:"'Pumunta kami __ simbahan.' Which marker fills the blank?", options:["ang","ng","sa","si"], answer:"sa", explain:"SA marks location — 'went TO church'." },
+      { type:"mc", q:"Which stress is correct for 'ba-TA' (child)?", options:["End stress","Penultimate stress","Glottal catch","No stress"], answer:"End stress", explain:"The last syllable TA is more heavily emphasized." },
+      { type:"mc", q:"'Si' is used before:", options:["Common nouns","Place names","Personal names","Verbs"], answer:"Personal names", explain:"SI marks individual personal names (si Maria, si Elder Smith)." },
+    ]
+  },
+  {
+    id: 2,
+    num: "Ch. 3",
+    name: "Pronouns: Ang, Ng & Sa",
+    desc: "Subject, indirect & location pronouns",
+    color: "#2D4A7A",
+    grammar: [
+      {
+        title: "ANG Pronouns — Subject",
+        body: "These pronouns take the place of the ANG subject marker in a sentence. They appear AFTER the first word.",
+        pattern: "ako (I) | ka / ikaw (you-sg) | siya (he/she/it)\ntayo (we-incl) | kami (we-excl) | kayo (you-pl)\nsila (they)"
+      },
+      {
+        title: "Inclusive vs. Exclusive 'We'",
+        body: "TAYO = 'we' INCLUDING the person you're talking to. KAMI = 'we' EXCLUDING the listener. This is one of Tagalog's most important distinctions.",
+        pattern: "Naniniwala TAYO = We (you and I) believe\nNaniniwala KAMI = We (not you) believe"
+      },
+      {
+        title: "Formality: Po & Ba",
+        body: "PO (or HO) is added to sentences to show respect to elders or people of status. KA/IYO become KAYO when speaking formally. BA converts any statement to a yes/no question.",
+        pattern: "Kumusta ka? → Kumusta po kayo?\n[statement] + ba = yes/no question"
+      }
+    ],
+    examples: [
+      { tl: "Ako ay isang misyonero", en: "I am a missionary", gloss: "AKO = I (subject)" },
+      { tl: "Mahal ko kayo", en: "I love you (plural)", gloss: "KO = my/I (ng), KAYO = you (pl)" },
+      { tl: "Naniniwala tayo sa Diyos", en: "We (all of us) believe in God", gloss: "TAYO = inclusive we" },
+      { tl: "Pumunta kami sa simbahan", en: "We (not you) went to church", gloss: "KAMI = exclusive we" },
+      { tl: "Mabuti po siya", en: "She/he is good (respectfully)", gloss: "PO = respect particle" }
+    ],
+    quiz: [
+      { type:"mc", q:"You're teaching investigators and say 'We went to church' — meaning you and your companion, NOT the investigator. Which 'we' do you use?", options:["Tayo","Kami","Kayo","Sila"], answer:"Kami", explain:"KAMI = exclusive 'we' — excludes the person you're talking to." },
+      { type:"mc", q:"You want to say 'We believe' INCLUDING an investigator in the 'we'. Which pronoun?", options:["Kami","Sila","Tayo","Kayo"], answer:"Tayo", explain:"TAYO = inclusive 'we' — includes the listener." },
+      { type:"mc", q:"To show respect to an older Filipino you just met, you add ___ to your sentences.", options:["ba","mga","po","si"], answer:"po", explain:"PO (or HO) is the respect particle, used with elders and people of status." },
+      { type:"mc", q:"'Naniniwala ___ kayo na propeta si Joseph Smith?' How do you ask this yes/no question?", options:["po","ba","mga","ang"], answer:"ba", explain:"BA converts a statement into a yes/no question." },
+      { type:"mc", q:"IKAW and KA both mean 'you (singular).' When is IKAW used?", options:["After any verb","As the FIRST word of a phrase","When speaking to elders","Before mga"], answer:"As the FIRST word of a phrase", explain:"IKAW is used when 'you' begins the phrase; KA is used elsewhere." },
+    ]
+  },
+  {
+    id: 3,
+    num: "Ch. 4",
+    name: "Predicate Sentences",
+    desc: "PREDICATE + SUBJECT — the Tagalog sentence",
+    color: "#3A5A9A",
+    grammar: [
+      {
+        title: "Tagalog Word Order: Predicate First",
+        body: "UNLIKE English, Tagalog puts the predicate (what you're saying ABOUT the subject) FIRST, then the subject. There is no verb 'to be' (is/am/are).",
+        pattern: "English: Jesus Christ IS the Savior.\nTagalog: TAGAPAGLIGTAS (savior) si Jesucristo.\n\nPREDICATE + PARTICLES + ANG/SI/SINA + SUBJECT"
+      },
+      {
+        title: "Negating Predicate Sentences",
+        body: "To make a predicate sentence negative, add HINDI before the predicate.",
+        pattern: "Hindi + particles + PREDICATE + SUBJECT\nHindi propeta si Elder Jones. (not a prophet)\nHindi malinis ang silid-aralan. (not clean)"
+      },
+      {
+        title: "With Pronouns",
+        body: "When a pronoun is the subject of a predicate sentence, the pronoun comes SECOND (after the first word). HINDI stays first.",
+        pattern: "Masaya AKO. (I am happy.)\nHindi AKO masaya. (I am not happy.)\nMisyonero KAMI. (We are missionaries.)"
+      }
+    ],
+    examples: [
+      { tl: "Propeta si Joseph Smith", en: "Joseph Smith is a prophet", gloss: "PREDICATE (propeta) + SI + NAME" },
+      { tl: "Totoo ang Aklat ni Mormon", en: "The Book of Mormon is true", gloss: "TOTOO (predicate) + ANG + SUBJECT" },
+      { tl: "Hindi propeta si Elder Jones", en: "Elder Jones is not a prophet", gloss: "HINDI negates" },
+      { tl: "Masaya kami", en: "We are happy", gloss: "PREDICATE + pronoun" },
+      { tl: "Anak ako ng Diyos", en: "I am a child of God", gloss: "ANAK (predicate) + pronoun + ng phrase" },
+    ],
+    quiz: [
+      { type:"mc", q:"In Tagalog predicate sentences, what comes FIRST?", options:["The subject","The verb","The predicate","The object"], answer:"The predicate", explain:"Tagalog is predicate-first. What you're saying ABOUT the subject comes before the subject." },
+      { type:"mc", q:"How do you say 'I am a missionary' in Tagalog?", options:["Ako misyonero","Misyonero ako","Ang misyonero ako","Ako ay misyonero po"], answer:"Misyonero ako", explain:"MISYONERO (predicate) + AKO (pronoun subject). Note: 'Ako ay misyonero' is also correct but less natural in speech." },
+      { type:"mc", q:"'Hindi ___ perpekto.' Which pronoun fills the blank when speaking about yourself?", options:["kayo","sila","ako","tayo"], answer:"ako", explain:"With HINDI + pronoun, the pronoun moves to second position: Hindi AKO perpekto." },
+      { type:"mc", q:"'The Book of Mormon is true' in Tagalog:", options:["Ang Aklat ni Mormon totoo","Totoo ang Aklat ni Mormon","Ang totoo ni Mormon aklat","Si Mormon ay totoo"], answer:"Totoo ang Aklat ni Mormon", explain:"PREDICATE (Totoo) + ANG + SUBJECT (Aklat ni Mormon)." },
+      { type:"mc", q:"Which sentence correctly says 'They are not missionaries'?", options:["Hindi sila misyonero","Misyonero hindi sila","Sila hindi misyonero","Hindi misyonero ang sila"], answer:"Hindi sila misyonero", explain:"HINDI + pronoun (sila) + predicate (misyonero)." },
+    ]
+  },
+  {
+    id: 4,
+    num: "Ch. 5–6",
+    name: "Yes/No Questions & Kumusta",
+    desc: "Ba questions, answering, and greetings",
+    color: "#1B5E7A",
+    grammar: [
+      {
+        title: "Asking Yes/No Questions with BA",
+        body: "BA is added directly AFTER the first word of a sentence to make any statement a yes/no question. With pronouns, BA follows normal particle order.",
+        pattern: "Statement: Propeta si Joseph Smith.\nQuestion: Propeta BA si Joseph Smith?\n\nStatement: Naniniwala ka.\nQuestion: Naniniwala BA ka? → Naniniwala KA BA?"
+      },
+      {
+        title: "Answering Yes/No Questions",
+        body: "OPO / OO = Yes (opo is respectful). HINDI = No. For existential questions (mayroon/wala), answer MAYROON or WALA, not oo/hindi.",
+        pattern: "Opo. / Oo. = Yes.\nHindi. / Hindi po. = No.\nMayroon. / Wala. = (for have/there is questions)"
+      },
+      {
+        title: "Kumusta — How Are You?",
+        body: "KUMUSTA is used to ask how someone is. It follows the predicate-subject structure. Responses use adjectives as the predicate.",
+        pattern: "Kumusta [po] + subject?\nResponse: [Adjective] [po] + pronoun/subject\n\nMabuti (good) | Masaya (happy) | Ayos lang (just fine)\nMalusog (healthy) | Pagod (tired) | Antok (sleepy)"
+      }
+    ],
+    examples: [
+      { tl: "Naniniwala ba kayo sa Diyos?", en: "Do you believe in God?", gloss: "BA after first word" },
+      { tl: "Opo, naniniwala po kami", en: "Yes, we believe (respectfully)", gloss: "OPO = respectful yes" },
+      { tl: "Kumusta po kayo?", en: "How are you? (respectful)", gloss: "PO adds respect" },
+      { tl: "Mabuti naman, salamat", en: "I'm fine, thank you", gloss: "NAMAN softens/responds" },
+      { tl: "Magsisimba ba kayo sa Linggo?", en: "Will you go to church on Sunday?", gloss: "BA question" },
+    ],
+    quiz: [
+      { type:"mc", q:"Where does BA go in a question?", options:["At the very end","Before the verb","After the first word","Before the subject"], answer:"After the first word", explain:"BA follows the first word of the sentence to make it a yes/no question." },
+      { type:"mc", q:"Someone asks 'Mayroon ba kayong Biblia?' How do you answer YES?", options:["Opo","Ooo","Mayroon","Hindi"], answer:"Mayroon", explain:"Questions with MAYROON/WALA are answered MAYROON or WALA — not oo/hindi." },
+      { type:"mc", q:"The respectful way to say 'yes' to an elder:", options:["Oo","Opo","Okey","Sige"], answer:"Opo", explain:"OPO is the respectful form of oo (yes)." },
+      { type:"mc", q:"'I'm just tired' as a response to Kumusta:", options:["Mabuti naman","Ayos lang","Pagod lang ako","Antok siya"], answer:"Pagod lang ako", explain:"PAGOD = tired, LANG = just/only, AKO = I. 'Pagod lang ako' = I'm just tired." },
+      { type:"mc", q:"'Pumunta ba kayo sa simbahan kahapon?' means:", options:["Will you go to church?","Did you go to church yesterday?","Are you going to church?","Where did you go?"], answer:"Did you go to church yesterday?", explain:"BA makes it a question; KAHAPON = yesterday; PUMUNTA = went (past)." },
+    ]
+  },
+  {
+    id: 5,
+    num: "Ch. 7–8",
+    name: "Ma- Verbs & Possession",
+    desc: "State-of-being verbs, ownership, ng/sa markers",
+    color: "#2D5A3A",
+    grammar: [
+      {
+        title: "Ma- Actor Focus Verbs",
+        body: "MA- verbs describe states of being — feelings, conditions, and involuntary actions (asleep, confused, happy, etc.). The actor is the SUBJECT marked by ANG/SI.",
+        pattern: "Infinitive: MA + root (matuto, mabuhay)\nPast: NA + root (natuto, nabuhay)\nPresent: NA + root + present suffix\nFuture: MA + root (same as infinitive)"
+      },
+      {
+        title: "Possession with NG",
+        body: "NG markers and pronouns show possession. Pre-noun possessives come BEFORE the noun. Post-noun possessives come AFTER.",
+        pattern: "Pre-noun: AKING bahay (my house)\nPost-noun: bahay KO (my house)\nBoth are correct; post-noun is more common in speech."
+      },
+      {
+        title: "Possessive Pronouns",
+        body: "Each pronoun has a NG form (for possession/indirect object) and an SA form (for location/recipient).",
+        pattern: "NG forms: ko, mo, niya, natin, namin, ninyo, nila\nSA forms: akin, iyo, kanya, atin, amin, inyo, kanila"
+      }
+    ],
+    examples: [
+      { tl: "Nalilito ako tungkol dito", en: "I am confused about this", gloss: "NA+LITO = state of confusion" },
+      { tl: "Natututo sila ng ebanghelyo", en: "They are learning the gospel", gloss: "NA+TUTO+present = learning" },
+      { tl: "Ang panalangin KO", en: "My prayer", gloss: "KO = post-noun possessive (my)" },
+      { tl: "AKING puso", en: "My heart", gloss: "AKING = pre-noun possessive (my)" },
+      { tl: "Aklat ni Mormon NAMIN", en: "Our (excl.) Book of Mormon", gloss: "NAMIN = our (exclusive)" },
+    ],
+    quiz: [
+      { type:"mc", q:"'Nalilito' means:", options:["Was listening","Is confused","Will learn","Became happy"], answer:"Is confused", explain:"NA+LITO = in a state of confusion (present Ma- verb)." },
+      { type:"mc", q:"'Ang panalangin ___' — which word means 'my prayer' (post-noun)?", options:["aking","akin","ko","niya"], answer:"ko", explain:"KO is the post-noun possessive for 'my' (1st person singular NG pronoun)." },
+      { type:"mc", q:"'Our (exclusive) message' — we gave the message, not the investigator:", options:["ating mensahe","aming mensahe","kanilang mensahe","inyong mensahe"], answer:"aming mensahe", explain:"AMING = our (exclusive) pre-noun possessive. ATING = our (inclusive)." },
+      { type:"mc", q:"The sentence 'Mabubuhay ang matuwid' means:", options:["The righteous will be confused","The righteous will live","They are alive","We will be righteous"], answer:"The righteous will live", explain:"MA+BUHAY (future) = will live. MATUWID = righteous/upright." },
+      { type:"mc", q:"Which is the SA-form pronoun meaning 'to/for him/her'?", options:["niya","kanya","siya","kanila"], answer:"kanya", explain:"KANYA = to/for him/her (SA-form, 3rd person singular)." },
+    ]
+  },
+  {
+    id: 6,
+    num: "Ch. 9–10",
+    name: "Possession & Existentials",
+    desc: "Ownership questions, mayroon/wala/may",
+    color: "#6B3A1A",
+    grammar: [
+      {
+        title: "Asking 'Whose?' — Ownership Questions",
+        body: "To ask who owns something, use KANINO (whose?) or SA IYO/SA KANYA to express ownership. NASA/NAKAY shows who currently HAS the object.",
+        pattern: "Kanino ang _? = Whose is the _?\nSa iyo ba ang _? = Is that yours?\nNakay [name] ang _ = [Name] has the _"
+      },
+      {
+        title: "Existential Words: May / Mayroon / Wala",
+        body: "MAY and MAYROON mean 'there is / have.' WALA means 'there is none / don't have.' These are different from predicate sentences — they're linked to an object, not a pronoun subject.",
+        pattern: "May + object = there is (a/some) ___\nMayroon + linker + object = have ___\nWala + ng object = there is no ___"
+      },
+      {
+        title: "Mayroon Structure",
+        body: "MAYROON is used before a non-pronoun subject. The linker NA/NG connects MAYROON to the object. OO/HINDI cannot answer MAYROON questions — use MAYROON or WALA.",
+        pattern: "Mayroon kaming AKLAT ni Mormon.\nMayroon ba silang PANANAMPALATAYA?\nWala silang PAGKAIN."
+      }
+    ],
+    examples: [
+      { tl: "Kanino ang titik na ito?", en: "Whose letter is this?", gloss: "KANINO = whose" },
+      { tl: "Sa akin iyan", en: "That is mine", gloss: "SA AKIN = mine (sa-form)" },
+      { tl: "May pananampalataya sila", en: "They have faith", gloss: "MAY = have/there is" },
+      { tl: "Mayroon kaming mensahe para sa inyo", en: "We have a message for you", gloss: "MAYROON + linker" },
+      { tl: "Wala kaming kasalanan", en: "We have no sin", gloss: "WALA = have none / there is none" },
+    ],
+    quiz: [
+      { type:"mc", q:"'Whose book is this?' in Tagalog:", options:["Ano ang aklat?","Kanino ang aklat na ito?","Saan ang aklat?","Sino ang may aklat?"], answer:"Kanino ang aklat na ito?", explain:"KANINO = whose. 'Kanino ang aklat na ito?' = Whose is this book?" },
+      { type:"mc", q:"Someone asks 'Mayroon ba kayong Biblia?' You have one. Answer:", options:["Oo","Opo","Mayroon","May Biblia"], answer:"Mayroon", explain:"MAYROON questions must be answered with MAYROON or WALA." },
+      { type:"mc", q:"'There are many people' — which existential do you use?", options:["Wala","Marami","May","Hindi"], answer:"May", explain:"MAY maraming tao = There are many people." },
+      { type:"mc", q:"'Wala kaming trabaho' means:", options:["We have work","We will find work","We don't have work","Work is not good"], answer:"We don't have work", explain:"WALA = none/don't have. KAMI = we (excl). TRABAHO = work/job." },
+      { type:"mc", q:"The difference between MAY and MAYROON:", options:["Same meaning, no difference","May comes before nouns, Mayroon before pronouns/linked phrases","Mayroon is past, May is present","May is formal, Mayroon is informal"], answer:"May comes before nouns, Mayroon before pronouns/linked phrases", explain:"MAY directly precedes noun objects. MAYROON is used before a pronoun or when a linker (na/ng) follows." },
+    ]
+  }
+];
+
+// ─── FLASHCARD DATA ──────────────────────────────────────────
+const FLASHCARDS = [
+  // Basics
+  { cat:"Basics", tl:"ang", en:"Subject marker (the)", stress:"ANG", pattern:"ANG + noun = marks the subject of sentence" },
+  { cat:"Basics", tl:"ng", en:"Indirect object / possession marker", stress:"NG", pattern:"NG + noun = marks object, actor, or possession" },
+  { cat:"Basics", tl:"sa", en:"Location / preposition marker", stress:"SA", pattern:"SA + place = at/in/to that place" },
+  { cat:"Basics", tl:"mga", en:"Plural marker (the/some)", stress:"MA-nga", pattern:"ANG MGA + noun = the [plural nouns]" },
+  { cat:"Basics", tl:"si", en:"Personal name marker (singular)", stress:"SI", pattern:"SI + name = marks one named person" },
+  { cat:"Basics", tl:"sina", en:"Personal name marker (plural)", stress:"SI-na", pattern:"SINA + names = marks multiple named people" },
+  { cat:"Basics", tl:"po / ho", en:"Respect particle", stress:"PO", pattern:"Add PO anywhere in sentence for respect" },
+  { cat:"Basics", tl:"ba", en:"Yes/no question marker", stress:"BA", pattern:"Statement + BA (after 1st word) = question" },
+  // Pronouns
+  { cat:"Pronouns", tl:"ako", en:"I (subject)", stress:"A-ko", pattern:"ANG pronoun — 1st person singular" },
+  { cat:"Pronouns", tl:"ka / ikaw", en:"You (singular, informal)", stress:"KA / I-kaw", pattern:"KA follows first word; IKAW starts phrase" },
+  { cat:"Pronouns", tl:"siya", en:"He / she / it", stress:"SI-ya", pattern:"ANG pronoun — 3rd person singular, genderless" },
+  { cat:"Pronouns", tl:"tayo", en:"We (inclusive — includes listener)", stress:"TA-yo", pattern:"We = you + me + possibly others" },
+  { cat:"Pronouns", tl:"kami", en:"We (exclusive — excludes listener)", stress:"KA-mi", pattern:"We = me + others, but NOT you" },
+  { cat:"Pronouns", tl:"kayo", en:"You (plural or formal singular)", stress:"KA-yo", pattern:"Plural you OR formal respect for one person" },
+  { cat:"Pronouns", tl:"sila", en:"They", stress:"SI-la", pattern:"ANG pronoun — 3rd person plural" },
+  { cat:"Pronouns", tl:"ko", en:"My / I (ng-form)", stress:"KO", pattern:"NG possessive — post-noun: bahay ko = my house" },
+  { cat:"Pronouns", tl:"mo", en:"Your (ng-form, singular)", stress:"MO", pattern:"Post-noun: bahay mo = your house" },
+  { cat:"Pronouns", tl:"niya", en:"His / her / its (ng-form)", stress:"NI-ya", pattern:"Post-noun: aklat niya = his/her book" },
+  { cat:"Pronouns", tl:"namin", en:"Our (exclusive, ng-form)", stress:"NA-min", pattern:"Post-noun possessive — excludes listener" },
+  { cat:"Pronouns", tl:"natin", en:"Our (inclusive, ng-form)", stress:"NA-tin", pattern:"Post-noun possessive — includes listener" },
+  // Being
+  { cat:"Being", tl:"Kumusta po kayo?", en:"How are you? (respectful)", stress:"ku-MUS-ta PO ka-YO", pattern:"KUMUSTA = type-2 interrogative about state" },
+  { cat:"Being", tl:"Mabuti naman", en:"I'm fine / Good, thank you", stress:"ma-BU-ti NA-man", pattern:"MABUTI (predicate) + NAMAN (softener)" },
+  { cat:"Being", tl:"Masaya", en:"Happy / Joyful", stress:"ma-SA-ya", pattern:"MA- adjective = state of being happy" },
+  { cat:"Being", tl:"Malusog", en:"Healthy", stress:"ma-LU-sog", pattern:"MA- adjective = state of being healthy" },
+  { cat:"Being", tl:"Pagod", en:"Tired", stress:"PA-god", pattern:"Used as predicate: Pagod ako = I am tired" },
+  { cat:"Being", tl:"Antok", en:"Sleepy", stress:"AN-tok", pattern:"Antok ako = I am sleepy" },
+  { cat:"Being", tl:"Gutom", en:"Hungry", stress:"GU-tom", pattern:"Gutom kami = We are hungry" },
+  { cat:"Being", tl:"Uhaw", en:"Thirsty", stress:"U-haw", pattern:"Uhaw ka ba? = Are you thirsty?" },
+  // Gospel
+  { cat:"Gospel", tl:"Ang Diyos", en:"God", stress:"ang DI-yos", pattern:"ANG DIYOS = subject marker + God" },
+  { cat:"Gospel", tl:"Ang Ama sa Langit", en:"Heavenly Father", stress:"ang A-ma sa LA-ngit", pattern:"AMA = Father, LANGIT = heaven/sky" },
+  { cat:"Gospel", tl:"si Jesucristo", en:"Jesus Christ", stress:"si he-SUS-KRIS-to", pattern:"SI = personal name marker" },
+  { cat:"Gospel", tl:"ang Espiritu Santo", en:"the Holy Ghost", stress:"ang es-PI-ri-tu SAN-to", pattern:"ESPIRITU = spirit, SANTO = holy/saint" },
+  { cat:"Gospel", tl:"ang ebanghelyo", en:"the gospel", stress:"ang e-bang-HEL-yo", pattern:"From Spanish 'evangelio'" },
+  { cat:"Gospel", tl:"ang Aklat ni Mormon", en:"the Book of Mormon", stress:"ang AK-lat ni MOR-mon", pattern:"AKLAT = book, NI = of (personal name)" },
+  { cat:"Gospel", tl:"ang pananampalataya", en:"faith", stress:"ang pa-na-nam-pa-la-TA-ya", pattern:"Also: pananampalataya sa Panginoong Jesucristo" },
+  { cat:"Gospel", tl:"ang pagsisisi", en:"repentance", stress:"ang pag-si-SI-si", pattern:"From SISISI = to regret deeply" },
+  { cat:"Gospel", tl:"ang pagbabautismo", en:"baptism", stress:"ang pag-ba-BAU-tis-mo", pattern:"From Spanish 'bautismo'" },
+  { cat:"Gospel", tl:"ang patotoo", en:"testimony", stress:"ang pa-to-TO-o", pattern:"'I know that...' = Alam kong totoo ang..." },
+  { cat:"Gospel", tl:"ang pagbabago-sala", en:"the Atonement", stress:"ang pag-ba-BA-go-SA-la", pattern:"PAGBABAGO = change, SALA = sin/fault" },
+  { cat:"Gospel", tl:"ang templo", en:"the temple", stress:"ang TEM-plo", pattern:"Bahay ng Diyos = House of God" },
+  { cat:"Gospel", tl:"ang simbahan", en:"the church", stress:"ang sim-BA-han", pattern:"Ang Simbahan ni Jesucristo" },
+  { cat:"Gospel", tl:"ang propeta", en:"the prophet", stress:"ang pro-PE-ta", pattern:"Propeta si Joseph Smith = Joseph Smith is a prophet" },
+  { cat:"Gospel", tl:"Alam kong totoo ang ___", en:"I know that ___ is true", stress:"A-lam KONG to-TO-o", pattern:"Testimony pattern: Alam kong totoo ang ebanghelyo." },
+  // Greetings
+  { cat:"Greetings", tl:"Magandang umaga!", en:"Good morning!", stress:"ma-GAN-dang U-ma-ga", pattern:"MAGANDA = beautiful + time of day" },
+  { cat:"Greetings", tl:"Magandang hapon!", en:"Good afternoon!", stress:"ma-GAN-dang HA-pon", pattern:"HAPON = afternoon/Japan (same word, context differs)" },
+  { cat:"Greetings", tl:"Magandang gabi!", en:"Good evening!", stress:"ma-GAN-dang GA-bi", pattern:"GABI = evening/night" },
+  { cat:"Greetings", tl:"Salamat [po]", en:"Thank you [respectfully]", stress:"sa-LA-mat", pattern:"Maraming salamat = thank you very much" },
+  { cat:"Greetings", tl:"Paalam na po", en:"Goodbye (formal)", stress:"pa-A-lam NA PO", pattern:"Said by the person LEAVING" },
+  { cat:"Greetings", tl:"Ingat [po] kayo", en:"Take care", stress:"I-ngat KA-yo", pattern:"Said by the person STAYING" },
+  { cat:"Greetings", tl:"Saan kayo galing?", en:"Where are you coming from?", stress:"SA-an KA-yo GA-ling", pattern:"GALING = coming from (source)" },
+  { cat:"Greetings", tl:"Saan kayo papunta?", en:"Where are you going?", stress:"SA-an KA-yo pa-PUN-ta", pattern:"PAPUNTA = going to (destination)" },
+];
+
+// ─── DIALOGUES ───────────────────────────────────────────────
+const DIALOGUES = [
+  {
+    id: "street",
+    label: "Street Contact",
+    scene: "You meet a Filipino family on their front steps in the afternoon.",
+    lines: [
+      { speaker: "Them", tl: "Magandang hapon po!", en: "Good afternoon!", auto: true },
+      { speaker: "You", tl: "Magandang hapon po!", en: "Good afternoon!", input: true },
+      { speaker: "Them", tl: "Kumusta po kayo?", en: "How are you?", auto: true },
+      { speaker: "You", tl: "Mabuti naman po, salamat. Kumusta po kayo?", en: "Fine, thank you. And you?", input: true },
+      { speaker: "Them", tl: "Mabuti rin po. Kayo po ba ay mga misyonero?", en: "Fine as well. Are you missionaries?", auto: true },
+      { speaker: "You", tl: "Opo, misyonero po kami ni Jesucristo.", en: "Yes, we are missionaries of Jesus Christ.", input: true },
+      { speaker: "Them", tl: "Ah, sige po. Ano po ang inyong mensahe?", en: "I see. What is your message?", auto: true },
+      { speaker: "You", tl: "Mayroon kaming mensahe tungkol sa Ama sa Langit at sa Kanyang plano.", en: "We have a message about Heavenly Father and His plan.", input: true },
+    ]
+  },
+  {
+    id: "lesson1",
+    label: "First Lesson",
+    scene: "You are in an investigator's home teaching about God.",
+    lines: [
+      { speaker: "You", tl: "Naniniwala ba kayo sa Diyos?", en: "Do you believe in God?", auto: true },
+      { speaker: "Them", tl: "Opo, naniniwala kami.", en: "Yes, we believe.", auto: true },
+      { speaker: "You", tl: "Mabuti. Ang Diyos ay isang mahabagin at mapagmahal na Ama.", en: "Good. God is a merciful and loving Father.", input: true },
+      { speaker: "Them", tl: "Mahal ba niya tayo lahat?", en: "Does He love all of us?", auto: true },
+      { speaker: "You", tl: "Opo, mahal niya tayong lahat. Kami ay mga anak ng Diyos, at kayo rin.", en: "Yes, He loves all of us. We are children of God, and so are you.", input: true },
+      { speaker: "Them", tl: "Totoo ba ang Aklat ni Mormon?", en: "Is the Book of Mormon true?", auto: true },
+      { speaker: "You", tl: "Oo, totoo ang Aklat ni Mormon. Ito ay salita ng Diyos.", en: "Yes, the Book of Mormon is true. It is the word of God.", input: true },
+    ]
+  },
+  {
+    id: "ward",
+    label: "At the Ward",
+    scene: "You are greeting members at sacrament meeting on Sunday.",
+    lines: [
+      { speaker: "Member", tl: "Magandang umaga! Kumusta na kayo?", en: "Good morning! How have you been?", auto: true },
+      { speaker: "You", tl: "Magandang umaga po! Mabuti naman po, salamat.", en: "Good morning! Fine, thank you.", input: true },
+      { speaker: "Member", tl: "Mayroon ba kayong mga investigator na darating ngayon?", en: "Do you have investigators coming today?", auto: true },
+      { speaker: "You", tl: "Opo, mayroon kaming isang pamilya. Masaya po kaming kasama sila.", en: "Yes, we have a family. We are happy to be with them.", input: true },
+      { speaker: "Member", tl: "Napakagaling! Ipanalangin natin sila.", en: "Wonderful! Let us pray for them.", auto: true },
+      { speaker: "You", tl: "Opo, kailangan natin ng tulong ng Diyos.", en: "Yes, we need God's help.", input: true },
+    ]
+  },
+  {
+    id: "testimony",
+    label: "Sharing a Testimony",
+    scene: "You bear your testimony to an investigator.",
+    lines: [
+      { speaker: "You", tl: "Nais ko pong ibahagi ang aking patotoo.", en: "I would like to share my testimony.", auto: true },
+      { speaker: "Them", tl: "Sige po, pakikinig kami.", en: "Please, we are listening.", auto: true },
+      { speaker: "You", tl: "Alam kong totoo ang ebanghelyo ni Jesucristo.", en: "I know that the gospel of Jesus Christ is true.", input: true },
+      { speaker: "You", tl: "Alam kong propeta si Joseph Smith.", en: "I know that Joseph Smith is a prophet.", input: true },
+      { speaker: "You", tl: "Alam kong totoo ang Aklat ni Mormon.", en: "I know that the Book of Mormon is true.", input: true },
+      { speaker: "Them", tl: "Maraming salamat. Maaari ba kaming matuto pa?", en: "Thank you very much. Can we learn more?", auto: true },
+      { speaker: "You", tl: "Opo! Mayroon pa kaming maraming ituturo.", en: "Yes! We have much more to teach.", input: true },
+    ]
+  }
+];
+
+// ─── PHRASE REFERENCE DATA ────────────────────────────────────
+const PHRASES = [
+  {
+    group: "Greetings & Farewells",
+    items: [
+      { tl:"Magandang umaga [po]!", en:"Good morning!", stress:"ma-GAN-dang U-ma-ga", note:"Used until about noon." },
+      { tl:"Magandang tanghali [po]!", en:"Good noon!", stress:"ma-GAN-dang tang-HA-li", note:"Said around lunchtime." },
+      { tl:"Magandang hapon [po]!", en:"Good afternoon!", stress:"ma-GAN-dang HA-pon", note:"After noon until sunset." },
+      { tl:"Magandang gabi [po]!", en:"Good evening!", stress:"ma-GAN-dang GA-bi", note:"After dark." },
+      { tl:"Paalam na [po]", en:"Goodbye (said by person leaving)", stress:"pa-A-lam NA", note:"The person who is leaving says paalam." },
+      { tl:"Ingat [po] kayo", en:"Take care (said by person staying)", stress:"I-ngat", note:"Said by the person who stays behind." },
+      { tl:"Babay!", en:"Bye! (informal)", stress:"BA-bay", note:"Informal only — not for elders or formal settings." },
+    ]
+  },
+  {
+    group: "How Are You",
+    items: [
+      { tl:"Kumusta [po] kayo?", en:"How are you?", stress:"ku-MUS-ta", note:"The standard greeting question after initial hello." },
+      { tl:"Mabuti naman [po]", en:"Fine, thank you", stress:"ma-BU-ti NA-man", note:"NAMAN softens — like 'not bad, actually.'" },
+      { tl:"Ayos lang", en:"Just fine / Okay", stress:"A-yos LANG", note:"Very common casual response." },
+      { tl:"Pagod [lang] ako", en:"I'm (just) tired", stress:"PA-god", note:"LANG = just/only, softens the statement." },
+      { tl:"Masaya [po] kami", en:"We are happy", stress:"ma-SA-ya", note:"Great response when teaching is going well." },
+    ]
+  },
+  {
+    group: "Gospel Vocabulary",
+    items: [
+      { tl:"Alam kong totoo ang ___", en:"I know that ___ is true", stress:"A-lam KONG to-TO-o", note:"Core testimony pattern. Fill in: ang ebanghelyo, ang Aklat ni Mormon, etc." },
+      { tl:"Naniniwala [po] kami sa Diyos", en:"We believe in God", stress:"na-ni-ni-WA-la", note:"NANINIWALA = present progressive of believe." },
+      { tl:"Mayroon kaming mensahe", en:"We have a message", stress:"may-RO-on", note:"Opens a door approach." },
+      { tl:"Ang Diyos ay mahal sa atin", en:"God loves us", stress:"MA-hal", note:"MAHAL = dear / expensive / to love — context determines." },
+      { tl:"Ang pagbabautismo ay isang tipan", en:"Baptism is a covenant", stress:"pag-ba-BAU-tis-mo", note:"TIPAN = covenant/promise." },
+      { tl:"Nais naming ibahagi ang aming patotoo", en:"We would like to share our testimony", stress:"PA-to-to-o", note:"PATOTOO = testimony (literally 'that which makes true')." },
+    ]
+  },
+  {
+    group: "Questions to Ask",
+    items: [
+      { tl:"Naniniwala ba kayo sa Diyos?", en:"Do you believe in God?", stress:"BA after NANINIWALA", note:"BA converts statement to yes/no question." },
+      { tl:"Mayroon ba kayong Biblia?", en:"Do you have a Bible?", stress:"MAYROON BA", note:"Answer with MAYROON or WALA, not oo/hindi." },
+      { tl:"Saan kayo galing?", en:"Where are you from/coming from?", stress:"SA-an KA-yo GA-ling", note:"GALING = coming from. Great opening for connection." },
+      { tl:"Kumusta na ang inyong pamilya?", en:"How is your family?", stress:"paMIL-ya", note:"Filipinos are very family-centered — always ask about family." },
+      { tl:"Puwede ba naming bumalik?", en:"May we come back?", stress:"pu-WE-de", note:"Use this at the end of a good conversation." },
+    ]
+  },
+  {
+    group: "Survival Phrases",
+    items: [
+      { tl:"Hindi ko po naiintindihan", en:"I don't understand (respectfully)", stress:"na-i-in-TIN-di-han", note:"The honest lifesaver. Filipinos will gladly help." },
+      { tl:"Pakiulit nga po", en:"Please repeat that", stress:"pa-ki-U-lit NGA", note:"NGA adds gentle emphasis/politeness." },
+      { tl:"Pakibagalan po", en:"Please speak slower", stress:"pa-ki-BA-ga-lan", note:"BAGAL = slow. PAKI- = please do this." },
+      { tl:"Ano po ang ibig sabihin ng ___?", en:"What does ___ mean?", stress:"I-big SA-bi-hin", note:"IBIG SABIHIN = meaning (literally 'wants to say')." },
+      { tl:"Wika pa lang ako ng Tagalog", en:"I'm still learning Tagalog", stress:"WI-ka PA LANG", note:"Self-deprecating — Filipinos love this honesty and will encourage you." },
+    ]
+  }
+];
+
+// ─── DAILY PHRASES ────────────────────────────────────────────
+const DAILY_PHRASES = [
+  { tl:"Alam kong totoo ang ebanghelyo ni Jesucristo.", en:"I know that the gospel of Jesus Christ is true." },
+  { tl:"Mayroon kaming mensahe para sa inyo.", en:"We have a message for you." },
+  { tl:"Naniniwala kami sa Ama sa Langit.", en:"We believe in Heavenly Father." },
+  { tl:"Mabuti naman po, salamat.", en:"Fine, thank you." },
+  { tl:"Ang Diyos ay mahal sa atin.", en:"God loves us." },
+  { tl:"Puwede ba naming bumalik?", en:"May we come back?" },
+  { tl:"Hindi ko naiintindihan, pakiulit po.", en:"I don't understand, please repeat." },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let state = JSON.parse(localStorage.getItem('tagalogState') || '{}');
+if (!state.xp) state.xp = 0;
+if (!state.correct) state.correct = 0;
+if (!state.mastered) state.mastered = [];
+if (!state.streak) state.streak = 0;
+if (!state.lastDate) state.lastDate = '';
+if (!state.chapterProgress) state.chapterProgress = {};
+
+function saveState() {
+  localStorage.setItem('tagalogState', JSON.stringify(state));
+}
+
+function addXP(amount) {
+  state.xp += amount;
+  if (state.xp >= 100) state.xp = 100;
+  saveState();
+  updateXPBar();
+}
+
+function updateXPBar() {
+  document.getElementById('xpBar').style.width = state.xp + '%';
+  document.getElementById('xpLabel').textContent = state.xp + ' / 100 XP';
+  document.getElementById('statCorrect').textContent = state.correct;
+  document.getElementById('statStreak').textContent = state.streak;
+  document.getElementById('statCards').textContent = state.mastered.length;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════
+function showTab(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+
+  if (name === 'flashcards') initFlashcards();
+  if (name === 'dialogue') initDialogue();
+  if (name === 'lessons') initLessons();
+  if (name === 'phrases') initPhrases();
+}
+
+// ═══════════════════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════════════════
+function initHome() {
+  // Phrase of day
+  const idx = Math.floor(Date.now() / 86400000) % DAILY_PHRASES.length;
+  document.getElementById('phraseOfDay').textContent = '🗣 ' + DAILY_PHRASES[idx].tl;
+  document.getElementById('phraseOfDayEn').textContent = DAILY_PHRASES[idx].en;
+
+  // Chapter grid
+  const grid = document.getElementById('homeChapterGrid');
+  grid.innerHTML = '';
+  CHAPTERS.forEach(ch => {
+    const prog = state.chapterProgress[ch.id];
+    let badgeHtml = '<span class="ch-badge locked">Not started</span>';
+    if (prog === 'done') badgeHtml = '<span class="ch-badge done">✓ Complete</span>';
+    else if (prog === 'in-progress') badgeHtml = '<span class="ch-badge in-progress">In progress</span>';
+
+    grid.innerHTML += `
+      <button class="chapter-btn ${prog === 'done' ? 'completed' : ''}" onclick="openChapter(${ch.id})">
+        <div class="ch-num">${ch.num}</div>
+        <div class="ch-name">${ch.name}</div>
+        <div class="ch-desc">${ch.desc}</div>
+        ${badgeHtml}
+      </button>`;
+  });
+
+  updateXPBar();
+}
+
+function openChapter(id) {
+  showTab('lessons');
+  setTimeout(() => startLesson(id), 50);
+}
+
+// ═══════════════════════════════════════════════════════════
+// LESSONS
+// ═══════════════════════════════════════════════════════════
+function initLessons() {
+  const list = document.getElementById('lessonList');
+  list.innerHTML = '';
+  CHAPTERS.forEach(ch => {
+    const prog = state.chapterProgress[ch.id];
+    list.innerHTML += `
+      <div class="card" style="cursor:pointer; border-left: 4px solid ${ch.color}" onclick="startLesson(${ch.id})">
+        <div class="card-title" style="color:${ch.color}">${ch.num}</div>
+        <div style="font-weight:700; font-size:.95rem; margin-bottom:4px">${ch.name}</div>
+        <div style="font-size:.78rem; color:var(--slate); margin-bottom:8px">${ch.desc}</div>
+        <span class="ch-badge ${prog === 'done' ? 'done' : prog === 'in-progress' ? 'in-progress' : 'locked'}">
+          ${prog === 'done' ? '✓ Complete' : prog === 'in-progress' ? 'In progress' : 'Start lesson →'}
+        </span>
+      </div>`;
+  });
+  showLessonMenu();
+}
+
+function showLessonMenu() {
+  document.getElementById('lessonMenu').style.display = 'block';
+  document.getElementById('lessonDetail').classList.remove('active');
+}
+
+let currentChapter = null;
+let quizState = { questions:[], idx:0, score:0, answered:false };
+
+function startLesson(id) {
+  currentChapter = CHAPTERS.find(c => c.id === id);
+  state.chapterProgress[id] = state.chapterProgress[id] || 'in-progress';
+  saveState();
+
+  const detail = document.getElementById('lessonDetail');
+  detail.classList.add('active');
+  document.getElementById('lessonMenu').style.display = 'none';
+
+  detail.innerHTML = `
+    <div class="lesson-nav">
+      <button class="back-btn" onclick="showLessonMenu(); initLessons()">← Back</button>
+      <div class="lesson-title">${currentChapter.name}</div>
+    </div>
+    <div id="lessonPhase" data-phase="grammar">
+      ${renderGrammarPhase()}
+    </div>`;
+}
+
+function renderGrammarPhase() {
+  const ch = currentChapter;
+  let html = '';
+  ch.grammar.forEach(g => {
+    html += `
+      <div class="grammar-box">
+        <h3>${g.title}</h3>
+        <p>${g.body}</p>
+        <div class="pattern">${g.pattern.replace(/\n/g,'<br>')}</div>
+      </div>`;
+  });
+  html += `<div class="section-header">Examples from the Book</div>`;
+  html += `<div class="card">`;
+  ch.examples.forEach(e => {
+    html += `
+      <div class="example-pair">
+        <div class="example-tl">${e.tl}</div>
+        <div class="example-en">${e.en}</div>
+        <div class="example-gloss">${e.gloss}</div>
+      </div>`;
+  });
+  html += `</div>`;
+  html += `
+    <button class="btn-primary" onclick="startChapterQuiz()">
+      Take the Quiz →
+    </button>
+    <div style="height:16px"></div>`;
+  return html;
+}
+
+function startChapterQuiz() {
+  quizState = {
+    questions: [...currentChapter.quiz],
+    idx: 0,
+    score: 0,
+    answered: false,
+    isMixed: false
+  };
+  document.getElementById('lessonPhase').innerHTML = renderQuiz();
+}
+
+function startMixedQuiz() {
+  let all = [];
+  CHAPTERS.forEach(ch => all = all.concat(ch.quiz.map(q => ({...q, chapterName: ch.name}))));
+  // Shuffle and take 5
+  all = all.sort(() => Math.random() - .5).slice(0, 5);
+  quizState = { questions: all, idx:0, score:0, answered:false, isMixed:true };
+
+  showTab('lessons');
+  const detail = document.getElementById('lessonDetail');
+  detail.classList.add('active');
+  document.getElementById('lessonMenu').style.display = 'none';
+  detail.innerHTML = `
+    <div class="lesson-nav">
+      <button class="back-btn" onclick="showLessonMenu(); initLessons()">← Back</button>
+      <div class="lesson-title">Quick Quiz</div>
+    </div>
+    <div id="lessonPhase">${renderQuiz()}</div>`;
+}
+
+function renderQuiz() {
+  const q = quizState.questions[quizState.idx];
+  const total = quizState.questions.length;
+  const current = quizState.idx;
+
+  let pips = '';
+  for(let i=0; i<total; i++){
+    pips += `<div class="quiz-pip ${i<current ? 'done' : i===current ? 'current' : ''}"></div>`;
+  }
+
+  let optionsHtml = '<div class="options-grid">';
+  q.options.forEach(opt => {
+    optionsHtml += `<button class="option-btn" onclick="selectOption(this, '${opt.replace(/'/g,"\\'")}', '${q.answer.replace(/'/g,"\\'")}', '${(q.explain||'').replace(/'/g,"\\'")}')">${opt}</button>`;
+  });
+  optionsHtml += '</div>';
+
+  return `
+    <div class="quiz-container">
+      <div class="quiz-progress">${pips}</div>
+      <div class="quiz-card">
+        <div class="quiz-type-label">Multiple Choice · Question ${current+1} of ${total}</div>
+        <div class="quiz-question">${q.q}</div>
+        ${optionsHtml}
+        <div class="answer-reveal" id="answerReveal">
+          <div class="correct-text" id="correctText"></div>
+          <div class="explain" id="explainText"></div>
+        </div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button>
+      </div>
+    </div>`;
+}
+
+function selectOption(btn, selected, answer, explain) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+
+  const allBtns = btn.closest('.options-grid').querySelectorAll('.option-btn');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent.trim() === answer) b.classList.add('reveal');
+  });
+
+  const reveal = document.getElementById('answerReveal');
+  const correctText = document.getElementById('correctText');
+  const explainText = document.getElementById('explainText');
+
+  if (selected === answer) {
+    btn.classList.add('correct');
+    correctText.textContent = '✓ Correct!';
+    correctText.style.color = 'var(--green)';
+    quizState.score++;
+    state.correct++;
+    addXP(10);
+    showToast('+10 XP 🎉');
+  } else {
+    btn.classList.add('wrong');
+    correctText.textContent = '✗ Correct answer: ' + answer;
+    correctText.style.color = 'var(--red)';
+    showToast('Keep going!');
+  }
+  if (explain) explainText.textContent = explain;
+  reveal.classList.add('show');
+  document.getElementById('nextBtn').disabled = false;
+  quizState.answered = true;
+  saveState();
+}
+
+function nextQuestion() {
+  quizState.idx++;
+  quizState.answered = false;
+  if (quizState.idx >= quizState.questions.length) {
+    showQuizComplete();
+    return;
+  }
+  document.getElementById('lessonPhase').innerHTML = renderQuiz();
+}
+
+function showQuizComplete() {
+  const score = quizState.score;
+  const total = quizState.questions.length;
+  const pct = Math.round(score/total*100);
+
+  if (!quizState.isMixed && currentChapter && score >= Math.ceil(total * .7)) {
+    state.chapterProgress[currentChapter.id] = 'done';
+    saveState();
+  }
+
+  let emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : '📚';
+  let msg = pct >= 80 ? 'Excellent! You\'ve mastered this chapter.' : pct >= 60 ? 'Good work! Review the grammar notes and try again to improve.' : 'Keep studying the examples and try again.';
+
+  document.getElementById('lessonPhase').innerHTML = `
+    <div class="card complete-card">
+      <div class="complete-emoji">${emoji}</div>
+      <div class="complete-title">Quiz Complete</div>
+      <div class="complete-score">${score} / ${total}</div>
+      <div class="complete-sub">${msg}</div>
+      <div style="height:16px"></div>
+      <button class="btn-primary" onclick="${quizState.isMixed ? "showLessonMenu(); initLessons()" : "startLesson(currentChapter.id)"}">
+        ${quizState.isMixed ? 'Back to Lessons' : 'Review Lesson Again'}
+      </button>
+      <div style="height:10px"></div>
+      <button class="btn-secondary" style="width:100%; margin-top:4px" onclick="startChapterQuiz ? (${quizState.isMixed ? 'startMixedQuiz()' : 'startChapterQuiz()'}) : null">
+        Retry Quiz
+      </button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════════════════════════════
+let fcState = {
+  cards: [],
+  idx: 0,
+  flipped: false,
+  cat: 'All'
+};
+
+function initFlashcards() {
+  // Category buttons
+  const cats = ['All', ...new Set(FLASHCARDS.map(c => c.cat))];
+  const container = document.getElementById('fcCategoryBtns');
+  container.innerHTML = '';
+  cats.forEach(cat => {
+    container.innerHTML += `<button class="fc-cat-btn ${cat === fcState.cat ? 'active' : ''}" onclick="setFcCategory('${cat}')">${cat}</button>`;
+  });
+  loadFcCards();
+}
+
+function setFcCategory(cat) {
+  fcState.cat = cat;
+  fcState.idx = 0;
+  initFlashcards();
+}
+
+function loadFcCards() {
+  fcState.cards = fcState.cat === 'All'
+    ? [...FLASHCARDS]
+    : FLASHCARDS.filter(c => c.cat === fcState.cat);
+  fcState.flipped = false;
+  document.getElementById('flashcardInner').classList.remove('flipped');
+  showCard();
+}
+
+function showCard() {
+  if (!fcState.cards.length) return;
+  const card = fcState.cards[fcState.idx % fcState.cards.length];
+  document.getElementById('fcMainText').textContent = card.tl;
+  document.getElementById('fcStress').textContent = card.stress ? '🔊 ' + card.stress : '';
+  document.getElementById('fcBackMain').textContent = card.en;
+  document.getElementById('fcBackSub').textContent = '';
+  document.getElementById('fcPattern').textContent = card.pattern ? '📐 ' + card.pattern : '';
+
+  const total = fcState.cards.length;
+  const current = (fcState.idx % total) + 1;
+  const masteredInSet = fcState.cards.filter(c => state.mastered.includes(c.tl)).length;
+  document.getElementById('fcCounter').textContent = `Card ${current} of ${total} · ${masteredInSet} mastered in this set`;
+  document.getElementById('flashcardInner').classList.remove('flipped');
+  fcState.flipped = false;
+}
+
+function flipCard() {
+  fcState.flipped = !fcState.flipped;
+  document.getElementById('flashcardInner').classList.toggle('flipped', fcState.flipped);
+}
+
+function fcAnswer(known) {
+  const card = fcState.cards[fcState.idx % fcState.cards.length];
+  if (known && !state.mastered.includes(card.tl)) {
+    state.mastered.push(card.tl);
+    addXP(5);
+    showToast('Mastered! +5 XP ✓');
+  } else if (!known) {
+    showToast('Keep practicing this one!');
+  }
+  fcState.idx = (fcState.idx + 1) % fcState.cards.length;
+  saveState();
+  showCard();
+}
+
+function shuffleCards() {
+  fcState.cards = fcState.cards.sort(() => Math.random() - .5);
+  fcState.idx = 0;
+  showCard();
+  showToast('Shuffled!');
+}
+
+// ═══════════════════════════════════════════════════════════
+// DIALOGUE
+// ═══════════════════════════════════════════════════════════
+let dlgState = { sceneId: null, lineIdx: 0 };
+
+function initDialogue() {
+  const btns = document.getElementById('dialogueSceneBtns');
+  btns.innerHTML = '';
+  DIALOGUES.forEach(d => {
+    btns.innerHTML += `<button class="fc-cat-btn ${dlgState.sceneId === d.id ? 'active' : ''}" onclick="loadDialogue('${d.id}')">${d.label}</button>`;
+  });
+  if (!dlgState.sceneId) loadDialogue(DIALOGUES[0].id);
+  else loadDialogue(dlgState.sceneId);
+}
+
+function loadDialogue(id) {
+  dlgState.sceneId = id;
+  dlgState.lineIdx = 0;
+  const scene = DIALOGUES.find(d => d.id === id);
+  const area = document.getElementById('dialogueArea');
+
+  // Update active button
+  document.querySelectorAll('#dialogueSceneBtns .fc-cat-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent === scene.label);
+  });
+
+  area.innerHTML = `
+    <div class="dialogue-scene">${scene.scene}</div>
+    <div id="dialogueLines"></div>
+    <div class="card" style="margin-top:12px">
+      <p style="font-size:.75rem;color:var(--slate);line-height:1.5">
+        <strong>How it works:</strong> "Them" lines appear automatically. For "You" lines — try typing in Tagalog, then tap <em>Show Answer</em> to compare. Tap <em>Next</em> to continue.
+      </p>
+    </div>`;
+
+  renderNextLine(scene);
+}
+
+function renderNextLine(scene) {
+  if (dlgState.lineIdx >= scene.lines.length) {
+    document.getElementById('dialogueLines').innerHTML += `
+      <div class="card complete-card" style="padding:20px">
+        <div class="complete-emoji">🤝</div>
+        <div class="complete-title">Magaling!</div>
+        <div class="complete-sub">You completed this conversation. Practice it again until it flows naturally.</div>
+        <div style="height:12px"></div>
+        <button class="btn-primary" onclick="loadDialogue('${scene.id}')">Start Over</button>
+      </div>`;
+    addXP(15);
+    showToast('Conversation complete! +15 XP');
+    return;
+  }
+
+  const line = scene.lines[dlgState.lineIdx];
+  const linesDiv = document.getElementById('dialogueLines');
+
+  if (line.auto || line.speaker === 'Them' || line.speaker === 'Member') {
+    // Auto-show this line
+    linesDiv.innerHTML += `
+      <div class="dialogue-line them">
+        <span class="speaker-name">${line.speaker}</span>
+        <div class="line-tl">${line.tl}</div>
+        <div class="line-en">${line.en}</div>
+      </div>`;
+    dlgState.lineIdx++;
+    if (dlgState.lineIdx < scene.lines.length) {
+      renderNextLine(scene);
+    } else {
+      renderNextLine(scene); // show complete
+    }
+    return;
+  }
+
+  // Input line (You)
+  if (line.input) {
+    const inputId = 'dlgInput' + dlgState.lineIdx;
+    linesDiv.innerHTML += `
+      <div class="dialogue-line you" style="min-width:60%; background: var(--navy)">
+        <span class="speaker-name" style="color:rgba(255,255,255,.6)">You</span>
+        <input class="dialogue-input" id="${inputId}" placeholder="Type your Tagalog here…" autocomplete="off" autocorrect="off" spellcheck="false">
+        <div class="dlg-hint" id="dlgHint${dlgState.lineIdx}" style="display:none">✓ ${line.tl}</div>
+      </div>
+      <div class="quiz-actions" style="margin-bottom:10px">
+        <button class="btn-secondary" onclick="showDlgAnswer(${dlgState.lineIdx}, '${line.tl.replace(/'/g,"\\'")}')">Show Answer</button>
+        <button class="btn-primary" onclick="advanceDlg('${scene.id}')">Next →</button>
+      </div>`;
+    // Scroll to input
+    setTimeout(() => {
+      const inp = document.getElementById(inputId);
+      if (inp) inp.scrollIntoView({ behavior:'smooth', block:'center' });
+    }, 100);
+  }
+}
+
+function showDlgAnswer(idx, answer) {
+  const hint = document.getElementById('dlgHint' + idx);
+  if (hint) hint.style.display = 'block';
+}
+
+function advanceDlg(sceneId) {
+  const scene = DIALOGUES.find(d => d.id === sceneId);
+  dlgState.lineIdx++;
+  // Remove the action buttons
+  const actions = document.querySelector('.quiz-actions');
+  if (actions) actions.remove();
+  renderNextLine(scene);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PHRASES
+// ═══════════════════════════════════════════════════════════
+function initPhrases() {
+  const list = document.getElementById('phraseList');
+  list.innerHTML = '';
+  PHRASES.forEach(group => {
+    list.innerHTML += `<div class="phrase-group-title">${group.group}</div>`;
+    group.items.forEach((item, i) => {
+      const id = group.group.replace(/\s/g,'') + i;
+      list.innerHTML += `
+        <div class="phrase-item" onclick="togglePhrase('${id}')">
+          <div class="phrase-tl">${item.tl}</div>
+          <div class="phrase-en">${item.en}</div>
+          <div class="phrase-stress show" id="stress-${id}">🔊 ${item.stress}</div>
+          <div class="phrase-note" id="note-${id}">${item.note}</div>
+        </div>`;
+    });
+  });
+}
+
+function togglePhrase(id) {
+  const note = document.getElementById('note-' + id);
+  note.classList.toggle('show');
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// STREAK
+// ═══════════════════════════════════════════════════════════
+function checkStreak() {
+  const today = new Date().toDateString();
+  if (state.lastDate !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (state.lastDate === yesterday) {
+      state.streak++;
+    } else if (!state.lastDate) {
+      state.streak = 1;
+    } else {
+      state.streak = 1;
+    }
+    state.lastDate = today;
+    saveState();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+checkStreak();
+initHome();
+</script>
+</body>
+</html>
