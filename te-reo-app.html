@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Te Reo Māori — Akoranga Mihinare</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0d1e38;--navy:#1a3666;--teal:#236b58;--gold:#8a6010;
+  --sand:#f4f0e6;--paper:#fdfaf4;--white:#fff;
+  --muted:#62748a;--border:#d8d2c4;
+  --ok:#1e6e42;--ok-bg:#eaf4ee;--err:#8a1e1e;--err-bg:#f4eaea;
+  --warn-bg:#fdf4e0;--warn:#7a5010;--r:9px;
+}
+html,body{min-height:100%;font-family:"Inter",sans-serif;background:var(--sand);color:var(--ink);line-height:1.55;font-size:15px}
+#shell{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0 12px 60px}
+#topbar{width:100%;max-width:720px;display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.wm{font-family:"EB Garamond",serif;font-size:1.1rem;font-weight:600;color:var(--ink)}.wm em{color:var(--teal);font-style:normal}
+.phase-pill{font-size:.7rem;font-weight:700;color:var(--navy);background:rgba(26,54,102,.1);border-radius:20px;padding:3px 11px}
+.card{width:100%;max-width:720px;background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:22px 18px;margin-bottom:12px}
+.eyebrow{font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:block}
+.ch-title{font-family:"EB Garamond",serif;font-size:1.6rem;font-weight:600;color:var(--ink);line-height:1.2;margin-bottom:4px}
+.sec-title{font-family:"EB Garamond",serif;font-size:1.25rem;font-weight:600;color:var(--ink);margin-bottom:10px}
+.body-text{font-size:.875rem;color:var(--ink);line-height:1.7;margin-bottom:10px}
+.muted{color:var(--muted)}
+.grammar-block{background:var(--paper);border-left:3px solid var(--navy);border-radius:0 var(--r) var(--r) 0;padding:13px 15px;margin:10px 0;font-size:.855rem;line-height:1.7}
+.grammar-block .gb-title{font-weight:700;color:var(--navy);margin-bottom:6px;display:block;font-size:.875rem}
+.info-block{background:rgba(26,54,102,.05);border-left:3px solid var(--navy);border-radius:0 var(--r) var(--r) 0;padding:11px 13px;margin:9px 0;font-size:.845rem;line-height:1.65}
+.warn-block{background:var(--warn-bg);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:11px 13px;margin:9px 0;font-size:.845rem;color:var(--warn);line-height:1.65}
+.warn-block strong{display:block;margin-bottom:3px}
+.gtable{width:100%;border-collapse:collapse;font-size:.825rem;margin:9px 0 12px}
+.gtable th{text-align:left;color:var(--muted);font-weight:600;font-size:.75rem;padding:4px 9px 6px;border-bottom:2px solid var(--border)}
+.gtable td{padding:7px 9px;border-bottom:1px solid var(--border);vertical-align:top}
+.gtable tr:last-child td{border-bottom:none}
+.gtable .mri{font-weight:600;color:var(--ink)}
+.hl{background:rgba(35,107,88,.1);border-radius:3px;padding:1px 4px;color:var(--teal);font-weight:600}
+.eg-list{display:flex;flex-direction:column;gap:7px;margin:9px 0 12px}
+.eg{border-left:3px solid var(--gold);padding:8px 12px;background:var(--paper);border-radius:0 6px 6px 0}
+.eg .mri{font-family:"EB Garamond",serif;font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:2px;line-height:1.3}
+.eg .eng{font-size:.81rem;color:var(--muted)}
+.eg .note{font-size:.76rem;color:var(--teal);margin-top:2px;font-style:italic}
+.eg .src{font-size:.71rem;color:var(--muted);font-style:italic;margin-top:2px}
+.dialogue{display:flex;flex-direction:column;gap:8px;margin:11px 0}
+.dlg{display:flex;gap:9px;align-items:flex-start}
+.dlg-who{flex-shrink:0;font-size:.67rem;font-weight:700;color:#fff;background:var(--navy);border-radius:10px;padding:3px 7px;margin-top:2px;white-space:nowrap}
+.dlg-who.b{background:var(--teal)}.dlg-who.c{background:var(--gold)}
+.dlg-body .mri{font-size:.88rem;font-weight:600;color:var(--ink);margin-bottom:2px;font-family:"EB Garamond",serif}
+.dlg-body .eng{font-size:.79rem;color:var(--muted)}
+.anatomy{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0}
+.an-cell{background:var(--paper);border:1px solid var(--border);border-radius:5px;padding:5px 9px;text-align:center;min-width:65px}
+.an-cell .ac-reo{font-family:"EB Garamond",serif;font-size:.9rem;font-weight:600;color:var(--navy)}
+.an-cell .ac-role{font-size:.64rem;color:var(--teal);margin-top:1px;font-weight:600;text-transform:uppercase}
+.an-cell .ac-eng{font-size:.7rem;color:var(--muted);margin-top:1px}
+.q-text{font-family:"EB Garamond",serif;font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:4px;line-height:1.3}
+.q-ctx{font-size:.79rem;color:var(--muted);margin-bottom:13px;font-style:italic}
+.q-num{font-size:.74rem;color:var(--muted);margin-bottom:5px}
+.opts{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.opt{border:2px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;font-size:.865rem;color:var(--ink);text-align:left;background:var(--white);transition:border-color .13s,background .13s;display:flex;align-items:flex-start;gap:9px}
+.opt:hover:not(:disabled){border-color:var(--navy);background:rgba(26,54,102,.04)}
+.opt .okey{flex-shrink:0;width:20px;height:20px;border-radius:4px;background:var(--sand);font-size:.69rem;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--muted);margin-top:1px}
+.opt .olbl{flex:1;line-height:1.4}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--err);background:var(--err-bg)}
+.opt.reveal{border-color:var(--ok);background:var(--ok-bg)}
+.opt:disabled{cursor:default}
+.fb{border-radius:7px;padding:11px 13px;font-size:.845rem;display:none;line-height:1.55;margin-bottom:11px}
+.fb.show{display:block}
+.fb.correct{background:var(--ok-bg);color:var(--ok);border-left:4px solid var(--ok)}
+.fb.wrong{background:var(--err-bg);color:var(--err);border-left:4px solid var(--err)}
+.fb strong{display:block;margin-bottom:3px;font-size:.875rem}
+.fb-src{font-size:.74rem;color:var(--muted);font-style:italic;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,.1)}
+.speak-card{background:var(--paper);border:1px solid var(--border);border-radius:var(--r);padding:15px;margin:8px 0}
+.sp-ctx{font-size:.69rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gold);margin-bottom:5px}
+.sp-eng{font-family:"EB Garamond",serif;font-size:1.1rem;font-weight:600;color:var(--ink);margin-bottom:11px;line-height:1.3}
+.sp-reveal-btn{width:100%;padding:9px;border-radius:6px;font-size:.845rem;font-weight:600;cursor:pointer;border:2px dashed var(--navy);background:transparent;color:var(--navy);margin-bottom:8px}
+.sp-answer{display:none;font-family:"EB Garamond",serif;font-size:1.15rem;font-weight:600;color:var(--teal);text-align:center;padding:10px;background:rgba(35,107,88,.07);border-radius:6px;margin-bottom:7px;line-height:1.3}
+.sp-answer.show{display:block}
+.sp-grammar{display:none;font-size:.79rem;color:var(--ink);background:var(--white);border:1px solid var(--border);border-radius:6px;padding:8px 11px;line-height:1.65}
+.sp-grammar.show{display:block}
+.sp-grammar strong{color:var(--navy);display:block;margin-bottom:2px;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.fib-sentence{font-family:"EB Garamond",serif;font-size:1.05rem;color:var(--ink);margin-bottom:8px;line-height:1.7}
+.fib-input{border:2px solid var(--border);border-radius:6px;padding:7px 10px;font-size:.875rem;font-family:"Inter",sans-serif;color:var(--ink);background:var(--white);width:100%;margin-bottom:6px}
+.fib-input:focus{outline:none;border-color:var(--teal)}
+.fib-input.correct{border-color:var(--ok);background:var(--ok-bg)}
+.fib-input.wrong{border-color:var(--err);background:var(--err-bg)}
+.sr-row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.sr-btn{padding:7px 16px;border-radius:6px;font-size:.79rem;font-weight:600;cursor:pointer;border:2px solid;transition:all .12s}
+.sr-good{border-color:var(--ok);color:var(--ok);background:transparent}
+.sr-good:hover,.sr-good.on{background:var(--ok);color:#fff}
+.sr-mid{border-color:var(--gold);color:var(--gold);background:transparent}
+.sr-mid:hover,.sr-mid.on{background:var(--gold);color:#fff}
+.sr-hard{border-color:var(--err);color:var(--err);background:transparent}
+.sr-hard:hover,.sr-hard.on{background:var(--err);color:#fff}
+.pdots{display:flex;gap:5px;justify-content:center;margin:7px 0 13px;flex-wrap:wrap}
+.pdot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0}
+.pdot.done{background:var(--teal)}.pdot.cur{background:var(--navy)}.pdot.hard{background:var(--err)}
+#chapter-menu{width:100%;max-width:720px}
+.menu-title{font-family:"EB Garamond",serif;font-size:1.75rem;font-weight:600;color:var(--ink);margin-bottom:4px}
+.ch-grid{display:flex;flex-direction:column;gap:9px}
+.ch-item{display:flex;align-items:center;gap:13px;background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;cursor:pointer;transition:border-color .13s,background .13s}
+.ch-item:hover{border-color:var(--navy);background:rgba(26,54,102,.03)}
+.ch-item.completed{border-color:var(--teal)}
+.ch-num{width:34px;height:34px;border-radius:7px;background:var(--navy);color:#fff;font-weight:700;font-size:.87rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ch-item.completed .ch-num{background:var(--teal)}
+.ch-info{flex:1}
+.ch-info .ci-title{font-weight:600;color:var(--ink);font-size:.9rem;margin-bottom:2px}
+.ch-info .ci-sub{font-size:.75rem;color:var(--muted)}
+.ch-prog{font-size:.71rem;font-weight:700;color:var(--teal)}
+#sec-nav{width:100%;max-width:720px;display:flex;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);margin-bottom:15px}
+.sn-tab{flex:1;padding:8px 3px;font-size:.63rem;font-weight:700;text-align:center;cursor:pointer;border:none;background:var(--white);color:var(--muted);border-right:1px solid var(--border);transition:background .13s,color .13s;line-height:1.3}
+.sn-tab:last-child{border-right:none}
+.sn-tab.active{background:var(--navy);color:#fff}
+.sn-tab.done{background:var(--teal);color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 21px;border-radius:7px;font-size:.875rem;font-weight:600;cursor:pointer;border:none;transition:opacity .13s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--navy);color:#fff}.btn-primary:hover{opacity:.88}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{opacity:.88}
+.btn-outline{background:transparent;color:var(--navy);border:2px solid var(--navy)}.btn-outline:hover{background:rgba(26,54,102,.06)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:.79rem;font-weight:600;color:var(--muted);cursor:pointer;padding:5px 0;margin-bottom:13px;width:fit-content}
+.back-btn:hover{color:var(--navy)}
+.q-nav{display:flex;align-items:center;justify-content:space-between;margin:9px 0 3px}
+.q-nav button{padding:7px 15px;border-radius:6px;font-size:.81rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--ink)}
+.q-nav button:hover{background:var(--sand)}
+.q-nav button:disabled{opacity:.35;cursor:default}
+.q-counter{font-size:.76rem;color:var(--muted)}
+.score-center{text-align:center;padding:10px 0 16px}
+.score-big{font-size:2.8rem;font-weight:700;color:var(--ink);line-height:1}
+.score-big span{font-size:.95rem;color:var(--muted);font-weight:400}
+.score-lbl{font-size:.845rem;color:var(--muted);margin-top:4px;margin-bottom:14px}
+.score-badge{display:inline-block;padding:4px 13px;border-radius:20px;font-size:.79rem;font-weight:700;margin-bottom:13px}
+.sb-good{background:var(--ok-bg);color:var(--ok)}.sb-mid{background:rgba(138,96,16,.1);color:var(--gold)}.sb-bad{background:var(--err-bg);color:var(--err)}
+.scripture-box{background:rgba(26,54,102,.04);border-radius:8px;padding:12px 14px;margin:9px 0}
+.sb-ref{font-size:.69rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--navy);margin-bottom:5px}
+.sb-text{font-family:"EB Garamond",serif;font-size:1rem;color:var(--ink);font-style:italic;line-height:1.6;margin-bottom:4px}
+.sb-trans{font-size:.79rem;color:var(--muted)}
+.vocab-grid{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+.vchip{background:var(--paper);border:1px solid var(--border);border-radius:6px;padding:5px 10px}
+.vchip .vm{font-weight:700;color:var(--ink);font-size:.855rem;display:block}
+.vchip .ve{color:var(--muted);font-size:.74rem;display:block;margin-top:1px}
+.done-center{text-align:center;padding:14px 0 18px}
+.done-icon{font-size:2.2rem;margin-bottom:7px}
+.done-title{font-family:"EB Garamond",serif;font-size:1.45rem;font-weight:600;color:var(--ink);margin-bottom:5px}
+.done-sub{font-size:.845rem;color:var(--muted);line-height:1.65;margin-bottom:16px}
+#footer{width:100%;max-width:720px;border-top:1px solid var(--border);padding:11px 0;text-align:center;font-size:.69rem;color:var(--muted);font-style:italic;margin-top:8px}
+</style>
+</head>
+<body>
+<div id="shell">
+<div id="topbar">
+  <div class="wm">Te Reo <em>Māori</em> · Akoranga Mihinare</div>
+  <div class="phase-pill" id="phase-pill">Āpitihanga</div>
+</div>
+<div id="main-content"></div>
+<div id="footer">Rauemi: Come Follow Me 2026 (mri) · Ko Te Pukapuka a Moromona · LDS Gospel Library</div>
+</div>
+<script>
+
+// ═══ STORAGE ═══
+const STORE={get(k){try{return JSON.parse(localStorage.getItem('mri_'+k)||'null');}catch(e){return null;}},set(k,v){try{localStorage.setItem('mri_'+k,JSON.stringify(v));}catch(e){}}};
+function getProgress(id){return STORE.get('p_'+id)||{done:[],score:0};}
+function saveProgress(id,sec,sc){let p=getProgress(id);if(!p.done.includes(sec))p.done.push(sec);if(sc!==undefined)p.score=Math.max(p.score,sc);STORE.set('p_'+id,p);}
+
+
+// ═══ CHAPTER DATA ═══
+const CHAPTERS=[
+{id:"ch3",num:3,
+ title_mri:"Ngā Tohu Ingoa me ngā Kīanga",
+ title_eng:"Noun Markers & Pronouns",
+ subtitle:"te/ngā/a markers · i/ki/nō/o · full pronoun system",
+ sections:[
+  {id:"ch3_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Every te reo Māori sentence is built on particles — small words that mark what role each noun plays. Te reo has no equivalent of Tagalog's Ang/Ng/Sa, but it has a parallel systematic set. Master these and you can construct and read any sentence.",
+   blocks:[
+    {title:"Subject markers — te / ngā / a",
+     body:"\u003cspan class='hl'\u003ete\u003c/span\u003e = the (singular) · \u003cspan class='hl'\u003engā\u003c/span\u003e = the (plural) · \u003cspan class='hl'\u003ea\u003c/span\u003e = animate subject marker (for people and personal names)",
+     examples:[
+      {mri:"Ka kōrero \u003cspan class='hl'\u003ete\u003c/span\u003e mihinare.",eng:"The missionary speaks.",note:"te = singular article before common noun"},
+      {mri:"Ka karakia \u003cspan class='hl'\u003engā\u003c/span\u003e tamariki.",eng:"The children pray.",note:"ngā = plural — more than one"},
+      {mri:"Ka whakaako \u003cspan class='hl'\u003ea\u003c/span\u003e Hōhepa Mete.",eng:"Joseph Smith teaches.",note:"a = animate subject before a personal name"},
+     ]},
+    {title:"Object marker — i (mid-sentence)",
+     body:"\u003cspan class='hl'\u003ei\u003c/span\u003e mid-sentence (after the verb) marks the direct object. CRITICAL: do not confuse with 'i' at sentence-start (which marks past tense).",
+     examples:[
+      {mri:"Ka pānui ia \u003cspan class='hl'\u003ei\u003c/span\u003e te pukapuka.",eng:"He reads the book.",note:"i = object marker (mid-sentence)"},
+      {mri:"Ka aroha tātou \u003cspan class='hl'\u003ei a\u003c/span\u003e Ihu Karaiti.",eng:"We love Jesus Christ.",note:"i a = animate object marker before a personal name"},
+     ]},
+    {title:"Directional marker — ki",
+     body:"\u003cspan class='hl'\u003eki\u003c/span\u003e = toward, to, at. Shows direction or recipient.",
+     examples:[
+      {mri:"Ka haere mātou \u003cspan class='hl'\u003eki\u003c/span\u003e te hāhi.",eng:"We go to church.",note:"ki = toward a place"},
+      {mri:"Ka kōrero ia \u003cspan class='hl'\u003eki a\u003c/span\u003e Mere.",eng:"She speaks to Mere.",note:"ki a = toward an animate person"},
+     ]},
+    {title:"Origin markers — nō / nā",
+     body:"\u003cspan class='hl'\u003enō\u003c/span\u003e = permanent origin (where from, who belongs to). \u003cspan class='hl'\u003enā\u003c/span\u003e = active attribution (who did it, who produced it).",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eNō\u003c/span\u003e Aotearoa ahau.",eng:"I am from New Zealand.",note:"nō = permanent origin"},
+      {mri:"\u003cspan class='hl'\u003eNā\u003c/span\u003e te mihinare tēnei pukapuka.",eng:"This book was given by/belongs to the missionary.",note:"nā = active attribution"},
+     ]},
+    {title:"Possession connectors — o / a",
+     body:"\u003cspan class='hl'\u003eo\u003c/span\u003e links nouns for ō-category possession (received things). \u003cspan class='hl'\u003ea\u003c/span\u003e links nouns for ā-category (produced/controlled things).",
+     examples:[
+      {mri:"Te ingoa \u003cspan class='hl'\u003eo\u003c/span\u003e tōku hoa",eng:"The name of my friend",note:"o = name identifies/belongs to the friend"},
+      {mri:"Ngā kupu \u003cspan class='hl'\u003ea\u003c/span\u003e te poropiti",eng:"The words of the prophet",note:"a = prophet actively produced these words"},
+     ]},
+   ]},
+  {id:"ch3_B",label:"B\nKīanga",type:"explain",
+   intro:"Te reo Māori has a richer pronoun system than English — it distinguishes inclusive vs exclusive 'we', and has dual (exactly two) forms. This is the complete set you need as a missionary.",
+   blocks:[
+    {title:"Full Pronoun Table",
+     body:"",
+     table:{
+      headers:["Person","Singular","Dual (2)","Plural (3+)"],
+      rows:[
+       ["1st — I/we","ahau / au","māua (excl.) / tāua (incl.)","mātou (excl.) / tātou (incl.)"],
+       ["2nd — you","koe","kōrua","koutou"],
+       ["3rd — he/she/they","ia","rāua","rātou"],
+      ]
+     },
+     note:"CRITICAL: tātou (inclusive) includes the listener. mātou (exclusive) does NOT. This is the most important pronoun distinction in missionary language — 'tātou' brings the investigator in; 'mātou' refers to missionaries only."
+    },
+   ],
+   examples:[
+    {mri:"Ka karakia \u003cspan class='hl'\u003etātou\u003c/span\u003e.",eng:"We all pray (you are included).",note:"tātou = inclusive — used in lessons, prayers, meetings"},
+    {mri:"Ka haere \u003cspan class='hl'\u003emātou\u003c/span\u003e ki te hāhi.",eng:"We go to church (not including you).",note:"mātou = exclusive — missionaries, not the investigator"},
+    {mri:"Ka ako \u003cspan class='hl'\u003erāua\u003c/span\u003e i te reo Māori.",eng:"The two of them are learning te reo Māori.",note:"rāua = dual they (exactly two people)"},
+    {mri:"I te ingoa o Īhu Karaiti, āmine.",eng:"In the name of Jesus Christ, amen.",note:"Fixed closing phrase — memorise exactly as written"},
+   ]},
+  {id:"ch3_C",label:"C\nKuputaka",type:"vocab",
+   items:[
+    {mri:"te",eng:"the (singular)"},{mri:"ngā",eng:"the (plural)"},{mri:"a",eng:"animate subject/object marker"},
+    {mri:"i (mid-sentence)",eng:"object marker"},{mri:"i (sentence-start)",eng:"past tense marker"},
+    {mri:"ki",eng:"to, toward, at"},{mri:"ki a",eng:"to/toward an animate person"},
+    {mri:"nō",eng:"from, origin of (permanent)"},{mri:"nā",eng:"by, belonging to (active)"},
+    {mri:"o",eng:"of (ō-category connector)"},{mri:"a",eng:"of (ā-category connector)"},
+    {mri:"ahau / au",eng:"I, me"},{mri:"koe",eng:"you (singular)"},{mri:"ia",eng:"he / she / it"},
+    {mri:"tāua",eng:"we two (inclusive)"},{mri:"māua",eng:"we two (exclusive)"},
+    {mri:"kōrua",eng:"you two"},{mri:"rāua",eng:"they two"},
+    {mri:"tātou",eng:"we all (inclusive)"},{mri:"mātou",eng:"we all (exclusive)"},
+    {mri:"koutou",eng:"you all"},{mri:"rātou",eng:"they all"},
+    {mri:"hāhi",eng:"church"},{mri:"pukapuka",eng:"book"},{mri:"ingoa",eng:"name"},
+    {mri:"kāinga",eng:"home"},{mri:"mihinare",eng:"missionary"},{mri:"poropiti",eng:"prophet"},
+    {mri:"karakia",eng:"pray / prayer"},{mri:"kōrero",eng:"speak / talk"},
+   ]},
+  {id:"ch3_D",label:"D\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"Which particle marks a personal name as the subject of a sentence?",ctx:"___ Hōhepa Mete e kōrero ana mō te Whakatahuritanga.",
+     opts:["Te","Ngā","A","Ki"],ans:2,
+     fb:"'A' is the animate subject marker for personal names. Te/ngā are for common nouns. Ka kōrero a Hōhepa Mete = Joseph Smith speaks.",
+     anatomy:[{r:"a",role:"animate marker",e:"marks person"},{r:"Hōhepa Mete",role:"subject",e:"Joseph Smith"},{r:"e kōrero ana",role:"verb",e:"speaks"}]},
+    {q:"'Ka pānui ahau i te Pukapuka a Moromona' — what does the mid-sentence 'i' do?",ctx:"Two different 'i' particles — only one applies here",
+     opts:["Marks past tense","Marks the direct object","Means 'at'","Is part of the verb"],ans:1,
+     fb:"Mid-sentence 'i' marks the direct object. Sentence-start 'I' marks past tense. 'i te Pukapuka' = [I read] the book. 'a Moromona' = ā-category (Mormon authored/produced it)."},
+    {q:"A missionary says 'Ka haere mātou ki te hāhi.' Is the investigator coming?",ctx:"Pronoun choice is everything here",
+     opts:["Yes — mātou includes everyone","No — mātou is exclusive, does not include the listener","Maybe — depends on context","Yes if they say āe"],ans:1,
+     fb:"Mātou = exclusive 'we' — does NOT include the listener. To invite the investigator, you need tātou: 'Ka haere tātou ki te hāhi' = we're all going (including you)."},
+    {q:"'Ka kōrero ia ki a Mere' — why 'ki a' not just 'ki'?",ctx:"Directing speech toward a person",
+     opts:["Because Mere is female","'Ki a' is used before animate nouns — people and personal names","Ki a is more polite","Ki alone is used only for places"],ans:1,
+     fb:"'Ki a' = toward (animate). Before people and personal names, use 'ki a'. Before places and institutions, use 'ki te'. Ki a Mere = to Mere. Ki te hāhi = to the church."},
+    {q:"What is the difference between 'nō Aotearoa ahau' and 'kei Aotearoa ahau'?",ctx:"Two prepositions — two completely different meanings",
+     opts:["No difference","Nō = from NZ (permanent origin); Kei = in NZ (current location)","Nō = was in NZ; Kei = will go to NZ","Nō is more formal"],ans:1,
+     fb:"'Nō' = permanent origin (where from). 'Kei' = current location (where is). Nō Aotearoa ahau = I'm from NZ. Kei Aotearoa ahau = I'm in NZ right now."},
+    {q:"Why is 'ngā kupu a te poropiti' not 'ngā kupu o te poropiti'?",ctx:"ā vs ō possession connector",
+     opts:["A is always used with plural ngā","The prophet actively produces/speaks words (ā = active/produced)","A is for sacred things","Both are correct"],ans:1,
+     fb:"ā-category (a) = things actively produced or controlled — words, speech, actions. The prophet produces words. Compare: 'ngā whakaaro o te poropiti' = the prophet's thoughts (ō — internal, received)."},
+    {q:"Fill in the possessive: 'He ātaahua ___ whānau.' (Your family is beautiful)",ctx:"Family — which possession category?",
+     opts:["tā","tō","āu","āna"],ans:1,
+     fb:"Tō = your (ō-category, singular). Family is ō-category — it's received, not something you produce or control. 'Tō whānau' = your family. 'Tā' would be ā-category (things you actively control)."},
+    {q:"Which pronoun includes the person you're talking to in 'we'?",ctx:"The single most important pronoun rule for missionaries",
+     opts:["Mātou","Koutou","Tātou","Rātou"],ans:2,
+     fb:"Tātou = we (inclusive) — includes the person spoken to. Used in prayers ('ka karakia tātou'), lessons ('mō tātou katoa'), and testimony ('tō tātou Matua i te Rangi'). Mātou = exclusive — missionaries only."},
+   ]},
+  {id:"ch3_E",label:"E\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Opening a lesson — addressing the family",eng:"We pray together (including you).",reo:"Ka karakia tātou.",grammar:"Ka = action. Tātou = inclusive — the family are included. Never use mātou here or you exclude the people you're teaching."},
+    {ctx:"Introducing your origin",eng:"I am from America.",reo:"Nō Amerika ahau.",grammar:"Nō = origin. Subject follows: ahau = I. Word order: Nō [place] [subject]. Predicate first — always."},
+    {ctx:"Describing current reading",eng:"I am reading the Book of Mormon.",reo:"Kei te pānui ahau i te Pukapuka a Moromona.",grammar:"Kei te = present continuous. i te Pukapuka = object marker + book. a Moromona = ā-category (Mormon authored it)."},
+    {ctx:"Talking about someone's family",eng:"Your family is beautiful.",reo:"He ātaahua tō whānau.",grammar:"He = classifier. Tō whānau = your family (ō — received, not controlled). He ātaahua = it is beautiful."},
+    {ctx:"Inviting someone to church",eng:"We will go to church together (including you).",reo:"Ka haere tātou ki te hāhi.",grammar:"Tātou = inclusive — you're inviting THEM to come WITH you. Ki = toward. Ki te hāhi = to the church."},
+    {ctx:"Closing a prayer",eng:"In the name of Jesus Christ, amen.",reo:"I te ingoa o Īhu Karaiti, āmine.",grammar:"I te ingoa o = in the name of. O = ō-category (the name belongs to/identifies Christ). Fixed liturgical phrase — memorise exactly."},
+   ]},
+  {id:"ch3_F",label:"F\nWhaka-uru",type:"activity_fib",
+   instructions:"Fill in the correct particle or pronoun.",
+   exercises:[
+    {sentence:"Ka kōrero ___ Pita mō te Karaiti.",answer:"a",hint:"Personal name as animate subject",translation:"Pita speaks about Christ."},
+    {sentence:"Ka haere ___ ki te hāhi.",answer:"mātou",hint:"We (missionaries) go — NOT including the listener",translation:"We (exclusive) go to church."},
+    {sentence:"Ka pānui ia ___ te pukapuka.",answer:"i",hint:"Mid-sentence object marker",translation:"She reads the book."},
+    {sentence:"He pono ngā kupu ___ te poropiti.",answer:"a",hint:"ā-category — prophet produced these words",translation:"The prophet's words are true."},
+    {sentence:"___ hea koe?",answer:"Nō",hint:"Asking where someone is FROM",translation:"Where are you from?"},
+    {sentence:"Ka kōrero ia ___ a Mere.",answer:"ki",hint:"Speaking TO a person",translation:"She speaks to Mere."},
+    {sentence:"He ātaahua ___ whānau.",answer:"tō",hint:"Your family — ō-category",translation:"Your family is beautiful."},
+    {sentence:"Ka karakia ___ katoa.",answer:"tātou",hint:"We ALL pray — including the listener",translation:"We all pray (inclusive)."},
+   ]},
+  {id:"ch3_G",label:"G\nKōrero-tahi",type:"dialogue",
+   title:"He Kōrero Tūātu — First Meeting",
+   intro:"Read aloud twice. Cover English on second pass. Notice every particle — why each te/a/i/ki appears.",
+   lines:[
+    {who:"Mihinare",wc:"a",mri:"Tēnā koe. Ko ahau ko Wiremu. He mihinare ahau nō Amerika. Ko wai tō ingoa?",eng:"Greetings. I am Wiremu. I am a missionary from America. What is your name?"},
+    {who:"Hemi",wc:"b",mri:"Ko Hemi tōku ingoa. Nō Rotorua ōku tīpuna.",eng:"My name is Hemi. My ancestors are from Rotorua."},
+    {who:"Mihinare",wc:"a",mri:"Ka pai! He aha tāu mahi?",eng:"Good! What is your work?"},
+    {who:"Hemi",wc:"b",mri:"He kaiako ahau. Ka ako ahau i ngā tamariki.",eng:"I am a teacher. I teach children."},
+    {who:"Mihinare",wc:"a",mri:"Ka haere tātou ki te hāhi i tēnei Rātapu?",eng:"Are we all going to church this Sunday?"},
+    {who:"Hemi",wc:"b",mri:"Āe, ka haere tāua.",eng:"Yes, the two of us will go."},
+   ],
+   grammar_notes:["māua (exclusive) vs tātou (inclusive) — notice the shift to tāua at the end when they're going together.","Tōku ingoa = my name (ō — name identifies you, received/given).","Tāu mahi = your work (ā — work is something you actively do)."]},
+  {id:"ch3_H",label:"H\nKaraipiture",type:"scripture",
+   verses:[
+    {ref:"Come Follow Me 2026 (te reo Māori)",mri:"Ko te whāinga o ngā akoranga rongopai katoa he āwhina i a tātou kia rite rawa ki a Ihu Karaiti.",eng:"The goal of all gospel lessons is to help us become more like Jesus Christ.",notes:"i a tātou = us (animate object — i a before pronouns). ki a Ihu Karaiti = toward Christ (animate — ki a before person). O ngā akoranga = ō-category (lessons are received by students)."},
+    {ref:"Ko Te Pukapuka a Moromona — 1 Nīfai 1:1",mri:"Ko ahau a Nīfai, i whānau noa iho ahau i ōku mātua pai.",eng:"I, Nephi, having been born of goodly parents.",notes:"Ko ahau a Nīfai = identification. Ōku mātua = my parents (ō — parents are received, not chosen). a before Nīfai = animate marker."},
+   ]},
+  {id:"ch3_I",label:"I\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 3",
+   tasks:[
+    {num:1,title:"Pronoun Test",body:"This Sunday: use tātou deliberately when speaking WITH ward members about something you will do together. Use mātou only when speaking about what missionaries do separately. Say one sentence of each — to a real person."},
+    {num:2,title:"Sentence Builder",body:"Build 5 sentences: Ka [verb] [pronoun] [ki/i] [object]. Try: karakia, pānui, ako, haere, kōrero — with different pronouns (tātou, mātou, ahau, ia, rāua)."},
+    {num:3,title:"Error Find",body:"Fix: 'Ka pānui māua ki te pukapuka.' Error: 'ki' should be 'i'. You READ a book (i = object marker), not go TOWARD it (ki = directional). Correct: Ka pānui māua i te pukapuka."},
+   ]},
+ ]
+},
+
+{id:"ch4",num:4,
+ title_mri:"Hanganga Rerenga: Ko me He",
+ title_eng:"Predicate Sentence Structure",
+ subtitle:"KO (identification) · HE (classification) · negation · VSO word order",
+ sections:[
+  {id:"ch4_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Te reo Māori has no verb 'to be'. Two particles do this work — KO for identity ('X IS that specific Y') and HE for classification ('X is A type of Y'). Understanding the difference is the foundation of every gospel statement you will make.",
+   blocks:[
+    {title:"KO — Specific Identity",
+     body:"KO equates two specific things. Structure: \u003cspan class='hl'\u003eKo\u003c/span\u003e [predicate] [subject]. Use for: names, roles, demonstratives, specific identity claims.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eKo\u003c/span\u003e Ihu Karaiti tō tātou Kaiwhakaora.",eng:"Jesus Christ IS our Saviour.",note:"Ko = THE Saviour — specific identification"},
+      {mri:"\u003cspan class='hl'\u003eKo\u003c/span\u003e ahau ko Wiremu.",eng:"I am Wiremu.",note:"Ko + name = identity introduction"},
+      {mri:"\u003cspan class='hl'\u003eKo\u003c/span\u003e wai tō ingoa?",eng:"What is your name?",note:"Ko wai = identity question"},
+     ]},
+    {title:"HE — Classification",
+     body:"HE classifies — 'X is A/an type of thing'. Structure: \u003cspan class='hl'\u003eHe\u003c/span\u003e [classifier] [subject].",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eHe\u003c/span\u003e mihinare ahau.",eng:"I am a missionary.",note:"He = category — one of many missionaries"},
+      {mri:"\u003cspan class='hl'\u003eHe\u003c/span\u003e Atua aroha tō tātou Matua i te Rangi.",eng:"Our Heavenly Father is a God of love.",note:"He = classifying the type of God He is"},
+      {mri:"\u003cspan class='hl'\u003eHe\u003c/span\u003e aha tō ingoa?",eng:"What is your name? (what name do you have?)",note:"He aha = classification question"},
+     ]},
+    {title:"KO vs HE — The Critical Difference",
+     body:"In LDS te reo Māori, gospel truths almost always use KO because they make specific identity claims:\n\u003cspan class='hl'\u003eKo Ihu Karaiti tō tātou Kaiwhakaora\u003c/span\u003e = Jesus Christ IS our Saviour (specific — no one else)\n\u003cspan class='hl'\u003eHe Kaiwhakaora a Ihu Karaiti\u003c/span\u003e = Jesus Christ is a saviour (classifying — less common in testimony)",
+     examples:[]},
+    {title:"Negation — Ehara / Kāore",
+     body:"\u003cspan class='hl'\u003eEhara\u003c/span\u003e negates KO/HE sentences. \u003cspan class='hl'\u003eKāore\u003c/span\u003e negates verbal sentences.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eEhara\u003c/span\u003e ahau i a Wiremu.",eng:"I am not Wiremu.",note:"Ehara + subject + i = negation of Ko identity"},
+      {mri:"\u003cspan class='hl'\u003eEhara\u003c/span\u003e ahau i te mihinare.",eng:"I am not a missionary.",note:"Ehara + subject + i te = negation of He classification"},
+      {mri:"\u003cspan class='hl'\u003eKāore\u003c/span\u003e ahau e mōhio ana.",eng:"I do not know.",note:"Kāore = negation of verbal sentences"},
+     ]},
+    {title:"VSO Word Order",
+     body:"English: Subject → Verb → Object (I read the book).\nTe Reo Māori: Verb/Predicate → Subject → Object (Ka pānui ahau i te pukapuka).\nThe predicate ALWAYS comes first.",
+     examples:[
+      {mri:"Ka whakaako \u003cspan class='hl'\u003ete mihinare\u003c/span\u003e i te akoranga.",eng:"The missionary teaches the lesson.",note:"VSO: verb first, then subject, then object"},
+     ]},
+   ]},
+  {id:"ch4_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"Which sentence makes a specific identity claim?",ctx:"Ko vs He distinction",
+     opts:["He poropiti a Hōhepa Mete.","Ko Hōhepa Mete te poropiti o tēnei wā.","He tangata nui a Hōhepa Mete.","He mea pai a Hōhepa Mete."],ans:1,
+     fb:"Ko Hōhepa Mete te poropiti o tēnei wā = Joseph Smith IS the prophet of this time (specific identity — Ko). The He sentences classify (a prophet, a great person) without that specificity."},
+    {q:"How do you negate 'Ko Wiremu ahau'?",ctx:"Negation of KO sentences",
+     opts:["Kāore ahau ko Wiremu.","He kore ahau ko Wiremu.","Ehara ahau i a Wiremu.","Kāhore ko Wiremu ahau."],ans:2,
+     fb:"Ehara negates Ko identity sentences. Structure: Ehara + subject + i + [what they're NOT]. 'Ehara ahau i a Wiremu' = I am not Wiremu. Note 'i a' before a personal name."},
+    {q:"Translate: 'He Atua aroha tō tātou Matua i te Rangi.'",ctx:"HE classification sentence",
+     opts:["Our Heavenly Father is God himself","Our Heavenly Father is a God of love","Is our Heavenly Father loving?","Heavenly Father loves us all"],ans:1,
+     fb:"He = classifier (a type of God). 'He Atua aroha' = a God of love. 'Tō tātou Matua i te Rangi' = our Heavenly Father (ō-category). This is a He classification, not a Ko identification."},
+    {q:"How would you say 'The Holy Ghost teaches us truth' in VSO order?",ctx:"Apply predicate-first word order",
+     opts:["Te Wairua Tapu ka whakaako i a tātou.","Ka whakaako te Wairua Tapu i a tātou i te mea pono.","Ka whakaako i a tātou i te mea pono te Wairua Tapu.","I te mea pono ka whakaako te Wairua Tapu."],ans:1,
+     fb:"Ka whakaako (V) + te Wairua Tapu (S) + i a tātou (O — animate us) + i te mea pono (O — the truth). Verb always first.",
+     anatomy:[{r:"Ka whakaako",role:"verb",e:"teaches"},{r:"te Wairua Tapu",role:"subject",e:"Holy Ghost"},{r:"i a tātou",role:"object",e:"us"},{r:"i te mea pono",role:"object",e:"the truth"}]},
+    {q:"What does 'Kāore ahau e mōhio ana' mean?",ctx:"Negation of a verbal sentence",
+     opts:["I don't know","I am not here","I don't want to","I am not a teacher"],ans:0,
+     fb:"Kāore negates verbal (e…ana / kei te) sentences. E mōhio ana = knowing (ongoing). Kāore ahau e mōhio ana = I don't know. Compare: Ehara ahau i te kaiako = I am not a teacher (negating He classification)."},
+    {q:"Which is correct for 'This is the true church'?",ctx:"Ko for specific identity claim",
+     opts:["He hāhi pono tēnei.","Ko tēnei te hāhi pono.","He pono tēnei hāhi.","Ko pono tēnei."],ans:1,
+     fb:"Ko tēnei te hāhi pono = this IS the true church (specific identity). He hāhi pono tēnei = this is a true church (classifying). For testimony, Ko is almost always the right choice."},
+    {q:"Which is correct for 'This is NOT the true church'?",ctx:"Negating a Ko identification",
+     opts:["Ko tēnei ehara te hāhi pono.","Ehara tēnei i te hāhi pono.","Kāore tēnei ko te hāhi pono.","He kore tēnei te hāhi pono."],ans:1,
+     fb:"Ehara [subject] i te [thing it's not] = it is not the [thing]. Ehara tēnei i te hāhi pono = This is not the true church."},
+   ]},
+  {id:"ch4_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Introducing yourself as a missionary",eng:"I am a missionary for the Church of Jesus Christ.",reo:"He mihinare ahau mō te Hāhi o Ihu Karaiti.",grammar:"He = I AM a (category/type). If you said Ko ahau te mihinare, it would mean you are THE missionary — the only one."},
+    {ctx:"Bearing testimony",eng:"Jesus Christ is our Saviour.",reo:"Ko Ihu Karaiti tō tātou Kaiwhakaora.",grammar:"Ko = specific identity claim. THE Saviour, not A saviour. Tō tātou = ours (ō-category — received)."},
+    {ctx:"Describing God's nature",eng:"Our Heavenly Father is a God of love.",reo:"He Atua aroha tō tātou Matua i te Rangi.",grammar:"He = classifying (a God of love — His nature). Tō tātou Matua i te Rangi = our Father in Heaven."},
+    {ctx:"Saying you don't understand yet",eng:"I don't know yet, but I will learn.",reo:"Kāore anō ahau e mōhio ana, engari ka ako ahau.",grammar:"Kāore = negation of verbal. Anō = yet. Engari = but. Ka ako = I will learn."},
+    {ctx:"Identifying this church",eng:"This is the true church of Jesus Christ.",reo:"Ko tēnei te hāhi pono o Ihu Karaiti.",grammar:"Ko tēnei = THIS specifically IS. Identity claim, not classification."},
+   ]},
+  {id:"ch4_D",label:"D\nWhaka-uru",type:"activity_fib",
+   instructions:"Insert Ko, He, Ehara, or Kāore.",
+   exercises:[
+    {sentence:"___ Hōhepa Mete te poropiti o tēnei wā.",answer:"Ko",hint:"Specific identity — THE prophet",translation:"Joseph Smith is the prophet of this time."},
+    {sentence:"___ mihinare ahau.",answer:"He",hint:"Classifying yourself as a type",translation:"I am a missionary."},
+    {sentence:"___ tēnei i te ara pono.",answer:"Ehara",hint:"Negating identity — this is NOT the true path",translation:"This is not the true path."},
+    {sentence:"___ ahau e mōhio ana ki tēnā.",answer:"Kāore",hint:"Negating a verbal/ongoing action",translation:"I don't know about that."},
+    {sentence:"___ kaupeka nui te karakia.",answer:"He",hint:"Classifying prayer as an important principle",translation:"Prayer is an important principle."},
+    {sentence:"___ Ihu Karaiti tō tātou Kaiwhakaora.",answer:"Ko",hint:"Specific identity — THE Saviour",translation:"Jesus Christ is our Saviour."},
+   ]},
+  {id:"ch4_E",label:"E\nKaraipiture",type:"scripture",
+   verses:[
+    {ref:"Ko Te Pukapuka a Moromona — 2 Nīfai 25:26",mri:"Ko Karaiti tō mātou kaupeka; kia kore ai tātou e ngaro.",eng:"Christ is our theme; that we might not perish.",notes:"Ko Karaiti = Ko identification — Christ specifically is our theme. Tātou = us inclusive. Kia kore ai = so that we might not (purpose clause)."},
+    {ref:"Come Follow Me 2026 (mri)",mri:"Ehara tēnei i te pukapuka a tangata anake — he kupu tēnei nā te Atua.",eng:"This is not merely a book of men — these are words from God.",notes:"Ehara tēnei i te = this is not a (negates identity). He kupu = words (he classifies). Nā te Atua = from God (nā = active — God produced these words)."},
+   ]},
+  {id:"ch4_F",label:"F\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 4",
+   tasks:[
+    {num:1,title:"Testimony Builder",body:"Write your testimony using this structure:\n1. Ko [truth claim]. (identity)\n2. He [description]. (nature/type)\n3. Ehara [negation]. (what it is NOT)\n4. Ka [your response]. (action)\nExample: Ko Ihu Karaiti tō tātou Kaiwhakaora. He Atua aroha Ia. Ehara tēnei i te mea tūāhuri. Ka whakapono ahau ki Āna kupu."},
+    {num:2,title:"Ward Task",body:"This Sunday: listen for Ko and He sentences in any te reo Māori. Write down one of each. Come back and share — I will confirm the grammar."},
+   ]},
+ ]
+},
+
+{id:"ch5",num:5,
+ title_mri:"Ngā Pātai Āe me Kāo",
+ title_eng:"Yes/No Questions",
+ subtitle:"Rising intonation · Rānei · E whakapono ana koe · Answering fully",
+ sections:[
+  {id:"ch5_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Tagalog adds 'ba' to form yes/no questions. Te reo Māori primarily uses rising intonation — the sentence structure stays identical, your voice signals the question. There are also specific frames for doctrinal yes/no questions that are essential for missionaries.",
+   blocks:[
+    {title:"Method 1 — Rising Intonation",
+     body:"Same sentence structure. Raise your voice at the end. The sentence does not change.",
+     examples:[
+      {mri:"Kei te pai koe↗?",eng:"Are you well?",note:"Rising tone only — same words as the statement"},
+      {mri:"He mihinare koe↗?",eng:"Are you a missionary?",note:"He sentence — rising voice makes it a question"},
+      {mri:"Ka haere koe ki te hāhi↗?",eng:"Are you going to church?",note:"Ka sentence — rising tone at end"},
+     ]},
+    {title:"Method 2 — Rānei (or...? / is it?)",
+     body:"\u003cspan class='hl'\u003eRānei\u003c/span\u003e at the end adds a gentle 'or...?' — polite, tentative questioning. Use for respectful pastoral interactions.",
+     examples:[
+      {mri:"Ka haere koe ki te hāhi \u003cspan class='hl'\u003erānei\u003c/span\u003e?",eng:"Are you going to church (or...)?",note:"Rānei softens and formalises"},
+      {mri:"Kei te mōhio koe \u003cspan class='hl'\u003erānei\u003c/span\u003e?",eng:"Do you happen to know?",note:"Tentative — polite inquiry"},
+     ]},
+    {title:"Method 3 — E whakapono ana koe...? (Doctrinal)",
+     body:"For missionary doctrinal questions: \u003cspan class='hl'\u003eE whakapono ana koe\u003c/span\u003e = do you believe. The most important missionary question frame.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eE whakapono ana koe\u003c/span\u003e ko Ihu Karaiti tō tātou Kaiwhakaora?",eng:"Do you believe Jesus Christ is our Saviour?",note:"The core missionary question"},
+      {mri:"\u003cspan class='hl'\u003eE mōhio ana koe\u003c/span\u003e ki te tikanga o te iriiri?",eng:"Do you know the meaning of baptism?",note:"Same frame, verb mōhio = to know"},
+     ]},
+    {title:"Answering Yes/No Questions Fully",
+     body:"\u003cspan class='hl'\u003eĀe\u003c/span\u003e = yes. \u003cspan class='hl'\u003eKao\u003c/span\u003e = no. Full answers mirror the question's key verb.",
+     examples:[
+      {mri:"Āe, kei te pai ahau.",eng:"Yes, I am well.",note:"Full answer — repeats the key verb"},
+      {mri:"Āe, e whakapono ana ahau.",eng:"Yes, I believe.",note:"Testimony response — mirrors the question"},
+      {mri:"Kao, kāore ahau e mōhio ana.",eng:"No, I don't know.",note:"Kao + full negation"},
+     ]},
+   ]},
+  {id:"ch5_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"How does te reo Māori primarily form yes/no questions?",ctx:"Unlike Tagalog which uses 'ba'",
+     opts:["Adding 'ba' after the first word","Inverting subject and verb","Rising intonation — same structure","Adding 'rānei' as the first word"],ans:2,
+     fb:"Rising intonation is the primary method. Kei te pai koe. (statement) vs Kei te pai koe↗? (question) — identical words, different tone."},
+    {q:"How would you ask 'Do you believe the gospel of Jesus Christ is true?'",ctx:"The missionary's core question format",
+     opts:["He pono rānei te rongopai?","E whakapono ana koe he pono te rongopai o Ihu Karaiti?","Kei te whakapono koe ki te rongopai?","Ko te rongopai he pono rānei?"],ans:1,
+     fb:"E whakapono ana koe [doctrinal statement]? is the standard frame. 'E whakapono ana koe' = do you believe (ongoing state). Then the statement follows directly."},
+    {q:"What does 'rānei' add to a question?",ctx:"Ka haere koe ki te hāhi rānei?",
+     opts:["Makes it more urgent","Adds a gentle, tentative quality — 'or perhaps?'","Makes it negative","Means 'when'"],ans:1,
+     fb:"Rānei softens a question, adding 'or...?'/'perhaps?'. Appropriate in polite, respectful contexts — asking an elder ward member, for example."},
+    {q:"Best response to 'E whakapono ana koe ko Ihu Karaiti tō tātou Kaiwhakaora?'",ctx:"Answering a doctrinal yes/no",
+     opts:["Āe.","Āe, e whakapono ana ahau.","Āe, ko Ihu Karaiti.","Āe rānei."],ans:1,
+     fb:"'Āe, e whakapono ana ahau.' mirrors the question's verb (e whakapono ana). More natural and affirming than 'Āe' alone — it's a real statement of belief."},
+    {q:"How do you ask 'Do you know the meaning of baptism?'",ctx:"Apply the doctrinal question frame to a new verb",
+     opts:["Kei te mōhio koe ki te iriiri?","He aha te tikanga o te iriiri?","E mōhio ana koe ki te tikanga o te iriiri?","Ko te iriiri tō mōhio?"],ans:2,
+     fb:"E mōhio ana koe ki te tikanga o te iriiri? = Do you know the meaning of baptism? Same e…ana koe frame, verb mōhio. Tikanga = meaning/correct way. Iriiri = baptism (verify with ward)."},
+   ]},
+  {id:"ch5_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Asking about readiness for baptism",eng:"Do you believe you are ready to be baptised?",reo:"E whakapono ana koe kei te rite koe ki te iriiri?",grammar:"E whakapono ana koe = do you believe. Kei te rite = are ready (present state). Ki te iriiri = to be baptised (ki te + verb infinitive)."},
+    {ctx:"Gentle follow-up after a lesson",eng:"Was that clear to you?",reo:"I mārama rānei tērā ki a koe?",grammar:"I (past, sentence-start) + mārama (clear). Rānei = gentle question. Ki a koe = to you (animate)."},
+    {ctx:"Starting a gospel discussion",eng:"Do you want to hear more about Jesus Christ?",reo:"Kei te hiahia koe ki te rongo ake mō Ihu Karaiti rānei?",grammar:"Rānei = non-pressuring. Kei te hiahia = do you want. Ki te rongo ake = to hear more."},
+    {ctx:"Answering a doctrinal question",eng:"Yes, I believe — that is the truth.",reo:"Āe, e whakapono ana ahau — he pono tēnā.",grammar:"Full answer mirrors the question. He pono tēnā = that is true (He classification)."},
+   ]},
+  {id:"ch5_D",label:"D\nKōrero-tahi",type:"dialogue",
+   title:"He Kōrero Akoranga — A Lesson Dialogue",
+   intro:"A missionary asking yes/no questions in a gospel lesson. Notice when rānei is used vs e whakapono ana.",
+   lines:[
+    {who:"Mihinare",wc:"a",mri:"Kei te mārama koe ki ngā kōrero i tēnei rā rānei?",eng:"Do you understand the things today?"},
+    {who:"Hōheiana",wc:"b",mri:"Āe, kei te mārama ahau. He ātaahua ngā kōrero.",eng:"Yes, I understand. The words are beautiful."},
+    {who:"Mihinare",wc:"a",mri:"E whakapono ana koe ko Ihu Karaiti te Tama a te Atua?",eng:"Do you believe Jesus Christ is the Son of God?"},
+    {who:"Hōheiana",wc:"b",mri:"Āe — e whakapono ana ahau. Ka kaha ake tōku whakapono ia rā ia rā.",eng:"Yes — I believe. My faith grows stronger every day."},
+    {who:"Mihinare",wc:"a",mri:"Ka whakaaro koe ki te iriiri rānei?",eng:"Are you thinking about baptism?"},
+    {who:"Hōheiana",wc:"b",mri:"Āe, kei te whakaaro ahau. He mea nui tērā.",eng:"Yes, I'm thinking about it. That is an important thing."},
+    {who:"Mihinare",wc:"a",mri:"Ka karakia tātou?",eng:"Shall we pray?"},
+    {who:"Hōheiana",wc:"b",mri:"Āe, ka karakia tātou.",eng:"Yes, let us pray."},
+   ],
+   grammar_notes:["Rānei for gentle non-pressuring questions. E whakapono ana koe for serious doctrinal questions — different registers.","Ka karakia tātou? — Ka sentence with rising intonation as question. Tātou = inclusive.","Ka kaha ake = grows stronger (ake = more/upward direction)."]},
+  {id:"ch5_E",label:"E\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 5",
+   tasks:[
+    {num:1,title:"Build Your Question Set",body:"Using E whakapono ana koe frame, build 5 doctrinal yes/no questions. Then build 5 gentle rānei questions for everyday ward conversation."},
+    {num:2,title:"Sunday Listening",body:"This Sunday: note every question you hear in te reo Māori. Was it rising intonation, rānei, or another frame? Bring observations back for the debrief."},
+   ]},
+ ]
+},
+
+{id:"ch6",num:6,
+ title_mri:"Kei te Pēhea? — He Pātai Hauora",
+ title_eng:"How Are You? — Wellbeing Questions",
+ subtitle:"Greetings · Kei te pēhea · Wellbeing responses · Pastoral care language",
+ sections:[
+  {id:"ch6_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Tagalog has 'Kumusta' as a versatile greeting. Te reo Māori has a richer system — time-specific greetings, different registers, and specific pastoral care language. This chapter builds your complete greeting and wellbeing system.",
+   blocks:[
+    {title:"Kei te pēhea? — How are you?",
+     body:"\u003cspan class='hl'\u003eKei te pēhea koe?\u003c/span\u003e = How are you? (present state). 'Kei te' = present state. 'Pēhea' = how/in what manner.",
+     examples:[
+      {mri:"Tēnā koe, kei te pēhea koe?",eng:"Greetings — how are you? (respectful)",note:"Tēnā koe first shows respect"},
+      {mri:"Kei te pēhea kōrua?",eng:"How are you two?",note:"Dual form — addressing exactly two people"},
+      {mri:"Kei te pēhea koutou?",eng:"How are you all?",note:"Plural — addressing a group"},
+     ]},
+    {title:"Responses",
+     body:"",
+     examples:[
+      {mri:"Kei te pai.",eng:"Fine / Good.",note:"Most common brief response"},
+      {mri:"Kei te tino pai ahau, ngā mihi.",eng:"I'm very well, thank you.",note:"Tino = very/intensifier"},
+      {mri:"Kei te māuiui ahau.",eng:"I'm unwell.",note:"Important for pastoral care visits"},
+      {mri:"Ehara i te tino pai, engari kei te ora tonu ahau.",eng:"Not great, but I'm still alive.",note:"Light honesty — common in everyday reo"},
+     ]},
+    {title:"Time-specific Greetings",
+     body:"",
+     examples:[
+      {mri:"Mōrena!",eng:"Good morning! (informal, universal in NZ)",note:"Most widely used morning greeting"},
+      {mri:"Tēnā koe i tēnei ata.",eng:"Greetings to you this morning.",note:"More formal morning greeting"},
+      {mri:"Nau mai, haere mai!",eng:"Welcome! Come in!",note:"Welcoming someone to your home or the hāhi"},
+     ]},
+    {title:"Pastoral Care Language",
+     body:"",
+     examples:[
+      {mri:"Kei te pēhea tō whānau?",eng:"How is your family?",note:"Tō whānau = your family (ō-category)"},
+      {mri:"Kei te āhei koe ki te haere mai ki te hāhi?",eng:"Are you able to come to church?",note:"Āhei = able/capable"},
+      {mri:"Ka noho ora mai rā koe.",eng:"May you remain in health and peace.",note:"Blessing phrase — warm pastoral farewell"},
+     ]},
+    {title:"Farewells",
+     body:"",
+     examples:[
+      {mri:"E noho rā.",eng:"Farewell (said by the LEAVING person to those staying).",note:"You stay — I'm going"},
+      {mri:"Haere rā.",eng:"Farewell (said by those STAYING to the departing person).",note:"You go — we stay"},
+      {mri:"Noho ora mai rā.",eng:"Stay well. (blessing farewell)",note:"Warm, pastoral — ideal for ward visits"},
+      {mri:"Ka kite!",eng:"See you! (casual)",note:"Very common in ward settings"},
+     ]},
+   ]},
+  {id:"ch6_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"Visiting an elderly kuia after sacrament meeting — which greeting is most appropriate?",ctx:"Register awareness matters",
+     opts:["Kei te pēhea koe?","Mōrena!","Tēnā koe, kei te pēhea koe i tēnei rā?","Ka kite!"],ans:2,
+     fb:"Tēnā koe first = formal respect for an elder. Then asking kei te pēhea koe i tēnei rā is warm and personal. Mōrena is fine among peers but less appropriate with an elder. Ka kite is a farewell."},
+    {q:"A family member says 'Kei te māuiui tōku māmā.' Best pastoral response?",ctx:"Care + gospel action",
+     opts:["Ka kite anō tāua.","Tōku aroha ki a ia. Ka karakia tātou mōna?","Kei te pēhea koe?","He aha tāu e hiahia ana?"],ans:1,
+     fb:"Tōku aroha ki a ia = my compassion to her. Ka karakia tātou mōna = shall we all pray for her? This combines care AND gospel action. Mōna = for her (mō + ia)."},
+    {q:"What is the difference between 'E noho rā' and 'Haere rā'?",ctx:"Who says which?",
+     opts:["No difference","E noho rā = said by the LEAVING person; Haere rā = said by those STAYING","E noho rā is more formal","Haere rā is only for night"],ans:1,
+     fb:"E noho rā = you stay (said by the person leaving to those remaining). Haere rā = you go (said by those staying to the departing person). Getting this right shows cultural knowledge."},
+    {q:"How would you ask 'How is your whole family?'",ctx:"Asking about a third party",
+     opts:["Kei te pēhea koutou?","Kei te pēhea tō whānau katoa?","Kei te pēhea rātou?","Pēhea tō whānau?"],ans:1,
+     fb:"Kei te pēhea tō whānau katoa? = How is your whole family? Tō whānau = your family (ō-category). Katoa = all/whole. Koutou would ask about those present — tō whānau asks about the family as a group."},
+    {q:"What does 'Noho ora mai rā' mean?",ctx:"Blessing farewell language",
+     opts:["Welcome","Stay well/in peace — a blessing farewell","We will see you again","How are you"],ans:1,
+     fb:"Noho ora mai rā = stay well/remain in health. Noho = stay, ora = well/alive, mai = toward speaker (they remain, you're going), rā = softening particle. The warmest pastoral farewell — ideal for missionary visits."},
+   ]},
+  {id:"ch6_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Sunday morning greeting",eng:"Good morning! Greetings to you today.",reo:"Mōrena! Tēnā koe i tēnei ata.",grammar:"Mōrena = warm informal morning (universal in NZ). Tēnā koe i tēnei ata = formal — 'there you are this morning'."},
+    {ctx:"Pastoral visit — asking about health",eng:"How is your health?",reo:"Kei te pēhea tō hauora?",grammar:"Tō hauora = your health (ō-category — health is received/in you). Specific health question vs general kei te pēhea koe."},
+    {ctx:"Arriving at someone's home",eng:"Welcome, come in! We are happy to be here.",reo:"Nau mai, haere mai! Kei te hari mātou ki tō kāinga.",grammar:"Nau mai = welcome. Haere mai = come toward us. Mātou = missionaries (exclusive). Tō kāinga = your home (ō-category)."},
+    {ctx:"Saying goodbye after a ward visit",eng:"Stay well. We will see you at church.",reo:"Noho ora mai rā. Ka kite tāua i te hāhi.",grammar:"Noho ora mai rā = stay well (warm blessing). Ka kite tāua = we two will see each other — tāua = inclusive dual."},
+    {ctx:"Asking about family after a hard week",eng:"How is your family? We have been thinking about you all.",reo:"Kei te pēhea tō whānau? Kei te whakaaro mātou ki a koutou.",grammar:"Kei te whakaaro = are thinking (present). Mātou = missionaries (exclusive). Ki a koutou = about you all."},
+   ]},
+  {id:"ch6_D",label:"D\nKōrero-tahi",type:"dialogue",
+   title:"He Toro — A Pastoral Visit",
+   intro:"Full pastoral visit — greetings, wellbeing, and farewells. Speak aloud. Cover English on second pass.",
+   lines:[
+    {who:"Mihinare",wc:"a",mri:"Nau mai, haere mai! Tēnā kōrua!",eng:"Welcome, come in! Greetings to you two!"},
+    {who:"Māmā",wc:"b",mri:"Tēnā kōrua anō. Kei te pēhea kōrua?",eng:"Greetings to you two also. How are you two?"},
+    {who:"Mihinare",wc:"a",mri:"Kei te tino pai māua. Kei te pēhea tō whānau i ēnei rā?",eng:"We two are very well. How is your family these days?"},
+    {who:"Māmā",wc:"b",mri:"Kei te pai, engari kei te māuiui tōku tāne i tēnei wiki.",eng:"We're fine, but my husband has been unwell this week."},
+    {who:"Mihinare",wc:"a",mri:"Tōku aroha ki a ia. Ka karakia tātou mōna?",eng:"My compassion to him. Shall we all pray for him?"},
+    {who:"Māmā",wc:"b",mri:"Āe, tino pai tērā.",eng:"Yes, that would be very good."},
+    {who:"Mihinare",wc:"a",mri:"E noho rā, noho ora mai rā.",eng:"Farewell, stay well."},
+    {who:"Māmā",wc:"b",mri:"Haere rā, e ngā mihinare. Ka kite anō tātou i te Rātapu.",eng:"Farewell missionaries. We'll all see each other Sunday."},
+   ],
+   grammar_notes:["Māua throughout for the missionaries (exclusive). Tātou at the end includes the family — 'see you Sunday'.","E noho rā = leaving persons say. Haere rā = staying persons say."]},
+  {id:"ch6_E",label:"E\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 6",
+   tasks:[
+    {num:1,title:"Greeting Sequence",body:"Say this from memory 5 times: 'Mōrena! Tēnā koe. Ko [your name] ahau. He mihinare ahau. Kei te pēhea koe i tēnei rā?' Then practice the likely response and your reply."},
+    {num:2,title:"Pastoral Task",body:"This Sunday: use 'Noho ora mai rā' when leaving someone instead of just 'ka kite.' Notice the response. Write it down."},
+   ]},
+ ]
+},
+
+{id:"ch7",num:7,
+ title_mri:"Ngā Matū Kupu: Ka, Kei te, I, E…ana",
+ title_eng:"Verbal Particles — Tense & Aspect",
+ subtitle:"Ka (action) · Kei te (present continuous) · I (past) · E…ana (ongoing state)",
+ sections:[
+  {id:"ch7_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Tagalog changes verb prefixes (ma-, na-, mag-) to show tense. Te reo Māori works completely differently — the verb root NEVER changes. A particle BEFORE the verb tells you tense and aspect. This is actually simpler once you know the four particles.",
+   blocks:[
+    {title:"The Four Verbal Particles",
+     body:"",
+     table:{
+      headers:["Particle","Function","English","Example"],
+      rows:[
+       ["Ka","Action/event/narrative — general, present, or future","does/will do","Ka karakia tātou — We pray"],
+       ["Kei te","Present continuous — happening right now","is doing","Kei te karakia ahau — I am praying"],
+       ["I","Past — completed action (sentence-start ONLY)","did","I karakia mātou — We prayed"],
+       ["E…ana","Ongoing state / background action","was doing / is in a state of","E karakia ana ahau — I am/was praying (ongoing)"],
+      ]
+     },
+     note:"The verb root 'karakia' NEVER changes. Only the particle changes. This is the core of te reo Māori verbal system."
+    },
+    {title:"KA — Action / Narrative / General",
+     body:"The most versatile particle. Doesn't specify exact time — context provides that. Used for: narrative storytelling, testimony, teaching, habitual actions.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eKa\u003c/span\u003e whakaako te mihinare i ngā akoranga rongopai.",eng:"The missionary teaches the gospel lessons.",note:"Ka = general action, time from context"},
+      {mri:"\u003cspan class='hl'\u003eKa\u003c/span\u003e huri tōna ngākau ki te Atua.",eng:"His heart turned to God.",note:"Narrative past — ka is used in scripture storytelling"},
+     ]},
+    {title:"KEI TE — Present Continuous",
+     body:"Something happening RIGHT NOW or ongoing present state.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eKei te\u003c/span\u003e karakia ia.",eng:"She is praying (right now).",note:"Current moment"},
+      {mri:"\u003cspan class='hl'\u003eKei te\u003c/span\u003e ako tātou i ngā tikanga o te rongopai.",eng:"We are learning the principles of the gospel.",note:"Ongoing current study"},
+     ]},
+    {title:"I — Past Tense (SENTENCE-START only)",
+     body:"\u003cspan class='hl'\u003eI\u003c/span\u003e at the START marks completed past. Mid-sentence 'i' is the object/time marker — completely different function.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eI\u003c/span\u003e karakia mātou i tērā Rātapu.",eng:"We prayed last Sunday.",note:"I (past, start) + i tērā Rātapu (time marker, mid-sentence) — two different i's"},
+      {mri:"\u003cspan class='hl'\u003eI\u003c/span\u003e whakaako a Hōhepa Mete mō te Whakatahuritanga.",eng:"Joseph Smith taught about the Restoration.",note:"Past completed historical action"},
+     ]},
+    {title:"E…ANA — Ongoing / Background State",
+     body:"E before verb + ana after = ongoing state, background action, or enduring belief. Used for testimony and inner states.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eE\u003c/span\u003e whakapono \u003cspan class='hl'\u003eana\u003c/span\u003e ahau ki a Ihu Karaiti.",eng:"I believe in Jesus Christ. (ongoing, enduring)",note:"THE testimony particle — e…ana for enduring belief"},
+      {mri:"I a ia \u003cspan class='hl'\u003ee\u003c/span\u003e karakia \u003cspan class='hl'\u003eana\u003c/span\u003e, ka heke ngā roimata.",eng:"While he was praying, tears fell.",note:"Background action (e…ana) + consequent (ka)"},
+     ]},
+   ]},
+  {id:"ch7_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"Which says 'I am praying RIGHT NOW'?",ctx:"Present moment vs general",
+     opts:["Ka karakia ahau.","I karakia ahau.","Kei te karakia ahau.","E karakia ahau."],ans:2,
+     fb:"Kei te karakia ahau = I am praying (right now). Kei te = present continuous, happening as you speak. Ka = general/narrative. I = past."},
+    {q:"Narrating the First Vision — which particle for sequential events?",ctx:"Storytelling and narrative",
+     opts:["Kei te karakia a Hōhepa Mete...","Ka karakia a Hōhepa Mete, ka kitea te māramatanga.","I te karakia a Hōhepa Mete...","E karakia ana Hōhepa Mete..."],ans:1,
+     fb:"Ka is the narrative particle for storytelling and sequential events. Ka + ka = first thing happened, then second thing happened."},
+    {q:"Critical: what's the difference between sentence-start 'I' and mid-sentence 'i'?",ctx:"The most common intermediate error",
+     opts:["No difference","I at sentence-start = past tense. i mid-sentence = object/time marker","I at sentence-start = object marker. i mid-sentence = past tense","I is always 'and'"],ans:1,
+     fb:"I karakia mātou = we prayed (I = past, sentence-start). Ka pānui ahau i te pukapuka = I read the book (i = object marker, mid-sentence). Same letter, completely different functions. This distinction is tested in every scripture passage."},
+    {q:"Expressing your ongoing faith in testimony — which is correct?",ctx:"Enduring belief vs momentary action",
+     opts:["Ka whakapono ahau.","Kei te whakapono ahau.","E whakapono ana ahau ki a Ihu Karaiti.","I whakapono ahau."],ans:2,
+     fb:"E whakapono ana = the testimony particle — enduring, ongoing inner state. E…ana is correct for 'I believe' in testimony because it conveys permanent conviction rather than a current moment (kei te) or narrative action (ka)."},
+    {q:"Translate: 'I a Mere e pānui ana i te pukapuka, ka tangi ia.'",ctx:"I a + e…ana + ka — a narrative pattern",
+     opts:["Mere read the book and cried","While Mere was reading the book, she wept","Mere is reading the book and will cry","The book made Mere cry"],ans:1,
+     fb:"I a Mere e pānui ana = while Mere was reading (I a = while [person] was, e…ana = background ongoing action). Ka tangi ia = she wept (ka = consequent action). This I a + e…ana + ka pattern = how te reo Māori expresses simultaneous past actions.",
+     anatomy:[{r:"I a Mere",role:"time/person",e:"while Mere"},{r:"e pānui ana",role:"background",e:"was reading"},{r:"i te pukapuka",role:"object",e:"the book"},{r:"ka tangi ia",role:"main action",e:"she wept"}]},
+    {q:"How would you say 'We learned the gospel last year'?",ctx:"Completed past action",
+     opts:["Ka ako tātou i tērā tau.","Kei te ako tātou i tērā tau.","E ako ana tātou i tērā tau.","I ako tātou i te rongopai i tērā tau."],ans:3,
+     fb:"I ako tātou i te rongopai i tērā tau. — I (past, sentence-start) + ako + tātou + i te rongopai (object) + i tērā tau (time marker). Two i's: first = past tense, second = time marker."},
+   ]},
+  {id:"ch7_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Opening a lesson",eng:"We are learning together today.",reo:"Kei te ako tātou i tēnei rā.",grammar:"Kei te = present continuous (right now). Tātou = inclusive. i tēnei rā = today (i = time marker)."},
+    {ctx:"Bearing testimony",eng:"I believe Jesus Christ lives.",reo:"E whakapono ana ahau e ora ana a Ihu Karaiti.",grammar:"E whakapono ana = I believe (enduring). E ora ana = lives/is alive (ongoing state). A Ihu Karaiti = animate subject."},
+    {ctx:"First Vision narrative",eng:"Joseph Smith prayed, and Heavenly Father and Jesus Christ appeared.",reo:"Ka karakia a Hōhepa Mete, ka puta mai a te Matua i te Rangi rāua ko Ihu Karaiti.",grammar:"Ka + ka = narrative sequence. Ka puta mai = appeared/came forth (mai = toward earth/us). Rāua ko = the two of them (dual + ko linking two subjects)."},
+    {ctx:"Talking about last Sunday",eng:"Last Sunday we went to church and prayed together.",reo:"I tērā Rātapu, i haere tātou ki te hāhi, ā, ka karakia tātou.",grammar:"I (past, start) + i haere (went). Ā = and/then. Ka karakia = prayed (narrative). Tātou both times = inclusive."},
+    {ctx:"Describing a current action",eng:"She is teaching the children about the gospel right now.",reo:"Kei te whakaako ia i ngā tamariki mō te rongopai.",grammar:"Kei te = present continuous. i ngā tamariki = object. Mō = about/concerning."},
+    {ctx:"Expressing ongoing commitment",eng:"I am studying te reo Māori every day.",reo:"E ako ana ahau i te reo Māori ia rā ia rā.",grammar:"E…ana = ongoing committed state. Ia rā ia rā = every day (reduplication for emphasis)."},
+   ]},
+  {id:"ch7_D",label:"D\nWhaka-uru",type:"activity_fib",
+   instructions:"Fill in the correct verbal particle: Ka, Kei te, I, or E…ana.",
+   exercises:[
+    {sentence:"___ ako māua i ngā akoranga i tērā wiki.",answer:"I",hint:"Completed past — last week",translation:"We two learned the lessons last week."},
+    {sentence:"___ hiahia ahau ki te kōrero i tēnei wā.",answer:"Kei te",hint:"Right now, present desire",translation:"I want to speak right now."},
+    {sentence:"E whakapono ___ ahau ko Ihu Karaiti tō tātou Kaiwhakaora.",answer:"ana",hint:"Second half of e…ana",translation:"I believe Jesus Christ is our Saviour."},
+    {sentence:"___ haere tātou ki te hāhi ia Rātapu.",answer:"Ka",hint:"Habitual — every Sunday",translation:"We go to church every Sunday."},
+    {sentence:"I a ia ___ karakia ___, ka kite ia i te māramatanga.",answer:"e / ana",hint:"Background action frame: I a [person] e…ana",translation:"While he was praying, he saw the light."},
+    {sentence:"___ pēhea tō haerenga ki Pōneke?",answer:"I",hint:"How WAS your journey (past)",translation:"How was your trip to Wellington?"},
+   ]},
+  {id:"ch7_E",label:"E\nKaraipiture",type:"scripture",
+   verses:[
+    {ref:"Come Follow Me 2026 (te reo Māori)",mri:"Ka ārahi te Wairua Tapu i a tātou ki te mea pono, ā, ka whakaaturia mai e pā ana ki taua mea pono.",eng:"The Holy Ghost leads us to the truth, and it is revealed to us concerning that truth.",notes:"Ka ārahi = leads (ka = general ongoing action). Ka whakaaturia = is revealed (ka + passive). Two ka's in sequence = the second result of the first."},
+    {ref:"LDS Testimony",mri:"E whakapono ana ahau i ēnei mea katoa mō te Hōhoutanga o Ihu Karaiti.",eng:"I believe in all these things concerning the Atonement of Jesus Christ.",notes:"E whakapono ana = ongoing belief (testimony particle). Ēnei mea katoa = all these things. Verify Hōhoutanga with your ward."},
+   ]},
+  {id:"ch7_F",label:"F\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 7",
+   tasks:[
+    {num:1,title:"Particle Substitution Drill",body:"Take 'Ka karakia mātou mō te whānau.' Say it with all four particles:\n1. Ka karakia mātou (general)\n2. Kei te karakia mātou (right now)\n3. I karakia mātou (we prayed, past)\n4. E karakia ana mātou (ongoing state)\nNotice how meaning shifts. Repeat with 5 verbs: ako, haere, kōrero, pānui, whakaako."},
+    {num:2,title:"Tell the First Vision",body:"In 5 te reo Māori sentences, tell the First Vision using only ka, I, and e…ana particles. Start: 'I a Hōhepa Mete...' No English scaffolding."},
+   ]},
+ ]
+},
+
+{id:"ch8",num:8,
+ title_mri:"Ngā Kīanga Whiwhinga: Tō me Tā",
+ title_eng:"Possession — Ō and Ā Categories",
+ subtitle:"Tō/Tā · ō/ā · Pre/post-noun possession · The most common error in te reo Māori",
+ sections:[
+  {id:"ch8_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Tagalog uses Ng markers and possessives. Te reo Māori's possession system goes deeper — it distinguishes things you RECEIVE (ō-category) from things you CONTROL or PRODUCE (ā-category). Getting this wrong is the most common intermediate-level error.",
+   blocks:[
+    {title:"The Ō / Ā Rule",
+     body:"\u003cspan class='hl'\u003eŌ-category\u003c/span\u003e (tō, ōku, ōu, ōna...): things you RECEIVE or cannot control:\n→ Family above you (parents, grandparents, spouse)\n→ Home, land, location\n→ Body, health, feelings, emotions\n→ Religion, faith, beliefs\n→ Things given to you\n\n\u003cspan class='hl'\u003eĀ-category\u003c/span\u003e (tā, āku, āu, āna...): things you PRODUCE, control, or have authority over:\n→ Children you raise\n→ Words, speech, writing\n→ Actions, plans, work\n→ Things you make or create",
+     examples:[
+      {mri:"tōku whānau / tōku māmā",eng:"my family / my mother",note:"ō — received, not chosen"},
+      {mri:"tōku whakapono / tōku ngākau",eng:"my faith / my heart",note:"ō — internal, received"},
+      {mri:"āku tamariki",eng:"my children",note:"ā — you raise them (authority over)"},
+      {mri:"āku kōrero / āu whakaaro",eng:"my words / your thoughts",note:"ā — you produce them"},
+     ]},
+    {title:"Full Possessive Pronoun Set",
+     body:"",
+     table:{
+      headers:["Possessive","Ō-category (received)","Ā-category (produced)"],
+      rows:[
+       ["My (sing.)","tōku / ōku","tāku / āku"],
+       ["Your (sing.)","tōu / ōu","tāu / āu"],
+       ["His/Her","tōna / ōna","tāna / āna"],
+       ["Our (incl.)","tō tātou / ō tātou","tā tātou / ā tātou"],
+       ["Our (excl.)","tō mātou / ō mātou","tā mātou / ā mātou"],
+       ["Your (pl.)","tō koutou","tā koutou"],
+       ["Their","tō rātou / ō rātou","tā rātou / ā rātou"],
+      ]
+     },
+     note:"Short forms (ōku, āu) follow the noun (post-noun). Long forms (tōku, tāku) precede the noun (pre-noun). Both correct — pre-noun more common in speech, post-noun in scripture."
+    },
+   ],
+   examples:[
+    {mri:"\u003cspan class='hl'\u003eTō tātou\u003c/span\u003e Matua i te Rangi",eng:"Our Heavenly Father",note:"ō-category — Father is received (He gave us life, He has authority over us). Confirmed LDS form."},
+    {mri:"\u003cspan class='hl'\u003eĀna\u003c/span\u003e kōrero / \u003cspan class='hl'\u003eāu\u003c/span\u003e whakaaro",eng:"His/her words / your thoughts",note:"ā-category — actively produced"},
+   ]},
+  {id:"ch8_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"Why is 'tō tātou Matua i te Rangi' ō-category?",ctx:"The most important possession decision in LDS te reo Māori",
+     opts:["Because Matua is a sacred word","Because our Father is received — He gave us life, He has authority over us","Because tātou is always ō","Because i te Rangi requires ō"],ans:1,
+     fb:"Tō tātou (ō) because our Heavenly Father is received — He is above us in the family hierarchy, He gave us life. We don't 'produce' or 'control' our Father. This is why the confirmed LDS form is always tō tātou, never tā tātou."},
+    {q:"'He pai āna kōrero.' What does āna tell you?",ctx:"Recognising ā-category possession",
+     opts:["She received those words","She actively produced/spoke those words","The words belong to someone else","Āna marks plural"],ans:1,
+     fb:"Āna kōrero = her words (ā-category — she produced/spoke them). He pai = they are good. So: her words (actively spoken) are good. Ōna kōrero would be unusual/incorrect for spoken words."},
+    {q:"'My children are at church' — which is correct?",ctx:"Children — ō or ā?",
+     opts:["Kei te hāhi ōku tamariki.","Kei te hāhi āku tamariki.","Kei te hāhi tōku tamariki.","Kei te hāhi tāku tamariki."],ans:1,
+     fb:"Āku tamariki = my children (ā — you raise them, authority over them). Ōku mātua = my parents (ō — above you in hierarchy). The direction of authority determines the category."},
+    {q:"'___ whakaaro pai tērā!' (That is a good thought of yours!)",ctx:"Whose thoughts — which possessive?",
+     opts:["Tō","Tā","Āu","Ōu"],ans:2,
+     fb:"Āu whakaaro = your thoughts (ā — you generate your own thoughts, active mental production). Ōu would be wrong — thoughts are produced, not passively received."},
+    {q:"What is the possession connector in 'Ko Te Pukapuka a Moromona'?",ctx:"The ā-category connector in the Book of Mormon title",
+     opts:["Te","Ko","a (ā-category — of Mormon)","Moromona"],ans:2,
+     fb:"'a Moromona' = of Mormon (ā-category). Mormon ACTIVELY wrote/compiled this record — so it's his production. Compare: te reo o te iwi (language OF the people) — 'o' = ō, the language belongs to/identifies them passively."},
+    {q:"'Tō mātou mahi he mahi tūātinitini.' What are they saying?",ctx:"Tō mātou — our (exclusive) possession",
+     opts:["Our work (missionaries only) is an important work","Your work is hard","The church's work is great","Our joint work is a ministry"],ans:0,
+     fb:"Tō mātou mahi = our work (ō — a calling/role received from God, mātou = exclusive = missionaries only). He mahi tūātinitini = an important/significant work. ō for calling/role — it was given to them."},
+   ]},
+  {id:"ch8_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Describing your mission calling",eng:"My mission is an important calling.",reo:"He karanga nui tōku mīhana.",grammar:"Tōku mīhana = my mission (ō-category — a calling received from God, not something you produce). He karanga nui = an important calling."},
+    {ctx:"Talking about family",eng:"My parents taught me about God.",reo:"I whakaako ōku mātua ki ahau mō te Atua.",grammar:"Ōku mātua = my parents (ō — above you, received). i whakaako = taught (past). ki ahau = to me."},
+    {ctx:"Testimony about faith",eng:"My faith in Jesus Christ is the foundation of my life.",reo:"Ko tōku whakapono ki a Ihu Karaiti te tūāpou o tōku oranga.",grammar:"Tōku whakapono = my faith (ō — received, internal). Ko = identity. Tōku oranga = my life (ō — life is received)."},
+    {ctx:"The prophet's words",eng:"The prophet's words are inspired by God.",reo:"He kupu whakaohooho āna kōrero i whiwhi mai i te Atua.",grammar:"Āna kōrero = his words (ā — he actively spoke them). He kupu whakaohooho = inspired words. i whiwhi mai = received (toward him)."},
+    {ctx:"Inviting to share thoughts",eng:"What are your thoughts about this?",reo:"He aha āu whakaaro mō tēnei?",grammar:"Āu whakaaro = your thoughts (ā — you generate them). He aha = what is/are."},
+   ]},
+  {id:"ch8_D",label:"D\nWhaka-uru",type:"activity_fib",
+   instructions:"Fill in the correct possessive. Think: received (ō) or produced/controlled (ā)?",
+   exercises:[
+    {sentence:"He pai ___ tamariki.",answer:"āna",hint:"His/her children — ā (raises them), plural short form",translation:"His/her children are good."},
+    {sentence:"He ataahua ___ kōrero i tēnei rā.",answer:"āu",hint:"Your words — ā (you produced them), singular 'your'",translation:"Your words today are beautiful."},
+    {sentence:"Ka haere māua ki ___ kāinga.",answer:"tōu",hint:"Your home — ō (where you live, received)",translation:"We two are going to your home."},
+    {sentence:"Ko te rongopai ___ mahi.",answer:"tō mātou",hint:"Our calling/work (missionaries) — ō (received calling), exclusive",translation:"The gospel is our missionary work."},
+    {sentence:"I whakaako ia i ___ mōteatea ki ngā tamariki.",answer:"āna",hint:"Her songs — ā (she composed/sings them)",translation:"She taught her songs to the children."},
+   ]},
+  {id:"ch8_E",label:"E\nKaraipiture",type:"scripture",
+   verses:[
+    {ref:"Ko Te Pukapuka a Moromona — Moronai 10:3",mri:"Me pānui ōu koutou ngākau i ēnei mea.",eng:"Read these things with your hearts.",notes:"Ōu koutou ngākau = your hearts (ō-category — hearts are internal, received). Koutou = you all. O for heart (ngākau) is standard across all LDS te reo Māori."},
+    {ref:"Come Follow Me 2026 (mri)",mri:"Ko te whāinga o ngā akoranga rongopai katoa he āwhina i a tātou kia rite rawa ki a Ihu Karaiti.",eng:"The goal of all gospel lessons is to help us become more like Jesus Christ.",notes:"'O ngā akoranga' = ō-category (lessons are received by students). Note: 'a te kaiwhakaako' would be ā-category (the teacher's lessons, actively produced)."},
+   ]},
+  {id:"ch8_F",label:"F\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 8",
+   tasks:[
+    {num:1,title:"Categorisation Drill",body:"Sort into ō or ā: whakapono, tamariki, kōrero, kāinga, mahi (calling), mahi (active labour), māmā, pepeha (you recite), karere (message you write), tikanga (customs you inherited). Build one sentence with each using the correct possessive."},
+    {num:2,title:"Error Correction",body:"Fix each: 1. He pai āna māmā → ōna māmā (mother = ō). 2. Ko tā tātou Matua → tō tātou (Father = ō). 3. Mō ōna tamariki → āna tamariki (children she raises = ā). 4. He aha ōu whakaaro → āu whakaaro (thoughts you produce = ā)."},
+   ]},
+ ]
+},
+
+{id:"ch9",num:9,
+ title_mri:"Nō Wai? Mā Wai?",
+ title_eng:"Ownership Questions",
+ subtitle:"Nō wai (whose?) · Nā wai (who did it?) · Mā wai (for whom?)",
+ sections:[
+  {id:"ch9_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Tagalog uses Kanino and Nakanino for ownership questions. Te reo Māori has three distinct question words — each asking something different. Using the right one shows real command of the language.",
+   blocks:[
+    {title:"Nō Wai? — Whose is it? (permanent ownership)",
+     body:"\u003cspan class='hl'\u003eNō wai\u003c/span\u003e asks about permanent belonging or origin.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eNō wai\u003c/span\u003e tēnei pukapuka?",eng:"Whose book is this?",note:"Permanent ownership"},
+      {mri:"Nō tōku māmā.",eng:"It is my mother's.",note:"Nō + possessive = answer"},
+     ]},
+    {title:"Nā Wai? — Who did it? (active attribution)",
+     body:"\u003cspan class='hl'\u003eNā wai\u003c/span\u003e asks who performed an action or actively produced something.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eNā wai\u003c/span\u003e i tuhituhi tēnei reta?",eng:"Who wrote this letter?",note:"Who actively produced this?"},
+      {mri:"Nā te poropiti.",eng:"The prophet's. / By the prophet.",note:"Nā = active attribution"},
+     ]},
+    {title:"Mā Wai? — For whom? (beneficiary)",
+     body:"\u003cspan class='hl'\u003eMā wai\u003c/span\u003e asks who something is FOR.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eMā wai\u003c/span\u003e tēnei?",eng:"Who is this for?",note:"Intended recipient"},
+      {mri:"Mā tātou katoa.",eng:"For all of us.",note:"Mā + pronoun = for [person]"},
+     ]},
+   ]},
+  {id:"ch9_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"'Nō wai tēnei pukapuka?' — what is being asked?",ctx:"Nō wai — ownership question",
+     opts:["Who wrote this book?","Who is this book for?","Whose book is this?","Where did this book come from?"],ans:2,
+     fb:"Nō wai = whose (permanent belonging). Answer: 'Nō [person's name]' or 'Nōku' (mine)."},
+    {q:"'Who wrote the Book of Mormon?' — correct form?",ctx:"Active production — nā wai",
+     opts:["Nō wai Ko Te Pukapuka a Moromona?","Mā wai Ko Te Pukapuka a Moromona?","Nā wai i tuhituhi Ko Te Pukapuka a Moromona?","He wai Ko Te Pukapuka a Moromona?"],ans:2,
+     fb:"Nā wai i tuhituhi = who wrote (actively produced). Nā wai asks about active attribution/production."},
+    {q:"'Who are these lessons for?' — correct form?",ctx:"Beneficiary question",
+     opts:["Nō wai ēnei akoranga?","Nā wai ēnei akoranga?","Mā wai ēnei akoranga?","He wai ēnei akoranga?"],ans:2,
+     fb:"Mā wai = for whom (beneficiary). Answer: Mā tātou katoa = for all of us."},
+    {q:"Answer to 'Nā wai ēnei kupu o te poropiti?'",ctx:"Active attribution answer",
+     opts:["Nō te poropiti.","Nā te poropiti.","Mā te poropiti.","I te poropiti."],ans:1,
+     fb:"Nā te poropiti = the prophet's (he actively spoke these words). Nā wai asked about active production, so answer uses nā."},
+    {q:"'Mā wai tēnei?' → 'Māu.' What does māu mean?",ctx:"Beneficiary pronouns",
+     opts:["It is mine","It is for you","I made it","It belongs to him"],ans:1,
+     fb:"Māu = for you (mā + u, short form of 'mā koe'). Beneficiary pronouns: māku (for me), māu (for you), māna (for him/her), mā tātou (for all of us)."},
+   ]},
+  {id:"ch9_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Finding out who a scripture belongs to",eng:"Whose Book of Mormon is this?",reo:"Nō wai tēnei Pukapuka a Moromona?",grammar:"Nō wai = whose (permanent ownership). Answer expected: Nōku (mine) or Nō [name]."},
+    {ctx:"Asking who gave the talk",eng:"Who gave that talk?",reo:"Nā wai tērā kōrero?",grammar:"Nā wai = who (active attribution — who produced/gave it). Tērā = that (further away)."},
+    {ctx:"Explaining mission ownership",eng:"Whose mission is this? It is God's.",reo:"Nō wai tēnei mīhana? Nō te Atua.",grammar:"Nō wai = whose (permanent — belongs to God). Answer: Nō te Atua = God's. A powerful framing for teaching mission purpose."},
+   ]},
+  {id:"ch9_D",label:"D\nKaraipiture",type:"scripture",
+   verses:[
+    {ref:"Ko Te Pukapuka a Moromona — 2 Nīfai 25:23",mri:"He mā tātou, nā tōna aroha.",eng:"It is for us, through his love.",notes:"Mā tātou = for us (inclusive beneficiary). Nā tōna aroha = through his love (nā = by means of, active). Two ownership particles in one short phrase."},
+    {ref:"LDS — Gospel Purpose",mri:"Nā wai ēnei akoranga? Nā Ihu Karaiti. Mā wai? Mā tātou katoa.",eng:"Whose are these teachings? Christ's. For whom? For all of us.",notes:"Question-answer pattern for opening a lesson. Nā wai = active attribution (Christ taught these). Mā wai = beneficiary (all of us receive them)."},
+   ]},
+  {id:"ch9_E",label:"E\nTono",type:"apply",
+   title:"Tono Mihinare — Apply Chapter 9",
+   tasks:[
+    {num:1,title:"Three Questions Drill",body:"Ask all three about the same object — Ko Te Pukapuka a Moromona:\n1. Nō wai tēnei pukapuka?\n2. Nā wai i tuhituhi?\n3. Mā wai?\nAnswer all three. Then do the same for: te karakia, ngā akoranga, tō kāinga."},
+    {num:2,title:"Ward Application",body:"This Sunday: when someone shows or gives you something, ask 'Nō wai tēnei?' or 'Mā wai tēnei?' in te reo Māori. The response will be real, spontaneous reo — bring it back for the debrief."},
+   ]},
+ ]
+},
+
+{id:"ch10",num:10,
+ title_mri:"Ngā Kupu Ora: He, Kāore, Ehara",
+ title_eng:"Existential Words — There Is / There Isn't",
+ subtitle:"He (there is) · Kāore he (there is none) · E ai ana (it is declared) · Existence in testimony",
+ sections:[
+  {id:"ch10_A",label:"A\nWhaka-mārama",type:"explain",
+   intro:"Tagalog uses May/Mayroon/Wala for existence. Te reo Māori uses 'he' for existence (there is a...) as well as classification. Context tells you which. Kāore he negates existence. E ai ana is the formal declaration used in testimony.",
+   blocks:[
+    {title:"HE — There is a... (existential)",
+     body:"\u003cspan class='hl'\u003eHe\u003c/span\u003e [noun] [location/context] = there is a [noun].\nDistinguish from He [noun] [subject] = it is a type of [noun] (classification).",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eHe\u003c/span\u003e ara e ahu ana ki te ora tonutanga.",eng:"There is a path leading to eternal life.",note:"Existential — there is a path"},
+      {mri:"\u003cspan class='hl'\u003eHe\u003c/span\u003e poropiti i runga i te whenua i tēnei wā.",eng:"There is a prophet on the earth at this time.",note:"Existential — stating something exists"},
+     ]},
+    {title:"KĀORE HE — There is no...",
+     body:"\u003cspan class='hl'\u003eKāore he\u003c/span\u003e + noun = there is no [noun]. Negates existence.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eKāore he\u003c/span\u003e ara atu i konei.",eng:"There is no other way from here.",note:"Existential negation"},
+      {mri:"\u003cspan class='hl'\u003eKāore he\u003c/span\u003e tikanga o ērā kōrero.",eng:"There is no meaning in those words.",note:"The meaning doesn't exist"},
+     ]},
+    {title:"HE MAHA / HE TOKOMAHA — There are many",
+     body:"\u003cspan class='hl'\u003eHe maha\u003c/span\u003e = many things (inanimate). \u003cspan class='hl'\u003eHe tokomaha\u003c/span\u003e = many people (animate). The animate/inanimate distinction is important throughout te reo Māori.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eHe maha\u003c/span\u003e ngā tikanga o te rongopai.",eng:"There are many principles of the gospel.",note:"Maha = many inanimate things"},
+      {mri:"\u003cspan class='hl'\u003eHe tokomaha\u003c/span\u003e ngā tāngata e whakaaro ana ki tēnei.",eng:"There are many people thinking about this.",note:"Tokomaha = many animate people"},
+     ]},
+    {title:"E AI ANA — It is declared / There exists (formal testimony)",
+     body:"\u003cspan class='hl'\u003eE ai ana\u003c/span\u003e = it is declared that / there is reportedly. Used in formal speech, testimony, and declarations of truth.",
+     examples:[
+      {mri:"\u003cspan class='hl'\u003eE ai ana\u003c/span\u003e ko Ihu Karaiti tō tātou Kaiwhakaora.",eng:"It is declared: Jesus Christ is our Saviour.",note:"Formal assertion — testimony and declarations"},
+     ]},
+   ]},
+  {id:"ch10_B",label:"B\nWhaka-mātau",type:"activity_mc",
+   questions:[
+    {q:"'He poropiti i runga i te whenua i tēnei wā' — what does this mean?",ctx:"He as existential",
+     opts:["A prophet is from the earth","There is a prophet on the earth at this time","The prophet lives in this time","Is there a prophet here?"],ans:1,
+     fb:"He [noun] [location] = there is a [noun]. He poropiti = there is a prophet. i runga i te whenua = on the earth. i tēnei wā = at this time."},
+    {q:"'There are no other gods' — correct form?",ctx:"Existential negation",
+     opts:["He kore atu ngā atua.","Kāore he atua atu.","Ehara ngā atua i ēnei.","He kore ngā atua."],ans:1,
+     fb:"Kāore he [noun] = there is/are no [noun]. Atu = other/beyond. Kāore he atua atu = there are no other gods. Ehara negates identity sentences, not existence."},
+    {q:"Difference between 'He maha' and 'He tokomaha'?",ctx:"Animate vs inanimate",
+     opts:["He maha = a few; He tokomaha = very many","He maha = many things; He tokomaha = many people","He maha = some people; He tokomaha = all people","No difference"],ans:1,
+     fb:"He maha = many inanimate things. He tokomaha = many animate people (toko- = animate prefix). This distinction runs throughout te reo Māori."},
+    {q:"Formally declaring 'There is a God' in testimony — most powerful?",ctx:"Formal existential for testimony",
+     opts:["Kei te Atua.","He Atua.","E ai ana he Atua.","Ko Atua tēnei."],ans:2,
+     fb:"E ai ana he Atua = It is declared / there exists a God. E ai ana adds formal declaration quality — it announces a truth. He Atua alone is correct but less emphatic."},
+    {q:"Asking a ward member 'Do you have a Book of Mormon at home?'",ctx:"Existence question",
+     opts:["He Pukapuka a Moromona āu i tō kāinga?","Nō wai te Pukapuka a Moromona?","E ai ana he Pukapuka a Moromona?","Ko te Pukapuka a Moromona tōu?"],ans:0,
+     fb:"He [thing] āu = is there a [thing] of yours? (existence question). Rising intonation makes it a question. i tō kāinga = at your home."},
+    {q:"Translate: 'Kāore he ara atu i konei — ko Ihu Karaiti anake.'",ctx:"Existential negation + Ko identification",
+     opts:["There is no other path from here — only Jesus Christ","Jesus Christ is the only path here","From here, all paths lead to Christ","There are many paths but only Christ"],ans:0,
+     fb:"Kāore he ara atu i konei = there is no other path from here. Ko Ihu Karaiti anake = only Christ (ko = identity, anake = only). A powerful testimony statement."},
+   ]},
+  {id:"ch10_C",label:"C\nKōrero",type:"activity_speak",
+   drills:[
+    {ctx:"Testimony — living prophet",eng:"There is a prophet on the earth today.",reo:"He poropiti i runga i te whenua i tēnei rā.",grammar:"He [noun] = there is a [noun] (existential). i runga i te whenua = on the earth. i tēnei rā = today."},
+    {ctx:"Explaining uniqueness of this church",eng:"There is no other church with this authority.",reo:"Kāore he hāhi atu e whai ana i tēnei mana.",grammar:"Kāore he = there is no. Hāhi atu = other church. E whai ana = that has/possesses (ongoing). Tēnei mana = this authority."},
+    {ctx:"Teaching about gospel principles",eng:"There are many principles in the gospel of Jesus Christ.",reo:"He maha ngā tikanga i roto i te rongopai o Ihu Karaiti.",grammar:"He maha = there are many (inanimate). i roto i = inside/within. O Ihu Karaiti = of Jesus Christ (ō-category)."},
+    {ctx:"Formal testimony declaration",eng:"There is a God — He is our Heavenly Father.",reo:"E ai ana he Atua — ko Ia tō tātou Matua i te Rangi.",grammar:"E ai ana = it is declared (formal). He Atua = a God (existential). Ko Ia = He IS (ko + pronoun). Tō tātou = ō-category."},
+    {ctx:"Teaching about one true path",eng:"There are many paths, but only one true path.",reo:"He maha ngā ara, engari kotahi anake te ara pono.",grammar:"He maha ngā ara = many paths exist. Engari = but. Kotahi anake = only one. Te ara pono = the true path."},
+   ]},
+  {id:"ch10_D",label:"D\nWhaka-uru",type:"activity_fib",
+   instructions:"Fill in He, Kāore he, He maha, He tokomaha, or E ai ana.",
+   exercises:[
+    {sentence:"___ ara e ahu ana ki a Ihu Karaiti.",answer:"He",hint:"There is a path — existential",translation:"There is a path leading to Jesus Christ."},
+    {sentence:"___ hāhi atu e whai ana i tēnei mana.",answer:"Kāore he",hint:"There is no other church",translation:"There is no other church that has this authority."},
+    {sentence:"___ tāngata e hiahia ana ki te mōhio ki te rongopai.",answer:"He tokomaha",hint:"Many PEOPLE (animate) want to know",translation:"There are many people who want to know the gospel."},
+    {sentence:"___ ko Ihu Karaiti tō tātou Kaiwhakaora.",answer:"E ai ana",hint:"Formal declaration",translation:"It is declared: Jesus Christ is our Saviour."},
+    {sentence:"___ tikanga pai o te rongopai.",answer:"He maha",hint:"Many principles (inanimate things)",translation:"There are many good principles of the gospel."},
+   ]},
+  {id:"ch10_E",label:"E\nKaraipiture",type:"scripture",
+   verses:[
+    {ref:"Ko Te Pukapuka a Moromona — 2 Nīfai 31:21",mri:"Ko tēnei ara e tutuki ai, ko Karaiti anake.",eng:"This is the path by which it is fulfilled — Christ alone.",notes:"Ko tēnei ara = this IS the path (Ko identification). Ko Karaiti anake = Christ alone (Ko + anake = only). Existential and identity combined: the path exists AND it is specifically Christ."},
+    {ref:"LDS Testimony — triple existential pattern",mri:"E ai ana he Atua. E ai ana he poropiti i runga i te whenua. E ai ana he ara mō tātou katoa.",eng:"There is a God. There is a prophet on the earth. There is a path for all of us.",notes:"Three E ai ana statements in sequence — a formal declarative testimony pattern used in LDS te reo Māori. Memorise this triple structure."},
+   ]},
+  {id:"ch10_F",label:"F\nTono",type:"apply",
+   title:"Tono Mihinare — Kua Oti! Full Course Complete",
+   tasks:[
+    {num:1,title:"Existence Testimony",body:"Build and say aloud from memory:\n1. E ai ana he Atua.\n2. He Matua ia — tō tātou katoa.\n3. He poropiti i runga i te whenua.\n4. He ara e ahu ana ki Ia.\n5. Kāore he ara atu.\n6. Ko tēnā ara ko Ihu Karaiti."},
+    {num:2,title:"Full Course Review",body:"Chapters 3–10 complete. You now have:\n• Noun markers + full pronouns (Ch 3)\n• Ko/He sentences + VSO order (Ch 4)\n• Yes/No questions (Ch 5)\n• Greeting + wellbeing system (Ch 6)\n• All four verbal particles (Ch 7)\n• Ō/Ā possession categories (Ch 8)\n• Nō wai / Nā wai / Mā wai (Ch 9)\n• Existential He / Kāore / E ai ana (Ch 10)\n\nThis is the grammatical engine. Phase 2 begins when you bring the next section of the workbook."},
+    {num:3,title:"Sunday Challenge — Full Conversation",body:"This Sunday: aim for a 3-exchange conversation entirely in te reo Māori.\nExchange 1: Greet someone (Ch 6)\nExchange 2: Ask one question and understand something of the response (Ch 5)\nExchange 3: Make one statement about the gospel or yourself (Ch 4 or 7)\nWrite down what happened. That becomes the material for Phase 2."},
+   ]},
+ ]
+},
+
+]; // end CHAPTERS
+
+
+// ═══ APP STATE ═══
+let APP={view:'menu',ci:0,si:0,qi:0,answered:false,sel:null,qc:0,qt:0,spi:0,spr:false,ratings:[],fibdone:false};
+const MC=document.getElementById('main-content');
+const PILL=document.getElementById('phase-pill');
+
+function render(){if(APP.view==='menu')renderMenu();else renderChapter();}
+
+// ─── MENU ───────────────────────────────────────────────────
+function renderMenu(){
+  PILL.textContent='Āpitihanga';
+  const items=CHAPTERS.map((ch,i)=>{
+    const p=getProgress(ch.id);const tot=ch.sections.length;const done=p.done.length;
+    const pct=Math.round((done/tot)*100);const comp=done>=tot;
+    return `\u003cdiv class="ch-item ${comp?'completed':''}" onclick="openCh(${i})"\u003e
+\u003cdiv class="ch-num"\u003e${ch.num}\u003c/div\u003e
+\u003cdiv class="ch-info"\u003e\u003cdiv class="ci-title"\u003e${ch.title_mri}\u003c/div\u003e\u003cdiv class="ci-sub"\u003e${ch.title_eng} · ${ch.subtitle}\u003c/div\u003e\u003c/div\u003e
+\u003cdiv class="${comp?'ch-prog':''}"\u003e ${comp?'✓':done>0?pct+'%':'→'}\u003c/div\u003e\u003c/div\u003e`;
+  }).join('');
+  MC.innerHTML=`\u003cdiv id="chapter-menu" class="card"\u003e
+\u003cdiv class="menu-title"\u003eTe Reo Māori · Akoranga Mihinare\u003c/div\u003e
+\u003cp class="body-text muted" style="margin-bottom:18px"\u003eKo ēnei ngā akoranga mō ngā mihinare — Chapters 3–10 from the missionary language workbook, translated to te reo Māori context. Complete each chapter in order.\u003c/p\u003e
+\u003cdiv class="ch-grid"\u003e${items}\u003c/div\u003e\u003c/div\u003e`;
+}
+
+function openCh(i){
+  APP={view:'chapter',ci:i,si:0,qi:0,answered:false,sel:null,qc:0,qt:0,spi:0,spr:false,ratings:[],fibdone:false};
+  renderChapter();
+}
+
+// ─── CHAPTER VIEW ────────────────────────────────────────────
+function renderChapter(){
+  const ch=CHAPTERS[APP.ci];const sec=ch.sections[APP.si];
+  const p=getProgress(ch.id);
+  PILL.textContent='Wahanga '+ch.num;
+  const tabs=ch.sections.map((s,i)=>{
+    const done=p.done.includes(s.id);const active=i===APP.si;
+    return `\u003cdiv class="sn-tab ${active?'active':done?'done':''}" onclick="goSec(${i})"\u003e${s.label}\u003c/div\u003e`;
+  }).join('');
+  MC.innerHTML=`\u003cdiv class="back-btn" onclick="goMenu()"\u003e← Ngā Akoranga\u003c/div\u003e
+\u003cdiv class="card" style="padding:15px 18px 13px;margin-bottom:12px"\u003e
+\u003cspan class="eyebrow"\u003eWahanga ${ch.num}\u003c/span\u003e
+\u003cdiv class="ch-title"\u003e${ch.title_mri}\u003c/div\u003e
+\u003cdiv style="font-size:.8rem;color:var(--muted)"\u003e${ch.subtitle}\u003c/div\u003e\u003c/div\u003e
+\u003cdiv id="sec-nav"\u003e${tabs}\u003c/div\u003e
+\u003cdiv id="sec-content"\u003e\u003c/div\u003e`;
+  renderSec(ch,sec);
+}
+
+function goSec(i){
+  const ch=CHAPTERS[APP.ci];
+  APP.si=i;APP.qi=0;APP.answered=false;APP.sel=null;APP.qc=0;APP.qt=0;APP.spi=0;APP.spr=false;APP.ratings=[];
+  const sec=ch.sections[i];
+  // update tabs
+  const p=getProgress(ch.id);
+  document.querySelectorAll('.sn-tab').forEach((t,ti)=>{
+    t.className='sn-tab'+(p.done.includes(ch.sections[ti].id)&&ti!==i?' done':'')+(ti===i?' active':'');
+  });
+  renderSec(ch,sec);
+}
+
+function renderSec(ch,sec){
+  const el=document.getElementById('sec-content');if(!el)return;
+  const t=sec.type;
+  if(t==='explain')el.innerHTML=renderExplain(sec);
+  else if(t==='vocab')el.innerHTML=renderVocab(sec);
+  else if(t==='activity_mc')el.innerHTML=renderMC(ch,sec);
+  else if(t==='activity_speak')el.innerHTML=renderSpeak(ch,sec);
+  else if(t==='activity_fib')el.innerHTML=renderFIB(ch,sec);
+  else if(t==='dialogue')el.innerHTML=renderDialogue(sec);
+  else if(t==='scripture')el.innerHTML=renderScripture(sec);
+  else if(t==='apply')el.innerHTML=renderApply(sec);
+}
+
+// ─── EXPLAIN ────────────────────────────────────────────────
+function renderExplain(sec){
+  const d=sec;
+  let h=`\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003eWhakamārama — Explanation\u003c/div\u003e
+\u003cp class="body-text"\u003e${d.intro||''}\u003c/p\u003e`;
+  (d.blocks||[]).forEach(b=>{
+    h+=`\u003cdiv class="grammar-block"\u003e\u003cspan class="gb-title"\u003e${b.title}\u003c/span\u003e`;
+    if(b.body)h+=`\u003cp\u003e${b.body.replace(/\n/g,'\u003cbr\u003e')}\u003c/p\u003e`;
+    if(b.table){
+      h+=`\u003ctable class="gtable"\u003e\u003ctr\u003e${b.table.headers.map(x=>`\u003cth\u003e${x}\u003c/th\u003e`).join('')}\u003c/tr\u003e`;
+      b.table.rows.forEach(r=>{h+=`\u003ctr\u003e${r.map(c=>`<td class="mri">${c}\u003c/td\u003e`).join('')}\u003c/tr\u003e`;});
+      h+='\u003c/table\u003e';
+    }
+    if(b.note)h+=`\u003cdiv class="warn-block"\u003e${b.note}\u003c/div\u003e`;
+    if(b.examples&&b.examples.length){
+      h+='\u003cdiv class="eg-list"\u003e';
+      b.examples.forEach(e=>{h+=`\u003cdiv class="eg"\u003e\u003cdiv class="mri"\u003e${e.mri}\u003c/div\u003e\u003cdiv class="eng"\u003e${e.eng}\u003c/div\u003e${e.note?`<div class="note">${e.note}</div>`:''}\u003c/div\u003e`;});
+      h+='\u003c/div\u003e';
+    }
+    h+='\u003c/div\u003e';
+  });
+  if(d.examples&&d.examples.length){
+    h+='\u003cdiv class="eg-list"\u003e';
+    d.examples.forEach(e=>{h+=`\u003cdiv class="eg"\u003e\u003cdiv class="mri"\u003e${e.mri}\u003c/div\u003e\u003cdiv class="eng"\u003e${e.eng}\u003c/div\u003e${e.note?`<div class="note">${e.note}</div>`:''}\u003c/div\u003e`;});
+    h+='\u003c/div\u003e';
+  }
+  h+=`\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="completeSec()"\u003eHaere tonu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+  return h;
+}
+
+// ─── VOCAB ──────────────────────────────────────────────────
+function renderVocab(sec){
+  const chips=(sec.items||[]).map(v=>`\u003cdiv class="vchip"\u003e\u003cspan class="vm"\u003e${v.mri}\u003c/span\u003e\u003cspan class="ve"\u003e${v.eng}\u003c/span\u003e\u003c/div\u003e`).join('');
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003eKuputaka — Vocabulary\u003c/div\u003e
+\u003cp class="body-text"\u003eSay each aloud. The particles are the most important items on this list — they hold every sentence together.\u003c/p\u003e
+\u003cdiv class="vocab-grid"\u003e${chips}\u003c/div\u003e
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="completeSec()"\u003eHaere tonu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+}
+
+// ─── MC ─────────────────────────────────────────────────────
+function renderMC(ch,sec){
+  const qs=sec.questions;const qi=APP.qi;
+  if(qi>=qs.length)return renderMCDone(ch,sec);
+  const q=qs[qi];const K=['A','B','C','D'];
+  const dots=qs.map((_,i)=>`\u003cdiv class="pdot ${i<qi?'done':i===qi?'cur':''}"\u003e\u003c/div\u003e`).join('');
+  let opts=q.opts.map((o,i)=>`\u003cbutton class="opt" id="opt${i}" onclick="pickMC(${i})" ${APP.answered?'disabled':''}\u003e
+\u003cdiv class="okey"\u003e${K[i]}\u003c/div\u003e\u003cdiv class="olbl"\u003e${o}\u003c/div\u003e\u003c/button\u003e`).join('');
+  let fb='';
+  if(APP.answered){
+    const ok=APP.sel===q.ans;
+    fb=`\u003cdiv class="fb show ${ok?'correct':'wrong'}"\u003e\u003cstrong\u003e${ok?'✓ Āe — Tino pai!':'✗ Kao — Whakaarohia anō'}\u003c/strong\u003e${q.fb}
+${q.anatomy?`<div class="anatomy">${q.anatomy.map(a=>`<div class="an-cell"><div class="ac-reo">${a.r}</div><div class="ac-role">${a.role}</div><div class="ac-eng">${a.e}</div></div>`).join('')}</div>`:''}
+\u003c/div\u003e`;
+  }
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003eWhakamātau — Quiz\u003c/div\u003e
+\u003cdiv class="pdots"\u003e${dots}\u003c/div\u003e
+\u003cdiv class="q-num"\u003ePātai ${qi+1} o ${qs.length}\u003c/div\u003e
+\u003cdiv class="q-text"\u003e${q.q}\u003c/div\u003e${q.ctx?`<div class="q-ctx">${q.ctx}</div>`:''}
+\u003cdiv class="opts"\u003e${opts}\u003c/div\u003e${fb}
+${APP.answered?`<div class="q-nav">
+<button onclick="prevMC()" ${qi===0?'disabled':''}>← Muri</button>
+<span class="q-counter">${qi+1}/${qs.length}</span>
+<button onclick="nextMC()">${qi===qs.length-1?'Whakakapi':'Tōmuri →'}</button></div>`:''}
+\u003c/div\u003e`;
+}
+function pickMC(i){
+  if(APP.answered)return;APP.answered=true;APP.sel=i;
+  const ch=CHAPTERS[APP.ci];const sec=ch.sections[APP.si];const q=sec.questions[APP.qi];
+  APP.qt++;if(i===q.ans)APP.qc++;
+  renderSec(ch,sec);
+  setTimeout(()=>{document.querySelectorAll('.opt').forEach((o,oi)=>{
+    o.disabled=true;
+    if(oi===q.ans)o.classList.add('reveal');
+    if(oi===i&&i!==q.ans)o.classList.add('wrong');
+  });},10);
+}
+function nextMC(){const ch=CHAPTERS[APP.ci];const sec=ch.sections[APP.si];if(APP.qi<sec.questions.length-1){APP.qi++;APP.answered=false;APP.sel=null;}else APP.qi=sec.questions.length;renderSec(ch,sec);}
+function prevMC(){if(APP.qi>0){APP.qi--;APP.answered=false;APP.sel=null;}const ch=CHAPTERS[APP.ci];renderSec(ch,ch.sections[APP.si]);}
+function renderMCDone(ch,sec){
+  const pct=Math.round((APP.qc/Math.max(APP.qt,1))*100);
+  const cls=pct>=80?'sb-good':pct>=60?'sb-mid':'sb-bad';
+  const lbl=pct>=80?'Tino Pai!':pct>=60?'Pai':pct>=40?'Āta haere':'Redo';
+  saveProgress(ch.id,sec.id,pct);
+  return `\u003cdiv class="card"\u003e\u003cdiv class="score-center"\u003e
+\u003cdiv class="score-big"\u003e${pct}\u003cspan\u003e%\u003c/span\u003e\u003c/div\u003e
+\u003cdiv class="score-lbl"\u003e${APP.qc} / ${Math.max(APP.qt,sec.questions.length)} correct\u003c/div\u003e
+\u003cdiv class="score-badge ${cls}"\u003e${lbl}\u003c/div\u003e\u003c/div\u003e
+${pct<70?`<div class="warn-block"><strong>Review</strong>Score below 70% — re-read the Whakamārama section, then retry. These patterns underpin every subsequent chapter.</div>`:''}
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="completeSec()"\u003eHaere tonu →\u003c/button\u003e${pct<80?`<button class="btn btn-outline" onclick="retryMC()">Redo Quiz</button>`:''}\u003c/div\u003e\u003c/div\u003e`;
+}
+function retryMC(){APP.qi=0;APP.answered=false;APP.sel=null;APP.qc=0;APP.qt=0;const ch=CHAPTERS[APP.ci];renderSec(ch,ch.sections[APP.si]);}
+
+// ─── SPEAK ──────────────────────────────────────────────────
+function renderSpeak(ch,sec){
+  const ds=sec.drills;const i=APP.spi;
+  if(i>=ds.length)return renderSpeakDone(ch,sec);
+  const d=ds[i];const r=APP.ratings[i];
+  const dots=ds.map((_,di)=>`\u003cdiv class="pdot ${di<i?'done':di===i?'cur':''}"\u003e\u003c/div\u003e`).join('');
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003eKōrero — Speaking Drills\u003c/div\u003e
+\u003cp class="body-text muted" style="margin-bottom:12px"\u003eSay aloud BEFORE revealing. Understand WHY each word is placed where it is.\u003c/p\u003e
+\u003cdiv class="pdots"\u003e${dots}\u003c/div\u003e
+\u003cdiv class="speak-card"\u003e
+\u003cdiv class="sp-ctx"\u003e${d.ctx}\u003c/div\u003e
+\u003cdiv class="sp-eng"\u003e${d.eng}\u003c/div\u003e
+\u003cbutton class="sp-reveal-btn" onclick="toggleSpr()"\u003e${APP.spr?'Hide answer':'Say it aloud → then reveal'}\u003c/button\u003e
+\u003cdiv class="sp-answer ${APP.spr?'show':''}"\u003e${d.reo}\u003c/div\u003e
+\u003cdiv class="sp-grammar ${APP.spr?'show':''}"\u003e\u003cstrong\u003eGrammar\u003c/strong\u003e${d.grammar}\u003c/div\u003e
+${APP.spr?`<div class="sr-row">
+<button class="sr-btn sr-good ${r==='good'?'on':''}" onclick="rateSp('good')">✓ Said it</button>
+<button class="sr-btn sr-mid ${r==='mid'?'on':''}" onclick="rateSp('mid')">~ Close</button>
+<button class="sr-btn sr-hard ${r==='hard'?'on':''}" onclick="rateSp('hard')">✗ Blank — say 7×</button></div>`:''}
+\u003c/div\u003e
+\u003cdiv class="q-nav"\u003e
+\u003cbutton onclick="prevSp()" ${i===0?'disabled':''}\u003e← Muri\u003c/button\u003e
+\u003cspan class="q-counter"\u003e${i+1}/${ds.length}\u003c/span\u003e
+\u003cbutton onclick="nextSp()" ${i===ds.length-1?'disabled':''}\u003eTōmuri →\u003c/button\u003e\u003c/div\u003e
+\u003cdiv class="btn-row" style="margin-top:10px"\u003e\u003cbutton class="btn btn-primary" onclick="finishSp()"\u003eKa mutu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+}
+function toggleSpr(){APP.spr=!APP.spr;const ch=CHAPTERS[APP.ci];renderSec(ch,ch.sections[APP.si]);}
+function rateSp(r){APP.ratings[APP.spi]=r;const ch=CHAPTERS[APP.ci];renderSec(ch,ch.sections[APP.si]);}
+function nextSp(){if(APP.spi<CHAPTERS[APP.ci].sections[APP.si].drills.length-1){APP.spi++;APP.spr=false;}const ch=CHAPTERS[APP.ci];renderSec(ch,ch.sections[APP.si]);}
+function prevSp(){if(APP.spi>0){APP.spi--;APP.spr=false;}const ch=CHAPTERS[APP.ci];renderSec(ch,ch.sections[APP.si]);}
+function finishSp(){const ch=CHAPTERS[APP.ci];saveProgress(ch.id,ch.sections[APP.si].id);completeSec();}
+function renderSpeakDone(ch,sec){saveProgress(ch.id,sec.id);return `\u003cdiv class="card"\u003e\u003cdiv class="done-center"\u003e\u003cdiv class="done-icon"\u003e🗣️\u003c/div\u003e\u003cdiv class="done-title"\u003eKa mutu — Kōrero Done\u003c/div\u003e\u003c/div\u003e\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="completeSec()"\u003eHaere tonu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;}
+
+// ─── FIB ────────────────────────────────────────────────────
+function renderFIB(ch,sec){
+  const exs=sec.exercises;
+  const inputs=exs.map((e,i)=>`\u003cdiv style="margin-bottom:16px"\u003e
+\u003cdiv class="fib-sentence"\u003e${i+1}. ${e.sentence.replace('___','\u003cspan style="color:var(--teal);font-weight:700"\u003e___\u003c/span\u003e')}\u003c/div\u003e
+\u003cdiv style="font-size:.77rem;color:var(--muted);margin-bottom:5px;font-style:italic"\u003e${e.translation}\u003c/div\u003e
+\u003cinput class="fib-input" id="fib${i}" placeholder="Type answer…" oninput="chkFIB(${i})"\u003e
+\u003cdiv id="fibfb${i}" style="font-size:.79rem;margin-top:3px;display:none"\u003e\u003c/div\u003e
+\u003cdiv style="font-size:.74rem;color:var(--muted);margin-top:2px"\u003eHint: ${e.hint}\u003c/div\u003e
+\u003c/div\u003e`).join('');
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003eWhakauru — Fill in the Blank\u003c/div\u003e
+\u003cp class="body-text"\u003e${sec.instructions}\u003c/p\u003e
+${inputs}
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="finishFIB()"\u003eKa mutu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+}
+function chkFIB(i){
+  const ch=CHAPTERS[APP.ci];const sec=ch.sections[APP.si];const e=sec.exercises[i];
+  const inp=document.getElementById('fib'+i);const fb=document.getElementById('fibfb'+i);
+  if(!inp||!fb)return;
+  const val=inp.value.trim().toLowerCase();const ans=e.answer.toLowerCase();
+  if(!val){inp.className='fib-input';fb.style.display='none';return;}
+  if(val===ans){inp.className='fib-input correct';fb.style.display='block';fb.style.color='var(--ok)';fb.textContent='✓ Āe — tino pai!';}
+  else if(ans.startsWith(val)){inp.className='fib-input';fb.style.display='none';}
+  else{inp.className='fib-input wrong';fb.style.display='block';fb.style.color='var(--err)';fb.textContent='Ko tēnei te whakautu: '+e.answer;}
+}
+function finishFIB(){const ch=CHAPTERS[APP.ci];saveProgress(ch.id,ch.sections[APP.si].id);completeSec();}
+
+// ─── DIALOGUE ───────────────────────────────────────────────
+function renderDialogue(sec){
+  const ls=(sec.lines||[]).map(l=>`\u003cdiv class="dlg"\u003e\u003cdiv class="dlg-who ${l.wc||''}"\u003e${l.who}\u003c/div\u003e
+\u003cdiv class="dlg-body"\u003e\u003cdiv class="mri"\u003e${l.mri}\u003c/div\u003e\u003cdiv class="eng"\u003e${l.eng}\u003c/div\u003e\u003c/div\u003e\u003c/div\u003e`).join('');
+  const notes=(sec.grammar_notes||[]).map(n=>`\u003cdiv style="display:flex;gap:7px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.83rem"\u003e\u003cspan style="color:var(--teal);font-weight:700;flex-shrink:0"\u003e▸\u003c/span\u003e${n}\u003c/div\u003e`).join('');
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003e${sec.title||'Kōrero-tahi — Dialogue'}\u003c/div\u003e
+\u003cp class="body-text muted"\u003e${sec.intro||''}\u003c/p\u003e
+\u003cdiv class="dialogue"\u003e${ls}\u003c/div\u003e
+${notes?`<div class="grammar-block" style="margin-top:12px"><span class="gb-title">Grammar notes</span>${notes}</div>`:''}
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="completeSec()"\u003eKa mutu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+}
+
+// ─── SCRIPTURE ──────────────────────────────────────────────
+function renderScripture(sec){
+  const vs=(sec.verses||[]).map(v=>`\u003cdiv class="scripture-box"\u003e
+\u003cdiv class="sb-ref"\u003e${v.ref}\u003c/div\u003e
+\u003cdiv class="sb-text"\u003e${v.mri}\u003c/div\u003e
+\u003cdiv class="sb-trans"\u003e${v.eng}\u003c/div\u003e
+${v.notes?`<div class="info-block" style="margin-top:7px"><strong>Grammar</strong>${v.notes}</div>`:''}
+\u003c/div\u003e`).join('');
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003eKaraipiture — Scripture\u003c/div\u003e
+\u003cp class="body-text muted"\u003eRead each passage aloud. Identify every particle and structure from this chapter.\u003c/p\u003e
+${vs}
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="completeSec()"\u003eKa mutu →\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+}
+
+// ─── APPLY ──────────────────────────────────────────────────
+function renderApply(sec){
+  const ts=(sec.tasks||[]).map(t=>`\u003cdiv class="grammar-block"\u003e\u003cspan class="gb-title"\u003eMahi ${t.num}: ${t.title}\u003c/span\u003e\u003cp\u003e${t.body.replace(/\n/g,'\u003cbr\u003e')}\u003c/p\u003e\u003c/div\u003e`).join('');
+  return `\u003cdiv class="card"\u003e\u003cspan class="eyebrow"\u003e${sec.label.replace('\n',' · ')}\u003c/span\u003e
+\u003cdiv class="sec-title"\u003e${sec.title||'Tono Mihinare'}\u003c/div\u003e
+\u003cp class="body-text"\u003eThese tasks move the language from the app into your real missionary life. They require you to speak, listen, and observe in the ward.\u003c/p\u003e
+${ts}
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-teal" onclick="completeSec()"\u003e✓ Kua oti — Chapter Complete\u003c/button\u003e\u003c/div\u003e\u003c/div\u003e`;
+}
+
+// ─── COMPLETE ────────────────────────────────────────────────
+function completeSec(){
+  const ch=CHAPTERS[APP.ci];const sec=ch.sections[APP.si];
+  saveProgress(ch.id,sec.id);
+  if(APP.si<ch.sections.length-1){
+    APP.si++;APP.qi=0;APP.answered=false;APP.sel=null;APP.qc=0;APP.qt=0;APP.spi=0;APP.spr=false;APP.ratings=[];
+    renderChapter();
+  } else renderChDone(ch);
+}
+function renderChDone(ch){
+  MC.innerHTML=`\u003cdiv class="back-btn" onclick="goMenu()"\u003e← Ngā Akoranga\u003c/div\u003e\u003cdiv class="card"\u003e
+\u003cdiv class="done-center"\u003e\u003cdiv class="done-icon"\u003e✅\u003c/div\u003e
+\u003cdiv class="done-title"\u003e${ch.title_mri} — Kua Oti!\u003c/div\u003e
+\u003cp class="done-sub"\u003eChapter ${ch.num} complete. All sections covered.\u003c/p\u003e\u003c/div\u003e
+\u003cdiv class="grammar-block"\u003e\u003cspan class="gb-title"\u003eSections completed\u003c/span\u003e
+${ch.sections.map(s=>`<div style="display:flex;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:.83rem"><span style="color:var(--teal)">✓</span>${s.label.replace('\n',' · ')}</div>`).join('')}
+\u003c/div\u003e
+\u003cdiv class="btn-row"\u003e\u003cbutton class="btn btn-primary" onclick="goMenu()"\u003e← Ngā Akoranga\u003c/button\u003e
+${APP.ci<CHAPTERS.length-1?`<button class="btn btn-teal" onclick="openCh(${APP.ci+1})">Next Chapter →</button>`:''}\u003c/div\u003e\u003c/div\u003e`;
+}
+function goMenu(){APP.view='menu';render();}
+render();
+
+</script>
+</body>
+</html>
